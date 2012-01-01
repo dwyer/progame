@@ -45,8 +45,6 @@ int game(TMP_Tilemap * tilemap, SDL_Surface * screen)
                     controller.up = 0;
                 } else if (event.key.keysym.sym == SDLK_DOWN) {
                     controller.down = 0;
-                } else if (event.key.keysym.sym == SDLK_q) {
-                    return 0;
                 }
             } else if (event.type == SDL_QUIT) {
                 return 0;
