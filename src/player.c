@@ -62,5 +62,6 @@ int drawPlayer(Player * player, SDL_Surface * surface, SDL_Rect camera)
 
 void freePlayer(Player * player)
 {
+	SDL_FreeSurface(player->sprite);
 	free(player);
 }
