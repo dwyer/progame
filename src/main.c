@@ -41,13 +41,11 @@ int game(TMP_Tilemap * tilemap, SDL_Surface * screen)
 			if (event.type == SDL_KEYDOWN) {
 				if (event.key.keysym.sym == SDLK_LEFT) {
 					controller.left = 1;
-				} else if (event.key.keysym.sym ==
-					   SDLK_RIGHT) {
+				} else if (event.key.keysym.sym == SDLK_RIGHT) {
 					controller.right = 1;
 				} else if (event.key.keysym.sym == SDLK_UP) {
 					controller.up = 1;
-				} else if (event.key.keysym.sym ==
-					   SDLK_DOWN) {
+				} else if (event.key.keysym.sym == SDLK_DOWN) {
 					controller.down = 1;
 				} else if (event.key.keysym.sym == SDLK_q) {
 					return 0;
@@ -55,13 +53,11 @@ int game(TMP_Tilemap * tilemap, SDL_Surface * screen)
 			} else if (event.type == SDL_KEYUP) {
 				if (event.key.keysym.sym == SDLK_LEFT) {
 					controller.left = 0;
-				} else if (event.key.keysym.sym ==
-					   SDLK_RIGHT) {
+				} else if (event.key.keysym.sym == SDLK_RIGHT) {
 					controller.right = 0;
 				} else if (event.key.keysym.sym == SDLK_UP) {
 					controller.up = 0;
-				} else if (event.key.keysym.sym ==
-					   SDLK_DOWN) {
+				} else if (event.key.keysym.sym == SDLK_DOWN) {
 					controller.down = 0;
 				}
 			} else if (event.type == SDL_QUIT) {
@@ -85,8 +81,7 @@ int game(TMP_Tilemap * tilemap, SDL_Surface * screen)
 					return -1;
 				}
 			}
-			if (SDL_BlitSurface
-			    (tilemap->layers[i], &camera, screen, NULL)) {
+			if (SDL_BlitSurface(tilemap->layers[i], &camera, screen, NULL)) {
 				fputs(SDL_GetError(), stderr);
 				return -1;
 			}
@@ -110,8 +105,8 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 	if ((screen =
-	     SDL_SetVideoMode(SCREEN_W, SCREEN_H, SCREEN_BPP,
-			      SDL_HWSURFACE)) == NULL) {
+		 SDL_SetVideoMode(SCREEN_W, SCREEN_H, SCREEN_BPP,
+						  SDL_HWSURFACE)) == NULL) {
 		fputs(SDL_GetError(), stderr);
 		return -1;
 	}
@@ -156,7 +151,6 @@ float Interpolate(float Speed)
 		Velocity /= AverageFPS;
 	else
 		Velocity /= CurrentFPS;
-
 
 	return Velocity;
 }

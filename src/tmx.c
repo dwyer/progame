@@ -20,14 +20,11 @@ TMP_Tilemap *TMP_LoadTilemap(const char *filename)
 	fread(&result->depth, sizeof(int), 1, f);
 	result->data = malloc(sizeof(Uint32 **) * result->depth);
 	for (i = 0; i < result->depth; i++) {
-		result->data[i] =
-		    malloc(sizeof(Uint32 *) * result->height);
+		result->data[i] = malloc(sizeof(Uint32 *) * result->height);
 		for (j = 0; j < result->height; j++) {
-			result->data[i][j] =
-			    malloc(sizeof(Uint32) * result->width);
+			result->data[i][j] = malloc(sizeof(Uint32) * result->width);
 			for (k = 0; k < result->width; k++) {
-				fread(&result->data[i][j][k],
-				      sizeof(Uint32), 1, f);
+				fread(&result->data[i][j][k], sizeof(Uint32), 1, f);
 			}
 		}
 	}
@@ -41,13 +38,12 @@ TMP_Tilemap *TMP_LoadTilemap(const char *filename)
 	result->layers = malloc(sizeof(SDL_Surface *) * result->depth);
 	for (i = 0; i < result->depth; i++) {
 		result->layers[i] =
-		    SDL_CreateRGBSurface(SDL_HWSURFACE,
-					 result->width * TILE_SZ,
-					 result->height * TILE_SZ, 32, 0,
-					 0, 0, 0);
+			SDL_CreateRGBSurface(SDL_HWSURFACE,
+								 result->width * TILE_SZ,
+								 result->height * TILE_SZ, 32, 0, 0, 0, 0);
 		SDL_SetColorKey(result->layers[i], SDL_SRCCOLORKEY,
-				SDL_MapRGB(result->layers[i]->format, 255,
-					   0, 255));
+						SDL_MapRGB(result->layers[i]->format, 255,
+								   0, 255));
 		SDL_FillRect(result->layers[i], NULL, 0xff00ff);
 		for (j = 0; j < result->height; j++) {
 			for (k = 0; k < result->width; k++) {
@@ -57,7 +53,7 @@ TMP_Tilemap *TMP_LoadTilemap(const char *filename)
 				dst.x = k * TILE_SZ;
 				dst.y = j * TILE_SZ;
 				SDL_BlitSurface(result->tileset, &src,
-						result->layers[i], &dst);
+								result->layers[i], &dst);
 			}
 		}
 	}
