@@ -27,5 +27,6 @@ int drawPlayer(Player * player, SDL_Surface * surface)
 
 void freePlayer(Player * player)
 {
+	SDL_FreeSurface(player->sprite);
 	free(player);
 }

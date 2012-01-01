@@ -72,12 +72,14 @@ void TMP_FreeTilemap(TMP_Tilemap * tilemap)
 {
 	int i, j;
 
+	SDL_FreeSurface(tilemap->tileset);
 	for (i = 0; i < tilemap->depth; i++) {
+		SDL_FreeSurface(tilemap->layers[i]);
 		for (j = 0; j < tilemap->width; j++)
 			free(tilemap->data[i][j]);
 		free(tilemap->data[i]);
-		SDL_FreeSurface(tilemap->layers[i]);
 	}
 	free(tilemap->data);
 	free(tilemap->layers);
+	free(tilemap);
 }
