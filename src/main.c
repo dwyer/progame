@@ -54,7 +54,8 @@ int game(TMP_Tilemap * tilemap, SDL_Surface * screen)
             camera.x -= CAMERA_SPEED;
         } else if (controller.right) {
             camera.x += CAMERA_SPEED;
-        } else if (controller.up) {
+        }
+        if (controller.up) {
             camera.y -= CAMERA_SPEED;
         } else if (controller.down) {
             camera.y += CAMERA_SPEED;
