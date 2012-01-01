@@ -3,24 +3,26 @@ RM=rm
 CFILES=main.c tmx.c
 CFLAGS=-c -ansi -pedantic -Wall
 LDFLAGS=-lSDL
-BINDIR=bin/
-OBJDIR=obj/
-SRCDIR=src/
-EXECUTABLE=bin/game
+OBJDIR=obj
+SRCDIR=src
+EXECUTABLE=game
 
-OBJECTS=$(addprefix $(OBJDIR), $(CFILES:.c=.o))
-SOURCES=$(addprefix $(SRCDIR), $(CFILES))
+OBJS=$(addprefix $(OBJDIR)/, $(CFILES:.c=.o))
+SRCS=$(addprefix $(SRCDIR)/, $(CFILES))
 
-all: $(SOURCES) $(EXECUTABLE)
+all: $(OBJDIR) $(SRCS) $(EXECUTABLE)
 
 debug: CC+=-g -DDEBUG
 debug: all
 
-$(EXECUTABLE): $(OBJECTS)
-	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
+$(EXECUTABLE): $(OBJS) $(BINDIR)
+	$(CC) $(LDFLAGS) $(OBJS) -o $@
 
-$(OBJDIR)%.o: $(SRCDIR)%.c
+$(OBJDIR)/%.o: $(SRCDIR)/%.c
 	$(CC) $(CFLAGS) $< -o $@
 
+$(OBJDIR):
+	mkdir $(OBJDIR)
+
 clean:
-	$(RM) $(OBJECTS) $(EXECUTABLE)
+	$(RM) -r $(OBJDIR) $(EXECUTABLE)
