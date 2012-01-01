@@ -48,7 +48,6 @@ int main(int argc, char *argv[])
 	int my = 0, mx = 0;
 	
 	LoadConfig();
-
 	if (SDL_Init(SDL_INIT_EVERYTHING)) {
 		fputs(SDL_GetError(), stderr);
 		return -1;
