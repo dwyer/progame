@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "SDL/SDL.h"
+#include "player.h"
 #include "tmx.h"
 
 #define SCREEN_W 320
@@ -13,13 +14,14 @@ typedef struct {
     int down;
     int left;
     int right;
-} Controls;
+} Controller;
 
 int game(TMP_Tilemap * tilemap, SDL_Surface * screen)
 {
     SDL_Rect camera = { 0, 0, SCREEN_W, SCREEN_H };
     SDL_Event event;
-    Controls controller = { 0, 0, 0, 0 };
+    Player *player = createPlayer(0, 0);
+    Controller controller = { 0, 0, 0, 0 };
     int i;
 
     while (1) {
@@ -51,16 +53,22 @@ int game(TMP_Tilemap * tilemap, SDL_Surface * screen)
             }
         }
         if (controller.left) {
-            camera.x -= CAMERA_SPEED;
+	    movePlayer(player, -2, 0);
         } else if (controller.right) {
-            camera.x += CAMERA_SPEED;
+	    movePlayer(player, 2, 0);
         }
         if (controller.up) {
-            camera.y -= CAMERA_SPEED;
+	    movePlayer(player, 0, -2);
         } else if (controller.down) {
-            camera.y += CAMERA_SPEED;
+	    movePlayer(player, 0, 2);
         }
         for (i = 0; i < tilemap->depth; i++) {
+	    if (i == tilemap->depth - 1) {
+		if (drawPlayer(player, screen)) {
+		    fputs(SDL_GetError(), stderr);
+		    return -1;
+		}
+	    }
             if (SDL_BlitSurface(tilemap->layers[i], &camera, screen, NULL)) {
                 fputs(SDL_GetError(), stderr);
                 return -1;

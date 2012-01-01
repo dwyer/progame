@@ -1,6 +1,6 @@
 CC=gcc
 RM=rm
-CFILES=main.c tmx.c
+CFILES=main.c player.c tmx.c
 CFLAGS=-c -ansi -pedantic -Wall
 LDFLAGS=-lSDL
 OBJDIR=obj
