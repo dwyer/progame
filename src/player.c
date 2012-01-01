@@ -21,7 +21,8 @@ void movePlayer(Player * player, int x, int y)
 
 int drawPlayer(Player * player, SDL_Surface * surface)
 {
-	return SDL_BlitSurface(player->sprite, NULL, surface, &player->rel_pos);
+	return SDL_BlitSurface(player->sprite, NULL, surface,
+						   &player->rel_pos);
 }
 
 void freePlayer(Player * player)

@@ -135,16 +135,17 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
-int GetFPS(){
+int GetFPS()
+{
 	CurrentFPS = SDL_GetTicks() - StartTime;
-	
+
 	AverageFPS += CurrentFPS;
 	AverageFPS /= 2;
-	
+
 	return 0;
 }
 
-float MoveCamera(){
+float MoveCamera()
+{
 	return SPEEDPPS * CurrentFPS;
 }
-
