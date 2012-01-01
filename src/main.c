@@ -46,6 +46,8 @@ int main(int argc, char *argv[])
 	Controller controller = { 0, 0, 0, 0 };
 	int loop, i;
 	int my = 0, mx = 0;
+	
+	LoadConfig();
 
 	if (SDL_Init(SDL_INIT_EVERYTHING)) {
 		fputs(SDL_GetError(), stderr);
@@ -133,6 +135,7 @@ int main(int argc, char *argv[])
 					fputs(SDL_GetError(), stderr);
 					return -1;
 				}
+				
 			}
 			if (SDL_BlitSurface(tilemap->layers[i], &camera, screen, NULL)) {
 				fputs(SDL_GetError(), stderr);

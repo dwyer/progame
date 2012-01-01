@@ -12,8 +12,8 @@ typedef struct {
 } Player;
 
 Player *createPlayer(int x, int y);
-void movePlayer(Player * player, int x, int y);
-int drawPlayer(Player * player, SDL_Surface * surface, SDL_Rect camera);
-void freePlayer(Player * player);
+void    movePlayer(Player * player, int x, int y);
+int     drawPlayer(Player * player, SDL_Surface * surface, SDL_Rect camera);
+void    freePlayer(Player * player);
 
 #endif
