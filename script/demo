@@ -1,0 +1,14 @@
+Level "Test".
+Size: 500x500
+
+Buildings: {
+	"House", 1, 100x100.
+}
+
+Entities: {
+	"Bill", null, 0.
+
+}
+
+Start:
+	
