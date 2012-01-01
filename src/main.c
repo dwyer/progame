@@ -53,22 +53,22 @@ int game(TMP_Tilemap * tilemap, SDL_Surface * screen)
             }
         }
         if (controller.left) {
-	    movePlayer(player, -2, 0);
+            movePlayer(player, -2, 0);
         } else if (controller.right) {
-	    movePlayer(player, 2, 0);
+            movePlayer(player, 2, 0);
         }
         if (controller.up) {
-	    movePlayer(player, 0, -2);
+            movePlayer(player, 0, -2);
         } else if (controller.down) {
-	    movePlayer(player, 0, 2);
+            movePlayer(player, 0, 2);
         }
         for (i = 0; i < tilemap->depth; i++) {
-	    if (i == tilemap->depth - 1) {
-		if (drawPlayer(player, screen)) {
-		    fputs(SDL_GetError(), stderr);
-		    return -1;
-		}
-	    }
+            if (i == tilemap->depth - 1) {
+                if (drawPlayer(player, screen)) {
+                    fputs(SDL_GetError(), stderr);
+                    return -1;
+                }
+            }
             if (SDL_BlitSurface(tilemap->layers[i], &camera, screen, NULL)) {
                 fputs(SDL_GetError(), stderr);
                 return -1;
