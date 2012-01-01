@@ -7,7 +7,7 @@
 #define SCREEN_H 240
 #define SCREEN_BPP 32
 
-#define CAMERA_SPEED 3
+#define PLAYER_SPEED 2
 
 typedef struct {
 	int up;
@@ -18,6 +18,7 @@ typedef struct {
 
 #define FPS_NO 5
 
+/* TODO: no globals, ``please'' */
 int AverageFPS;
 int CurrentFPS = 16;
 int FPS[FPS_NO];
@@ -64,16 +65,30 @@ int game(TMP_Tilemap * tilemap, SDL_Surface * screen)
 				return 0;
 			}
 		}
+		/* Update player position. */
 		if (controller.left) {
-			movePlayer(player, -2, 0);
+			player->pos.x -= PLAYER_SPEED;
 		} else if (controller.right) {
-			movePlayer(player, 2, 0);
+			player->pos.x += PLAYER_SPEED;
 		}
 		if (controller.up) {
-			movePlayer(player, 0, -2);
+			player->pos.y -= PLAYER_SPEED;
 		} else if (controller.down) {
-			movePlayer(player, 0, 2);
+			player->pos.y += PLAYER_SPEED;
 		}
+		/* Update camera position. */
+		camera.x = player->pos.x - (SCREEN_W - 16) / 2;
+		if (camera.x < 0)
+			camera.x = 0;
+		else if (camera.x >= tilemap->width * 16 - SCREEN_W)
+			camera.x = tilemap->width * 16 - SCREEN_W - 1;
+		camera.y = player->pos.y - (SCREEN_H - 16) / 2;
+		if (camera.y < 0)
+			camera.y = 0;
+		else if (camera.y >= tilemap->height * 16 - SCREEN_H)
+			camera.y = tilemap->height * 16 - SCREEN_H - 1;
+		player->rel_pos.x = player->pos.x - camera.x;
+		player->rel_pos.y = player->pos.y - camera.y;
 		for (i = 0; i < tilemap->depth; i++) {
 			if (i == tilemap->depth - 1) {
 				if (drawPlayer(player, screen)) {
