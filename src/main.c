@@ -7,8 +7,6 @@
 #define SCREEN_H 240
 #define SCREEN_BPP 32
 
-#define PLAYER_SPEED 2
-
 #define SPEEDPPS 0.6
 
 typedef struct {
@@ -86,6 +84,7 @@ int game(TMP_Tilemap * tilemap, SDL_Surface * screen)
 			camera.y = 0;
 		else if (camera.y >= tilemap->height * 16 - SCREEN_H)
 			camera.y = tilemap->height * 16 - SCREEN_H - 1;
+		/* Update player's position relative to the camera */
 		player->rel_pos.x = player->pos.x - camera.x;
 		player->rel_pos.y = player->pos.y - camera.y;
 		for (i = 0; i < tilemap->depth; i++) {

@@ -3,6 +3,8 @@
 
 #include "SDL/SDL.h"
 
+#define PLAYER_SPEED 2
+
 typedef struct {
 	SDL_Rect pos;				/* Player's position relative to the map. */
 	SDL_Rect rel_pos;
