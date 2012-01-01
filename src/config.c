@@ -2,12 +2,34 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "weapons.h"
+#include "config.h"
 
 struct WeaponList* Weapons = NULL;
 
-int LoadConfig(){
+int LoadConfig(PrgConfig* Conf){
+	FILE* dotConf = NULL;
 	int Status = 0;
+	int Counter;
+	char c;
+	char* path = calloc(sizeof(char), 80);
+	
+	char* Fields[G_Fields] = {
+		"WalkSpeed",
+		"RunSpeed"
+	};
+	
+	strcat(path, getenv("HOME"));
+	strcat(path, "/.config/progame/progame.conf");
+	dotConf = fopen(path, "r");
+	free (path);
+	
+	if (dotConf){
+		
+		
+	}
+	
+	if (Load_Weapons() != 0)
+	return -1;
 	
 	return Status;
 }
@@ -38,7 +60,7 @@ int Load_Weapons(){
 	wFile = fopen(path, "r");
 	
 	if (!wFile){
-		printf("Error: Could not file weapons file\n");
+		printf("Error: Could not open weapons file at %s\n", path);
 		return -1;
 	}
 	
@@ -87,6 +109,7 @@ int Load_Weapons(){
 				Temp[0] = c;
 				Counter = fread(&c, 1, 1, wFile);
 				counter = 1;
+				
 				while (Counter == 1 && c != ' ' && c != '\n'
 				&& c != '\t' && c != '='){
 					Temp[counter] = c;
@@ -105,12 +128,10 @@ int Load_Weapons(){
 						printf("Field %s defined outside of any weapons. Statement has no effect.\n");
 						while (Counter == 1 && c != '\n')
 						Counter = fread(&c, 1, 1, wFile);
+						continue;
 					}
 						
-					for (x = 0; x < WeaponFields; x++){
-						if (strcmp(Temp, Fields[x]) == 0)
-						break;
-					}
+					x = MatchedField(Fields, Temp);
 					
 					if (x == WeaponFields){
 						printf("Warning: No field '%s' within weapon; statement has no effect\n", Temp);
@@ -231,7 +252,7 @@ int Load_Weapons(){
 	return 0;
 }
 
-int AddWeapon(struct Weapon* Sub){
+int AddWeapon(struct WeaponList* Sub){
 	struct WeaponList* Current = NULL;
 	
 	if (!Sub)
@@ -300,3 +321,18 @@ float ReadFloat(char* context){
 	return Value;
 }
 
+int MatchedField(char** Fields, char* c){
+	printf("Oh. . . \n");
+	int x;
+	
+	if (!Fields || !c)
+	return 9001;
+	
+	for (x = 0; Fields[x]; x++){
+		if (strcmp(c, Fields[x]))
+		break;
+	}
+	
+	printf("Yeah\n");
+	return x;
+}

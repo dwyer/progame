@@ -21,10 +21,19 @@ struct WeaponList{
 	SDL_Surface* Sprites;
 	struct WeaponList* Next;
 };
-
 typedef struct WeaponList Weapon;
 
-int LoadConfig();
+#define G_Fields 2 		/* General fields, as in
+						 * the PrgConfig Struct */
+#define G_WalkSpeed 0
+#define G_RunSpeed  1
+
+typedef struct{
+	float WalkSpeed;
+	float RunSpeed;
+} PrgConfig;
+
+int LoadConfig(PrgConfig* Conf);
 int ReadInt(char* context);
 int Load_Weapons();
 

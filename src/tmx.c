@@ -14,11 +14,13 @@ TMP_Tilemap *TMP_LoadTilemap(const char *filename)
 
 	/* load data */
 	result = malloc(sizeof(TMP_Tilemap));
-	for (i = 0; (result->source[i] = fgetc(f)) != '\0'; i++);
+	for  (i = 0; (result->source[i] = fgetc(f)) != '\0'; i++);
+	
 	fread(&result->width, sizeof(int), 1, f);
 	fread(&result->height, sizeof(int), 1, f);
 	fread(&result->depth, sizeof(int), 1, f);
 	result->data = malloc(sizeof(Uint32 **) * result->depth);
+	
 	for (i = 0; i < result->depth; i++) {
 		result->data[i] = malloc(sizeof(Uint32 *) * result->height);
 		for (j = 0; j < result->height; j++) {
