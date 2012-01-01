@@ -9,6 +9,8 @@
 
 #define CAMERA_SPEED 3
 
+#define SPEEDPPS 0.6
+
 typedef struct {
 	int up;
 	int down;
@@ -16,17 +18,14 @@ typedef struct {
 	int right;
 } Controller;
 
-#define FPS_NO 5
+#define FPS_NO 20
 
-int AverageFPS;
-int CurrentFPS = 16;
-int FPS[FPS_NO];
-int FrameNo = 0;
+int AverageFPS = 9;
+int CurrentFPS = 9;
 int StartTime = 0;
 
 int GetFPS();
-
-float Interpolate(float Speed);
+float MoveCamera();
 
 int game(TMP_Tilemap * tilemap, SDL_Surface * screen)
 {
@@ -126,37 +125,16 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
-int GetFPS()
-{
-	if (FrameNo == FPS_NO) {
-		for (FrameNo = 0; FrameNo < FPS_NO; FrameNo++)
-			AverageFPS += FPS[FrameNo];
-
-		AverageFPS /= FPS_NO + 1;
-
-		FrameNo = 0;
-		GetFPS();
-	} else {
-		FPS[FrameNo] = SDL_GetTicks() - StartTime;
-
-		if (FPS[FrameNo] < 1000 / 60)	/* Keeping within vsync; assuming 60Hz */
-			SDL_Delay(1000 / 60 - FPS[FrameNo]);
-		CurrentFPS = FPS[FrameNo];
-
-		FrameNo++;
-	}
-
+int GetFPS(){
+	CurrentFPS = SDL_GetTicks() - StartTime;
+	
+	AverageFPS += CurrentFPS;
+	AverageFPS /= 2;
+	
 	return 0;
 }
 
-float Interpolate(float Speed)
-{
-	float Velocity = Speed * CurrentFPS;
-	if (AverageFPS > 0)
-		Velocity /= AverageFPS;
-	else
-		Velocity /= CurrentFPS;
-
-
-	return Velocity;
+float MoveCamera(){
+	return SPEEDPPS * CurrentFPS;
 }
+
