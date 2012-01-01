@@ -26,16 +26,24 @@ int StartTime = 0;
 int GetFPS();
 float MoveCamera();
 
+/**
+ * So far all we're doing here is loading a tilemap and allowing the ``player''
+ * (a 16x16 black square) to run around.
+ * TODO:
+ * * Collision detection.
+ * * Player sprites with animations.
+ * * Player moves (swing swords, shoot arrows, kick, punch, whatever).
+ */
 int main(int argc, char *argv[])
 {
 	const char filename[] = "res/untitled.tmx.bin";
 	SDL_Surface *screen = NULL;
 	TMP_Tilemap *tilemap = NULL;
+	Player *player = NULL;
 	SDL_Rect camera = { 0, 0, SCREEN_W, SCREEN_H };
 	SDL_Event event;
-	Player *player = createPlayer(0, 0);
 	Controller controller = { 0, 0, 0, 0 };
-	int i;
+	int loop, i;
 
 	if (SDL_Init(SDL_INIT_EVERYTHING)) {
 		fputs(SDL_GetError(), stderr);
@@ -51,8 +59,15 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "Failed to open tilemap: %s!\n", filename);
 		return -1;
 	}
-	/*game(tilemap, screen);*/
-	while (1) {
+	/* So far the only entity is the player. Later this will be replaced by a
+	 * linked-list of all entities (the player, npcs, enemies, items, etc.) */
+	if ((player = createPlayer(0, 0)) == NULL) {
+		fputs("Failed to load player.\n", stderr);
+		return -1;
+	}
+	loop = 1;
+	while (loop) {
+		/* Resolve mouse/keyboard/joystick events. */
 		while (SDL_PollEvent(&event)) {
 			if (event.type == SDL_KEYDOWN) {
 				if (event.key.keysym.sym == SDLK_LEFT) {
@@ -64,7 +79,7 @@ int main(int argc, char *argv[])
 				} else if (event.key.keysym.sym == SDLK_DOWN) {
 					controller.down = 1;
 				} else if (event.key.keysym.sym == SDLK_q) {
-					goto considered_awesome;
+					loop = 0;
 				}
 			} else if (event.type == SDL_KEYUP) {
 				if (event.key.keysym.sym == SDLK_LEFT) {
@@ -77,7 +92,7 @@ int main(int argc, char *argv[])
 					controller.down = 0;
 				}
 			} else if (event.type == SDL_QUIT) {
-				goto considered_awesome;
+				loop = 0;
 			}
 		}
 		/* Update player position. */
@@ -102,9 +117,10 @@ int main(int argc, char *argv[])
 			camera.y = 0;
 		else if (camera.y >= tilemap->height * 16 - SCREEN_H)
 			camera.y = tilemap->height * 16 - SCREEN_H - 1;
-		/* Update player's position relative to the camera */
+		/* Update player's position relative to the camera. */
 		player->rel_pos.x = player->pos.x - camera.x;
 		player->rel_pos.y = player->pos.y - camera.y;
+		/* Draw. */
 		for (i = 0; i < tilemap->depth; i++) {
 			if (i == tilemap->depth - 1) {
 				if (drawPlayer(player, screen)) {
@@ -117,6 +133,7 @@ int main(int argc, char *argv[])
 				return -1;
 			}
 		}
+		/* Update screen. */
 		if (SDL_Flip(screen) == -1) {
 			fputs(SDL_GetError(), stderr);
 			return -1;
@@ -124,7 +141,6 @@ int main(int argc, char *argv[])
 		SDL_Delay(1000 / 60);
 	}
 
-considered_awesome:
 	freePlayer(player);
 	TMP_FreeTilemap(tilemap);
 	SDL_FreeSurface(screen);
