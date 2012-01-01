@@ -2,7 +2,7 @@
 #include "SDL/SDL.h"
 #include "player.h"
 #include "tmx.h"
-#include "motion.h"
+#include "config.h"
 
 #define SCREEN_W 320
 #define SCREEN_H 240
@@ -19,13 +19,10 @@ typedef struct {
 
 #define FPS_NO 20
 
-/* TODO: no globals, ``please'' */
-int AverageFPS = 9;
-int CurrentFPS = 9;
-int StartTime = 0;
+#define SPEEDPPS 0.2
 
 int GetFPS();
-float MoveCamera();
+float Interpolate(float Speed, int FPS);
 
 /*
  * So far all we're doing here is loading a tilemap and allowing the ``player''
@@ -47,7 +44,9 @@ int main(int argc, char *argv[])
 	int loop, i;
 	int my = 0, mx = 0;
 	
-	LoadConfig();
+	int CurrentFPS = 10, AverageFPS = 10,
+	StartTime = 0;
+	
 	if (SDL_Init(SDL_INIT_EVERYTHING)) {
 		fputs(SDL_GetError(), stderr);
 		return -1;
@@ -70,6 +69,7 @@ int main(int argc, char *argv[])
 	}
 	loop = 1;
 	while (loop) {
+		StartTime = SDL_GetTicks();
 		/* Resolve mouse/keyboard/joystick events. */
 		while (SDL_PollEvent(&event)) {
 			if (event.type == SDL_KEYDOWN) {
@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
 			fputs(SDL_GetError(), stderr);
 			return -1;
 		}
-		SDL_Delay(1000 / 60);
+		GetFPS(&CurrentFPS, &AverageFPS, StartTime);
 	}
 
 	freePlayer(player);
@@ -154,4 +154,25 @@ int main(int argc, char *argv[])
 	SDL_FreeSurface(screen);
 	SDL_Quit();
 	return 0;
+}
+
+int GetFPS(int* CurrentFPS, int* AverageFPS, int StartTime)
+{
+	*CurrentFPS = SDL_GetTicks() - StartTime;
+	
+	*AverageFPS += *CurrentFPS;
+	if (*AverageFPS != *CurrentFPS)
+	*AverageFPS /= 2;
+
+	return 0;
+}
+
+/* 
+ * Floating point arithmetic may be CPU intensive
+ * but this yields great benifits, and scales better than 
+ * any fixed speed alternative.
+ */
+float Interpolate(float Speed, int FPS)
+{
+	return Speed * FPS;
 }

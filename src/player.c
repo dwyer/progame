@@ -1,5 +1,4 @@
 #include "player.h"
-#include "ai.h"
 
 Player *createPlayer(int x, int y)
 {
@@ -45,7 +44,7 @@ void movePlayer(Player * player, int x, int y)
 		Direction = D_west;
 	}
 	
-	if (Walkable(x, y, Direction)){
+	if (1){
 		player->pos.x += x;
 		player->pos.y += y;
 	}
