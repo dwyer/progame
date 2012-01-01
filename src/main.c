@@ -7,7 +7,7 @@
 #define SCREEN_H 240
 #define SCREEN_BPP 32
 
-#define CAMERA_SPEED 2
+#define CAMERA_SPEED 3
 
 typedef struct {
     int up;
@@ -15,6 +15,18 @@ typedef struct {
     int left;
     int right;
 } Controller;
+
+#define FPS_NO 5
+
+int AverageFPS;
+int CurrentFPS = 16;
+int FPS[FPS_NO];
+int FrameNo = 0;
+int StartTime = 0;
+
+int GetFPS();
+
+float Interpolate(float Speed);
 
 int game(TMP_Tilemap * tilemap, SDL_Surface * screen)
 {
@@ -108,3 +120,38 @@ int main(int argc, char *argv[])
     SDL_Quit();
     return 0;
 }
+
+int GetFPS(){
+	if (FrameNo == FPS_NO){
+		for (FrameNo = 0; FrameNo < FPS_NO; FrameNo++)
+		AverageFPS += FPS[FrameNo];
+		
+		AverageFPS /= FPS_NO + 1; 
+		
+		FrameNo = 0;
+		GetFPS();
+	}
+	else {
+		FPS[FrameNo] = SDL_GetTicks() - StartTime;
+		
+		if (FPS[FrameNo] < 1000 / 60) /* Keeping within vsync; assuming 60Hz */
+		SDL_Delay(1000 / 60 - FPS[FrameNo]);
+		CurrentFPS = FPS[FrameNo];
+		
+		FrameNo++;
+	}
+	
+	return 0;
+}
+
+float Interpolate(float Speed){
+	float Velocity = Speed * CurrentFPS;
+	if (AverageFPS > 0)
+	Velocity /= AverageFPS;
+	else
+	Velocity /= CurrentFPS;
+	
+	
+	return Velocity;
+}
+
