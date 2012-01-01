@@ -113,6 +113,7 @@ int main(int argc, char *argv[])
 		
 		if (mx || my)
 		movePlayer(player, mx, my);
+		
 		/* Update camera position. */
 		camera.x = player->pos.x - (SCREEN_W - 16) / 2;
 		if (camera.x < 0)
