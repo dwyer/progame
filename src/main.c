@@ -10,10 +10,10 @@
 #define CAMERA_SPEED 3
 
 typedef struct {
-    int up;
-    int down;
-    int left;
-    int right;
+	int up;
+	int down;
+	int left;
+	int right;
 } Controller;
 
 #define FPS_NO 5
@@ -30,128 +30,133 @@ float Interpolate(float Speed);
 
 int game(TMP_Tilemap * tilemap, SDL_Surface * screen)
 {
-    SDL_Rect camera = { 0, 0, SCREEN_W, SCREEN_H };
-    SDL_Event event;
-    Player *player = createPlayer(0, 0);
-    Controller controller = { 0, 0, 0, 0 };
-    int i;
+	SDL_Rect camera = { 0, 0, SCREEN_W, SCREEN_H };
+	SDL_Event event;
+	Player *player = createPlayer(0, 0);
+	Controller controller = { 0, 0, 0, 0 };
+	int i;
 
-    while (1) {
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_KEYDOWN) {
-                if (event.key.keysym.sym == SDLK_LEFT) {
-                    controller.left = 1;
-                } else if (event.key.keysym.sym == SDLK_RIGHT) {
-                    controller.right = 1;
-                } else if (event.key.keysym.sym == SDLK_UP) {
-                    controller.up = 1;
-                } else if (event.key.keysym.sym == SDLK_DOWN) {
-                    controller.down = 1;
-                } else if (event.key.keysym.sym == SDLK_q) {
-                    return 0;
-                }
-            } else if (event.type == SDL_KEYUP) {
-                if (event.key.keysym.sym == SDLK_LEFT) {
-                    controller.left = 0;
-                } else if (event.key.keysym.sym == SDLK_RIGHT) {
-                    controller.right = 0;
-                } else if (event.key.keysym.sym == SDLK_UP) {
-                    controller.up = 0;
-                } else if (event.key.keysym.sym == SDLK_DOWN) {
-                    controller.down = 0;
-                }
-            } else if (event.type == SDL_QUIT) {
-                return 0;
-            }
-        }
-        if (controller.left) {
-            movePlayer(player, -2, 0);
-        } else if (controller.right) {
-            movePlayer(player, 2, 0);
-        }
-        if (controller.up) {
-            movePlayer(player, 0, -2);
-        } else if (controller.down) {
-            movePlayer(player, 0, 2);
-        }
-        for (i = 0; i < tilemap->depth; i++) {
-            if (i == tilemap->depth - 1) {
-                if (drawPlayer(player, screen)) {
-                    fputs(SDL_GetError(), stderr);
-                    return -1;
-                }
-            }
-            if (SDL_BlitSurface(tilemap->layers[i], &camera, screen, NULL)) {
-                fputs(SDL_GetError(), stderr);
-                return -1;
-            }
-        }
-        if (SDL_Flip(screen) == -1) {
-            fputs(SDL_GetError(), stderr);
-            return -1;
-        }
-        SDL_Delay(1000 / 60);
-    }
+	while (1) {
+		while (SDL_PollEvent(&event)) {
+			if (event.type == SDL_KEYDOWN) {
+				if (event.key.keysym.sym == SDLK_LEFT) {
+					controller.left = 1;
+				} else if (event.key.keysym.sym ==
+					   SDLK_RIGHT) {
+					controller.right = 1;
+				} else if (event.key.keysym.sym == SDLK_UP) {
+					controller.up = 1;
+				} else if (event.key.keysym.sym ==
+					   SDLK_DOWN) {
+					controller.down = 1;
+				} else if (event.key.keysym.sym == SDLK_q) {
+					return 0;
+				}
+			} else if (event.type == SDL_KEYUP) {
+				if (event.key.keysym.sym == SDLK_LEFT) {
+					controller.left = 0;
+				} else if (event.key.keysym.sym ==
+					   SDLK_RIGHT) {
+					controller.right = 0;
+				} else if (event.key.keysym.sym == SDLK_UP) {
+					controller.up = 0;
+				} else if (event.key.keysym.sym ==
+					   SDLK_DOWN) {
+					controller.down = 0;
+				}
+			} else if (event.type == SDL_QUIT) {
+				return 0;
+			}
+		}
+		if (controller.left) {
+			movePlayer(player, -2, 0);
+		} else if (controller.right) {
+			movePlayer(player, 2, 0);
+		}
+		if (controller.up) {
+			movePlayer(player, 0, -2);
+		} else if (controller.down) {
+			movePlayer(player, 0, 2);
+		}
+		for (i = 0; i < tilemap->depth; i++) {
+			if (i == tilemap->depth - 1) {
+				if (drawPlayer(player, screen)) {
+					fputs(SDL_GetError(), stderr);
+					return -1;
+				}
+			}
+			if (SDL_BlitSurface
+			    (tilemap->layers[i], &camera, screen, NULL)) {
+				fputs(SDL_GetError(), stderr);
+				return -1;
+			}
+		}
+		if (SDL_Flip(screen) == -1) {
+			fputs(SDL_GetError(), stderr);
+			return -1;
+		}
+		SDL_Delay(1000 / 60);
+	}
 }
 
 int main(int argc, char *argv[])
 {
-    const char filename[] = "res/untitled.tmx.bin";
-    SDL_Surface *screen = NULL;
-    TMP_Tilemap *tilemap = NULL;
+	const char filename[] = "res/untitled.tmx.bin";
+	SDL_Surface *screen = NULL;
+	TMP_Tilemap *tilemap = NULL;
 
-    if (SDL_Init(SDL_INIT_EVERYTHING)) {
-        fputs(SDL_GetError(), stderr);
-        return -1;
-    }
-    if ((screen =
-         SDL_SetVideoMode(SCREEN_W, SCREEN_H, SCREEN_BPP,
-                          SDL_HWSURFACE)) == NULL) {
-        fputs(SDL_GetError(), stderr);
-        return -1;
-    }
-    if ((tilemap = TMP_LoadTilemap(filename)) == NULL) {
-        fprintf(stderr, "Failed to open tilemap: %s!\n", filename);
-        return -1;
-    }
-    game(tilemap, screen);
-    TMP_FreeTilemap(tilemap);
-    SDL_FreeSurface(screen);
-    SDL_Quit();
-    return 0;
-}
-
-int GetFPS(){
-	if (FrameNo == FPS_NO){
-		for (FrameNo = 0; FrameNo < FPS_NO; FrameNo++)
-		AverageFPS += FPS[FrameNo];
-		
-		AverageFPS /= FPS_NO + 1; 
-		
-		FrameNo = 0;
-		GetFPS();
+	if (SDL_Init(SDL_INIT_EVERYTHING)) {
+		fputs(SDL_GetError(), stderr);
+		return -1;
 	}
-	else {
-		FPS[FrameNo] = SDL_GetTicks() - StartTime;
-		
-		if (FPS[FrameNo] < 1000 / 60) /* Keeping within vsync; assuming 60Hz */
-		SDL_Delay(1000 / 60 - FPS[FrameNo]);
-		CurrentFPS = FPS[FrameNo];
-		
-		FrameNo++;
+	if ((screen =
+	     SDL_SetVideoMode(SCREEN_W, SCREEN_H, SCREEN_BPP,
+			      SDL_HWSURFACE)) == NULL) {
+		fputs(SDL_GetError(), stderr);
+		return -1;
 	}
-	
+	if ((tilemap = TMP_LoadTilemap(filename)) == NULL) {
+		fprintf(stderr, "Failed to open tilemap: %s!\n", filename);
+		return -1;
+	}
+	game(tilemap, screen);
+	TMP_FreeTilemap(tilemap);
+	SDL_FreeSurface(screen);
+	SDL_Quit();
 	return 0;
 }
 
-float Interpolate(float Speed){
-	float Velocity = Speed * CurrentFPS;
-	if (AverageFPS > 0)
-	Velocity /= AverageFPS;
-	else
-	Velocity /= CurrentFPS;
-	
-	
-	return Velocity;
+int GetFPS()
+{
+	if (FrameNo == FPS_NO) {
+		for (FrameNo = 0; FrameNo < FPS_NO; FrameNo++)
+			AverageFPS += FPS[FrameNo];
+
+		AverageFPS /= FPS_NO + 1;
+
+		FrameNo = 0;
+		GetFPS();
+	} else {
+		FPS[FrameNo] = SDL_GetTicks() - StartTime;
+
+		if (FPS[FrameNo] < 1000 / 60)	/* Keeping within vsync; assuming 60Hz */
+			SDL_Delay(1000 / 60 - FPS[FrameNo]);
+		CurrentFPS = FPS[FrameNo];
+
+		FrameNo++;
+	}
+
+	return 0;
 }
 
+float Interpolate(float Speed)
+{
+	float Velocity = Speed * CurrentFPS;
+	if (AverageFPS > 0)
+		Velocity /= AverageFPS;
+	else
+		Velocity /= CurrentFPS;
+
+
+	return Velocity;
+}
