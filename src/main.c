@@ -9,7 +9,6 @@
 
 int GetFPS();
 float Interpolate(float Speed, int FPS);
-int CurrentFPS = 10, AverageFPS = 10, StartTime = 0;
 
 /*
  * So far all we're doing here is loading a tilemap and allowing the ``player''
@@ -25,8 +24,8 @@ int main(int argc, char *argv[])
 	SDL_Surface *screen = NULL;
 	World *world = NULL;
 	int loop;
+	int CurrentFPS = 10, AverageFPS = 10, StartTime = 0;
 	
-	LoadConfig(NULL);
 	if (SDL_Init(SDL_INIT_EVERYTHING)) {
 		fputs(SDL_GetError(), stderr);
 		return -1;
@@ -46,18 +45,6 @@ int main(int argc, char *argv[])
 	while (updateWorld(world)) {
 		StartTime = SDL_GetTicks();
 		/* Draw. */
-		for (i = 0; i < tilemap->depth; i++) {
-			if (i == tilemap->depth - 1) {
-				if (drawPlayer(player, screen, camera)) {
-					fputs(SDL_GetError(), stderr);
-					return -1;
-				}
-				
-			}
-			if (SDL_BlitSurface(tilemap->layers[i], &camera, screen, NULL)){
-				fputs(SDL_GetError(), stderr);
-				return -1;
-			}
 		if (drawWorld(world, screen)) {
 			fputs(SDL_GetError(), stderr);
 			return -1;
@@ -69,9 +56,6 @@ int main(int argc, char *argv[])
 		}
 		GetFPS(&CurrentFPS, &AverageFPS, StartTime);
 	}
-	
-	freePlayer(player);
-	TMP_FreeTilemap(tilemap);
 	freeWorld(world);
 	SDL_FreeSurface(screen);
 	SDL_Quit();
@@ -80,9 +64,6 @@ int main(int argc, char *argv[])
 
 int GetFPS(int* CurrentFPS, int* AverageFPS, int StartTime)
 {
-	if (!CurrentFPS || !AverageFPS)
-	return -1;
-	
 	*CurrentFPS = SDL_GetTicks() - StartTime;
 	
 	*AverageFPS += *CurrentFPS;
