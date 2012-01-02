@@ -2,8 +2,6 @@
 #include "SDL/SDL.h"
 #include "main.h"
 #include "world.h"
-#include "player.h"
-#include "tmx.h"
 #include "config.h"
 
 #define SPEEDPPS 0.2
@@ -26,7 +24,6 @@ int main(int argc, char *argv[])
 {
 	const char filename[] = "res/untitled.tmx.bin";
 	SDL_Surface *screen = NULL;
-	SDL_Event event;
 	World *world = NULL;
 	int loop;
 	
@@ -46,38 +43,9 @@ int main(int argc, char *argv[])
 	/* So far the only entity is the player. Later this will be replaced by a
 	 * linked-list of all entities (the player, npcs, enemies, items, etc.) */
 	loop = 1;
-	while (loop) {
+	while (updateWorld(world)) {
 		StartTime = SDL_GetTicks();
 		/* Resolve mouse/keyboard/joystick events. */
-		while (SDL_PollEvent(&event)) {
-			if (event.type == SDL_KEYDOWN) {
-				if (event.key.keysym.sym == SDLK_LEFT) {
-					world->controller.left = 1;
-				} else if (event.key.keysym.sym == SDLK_RIGHT) {
-					world->controller.right = 1;
-				} else if (event.key.keysym.sym == SDLK_UP) {
-					world->controller.up = 1;
-				} else if (event.key.keysym.sym == SDLK_DOWN) {
-					world->controller.down = 1;
-				} else if (event.key.keysym.sym == SDLK_q) {
-					loop = 0;
-				}
-			} else if (event.type == SDL_KEYUP) {
-				if (event.key.keysym.sym == SDLK_LEFT) {
-					world->controller.left = 0;
-				} else if (event.key.keysym.sym == SDLK_RIGHT) {
-					world->controller.right = 0;
-				} else if (event.key.keysym.sym == SDLK_UP) {
-					world->controller.up = 0;
-				} else if (event.key.keysym.sym == SDLK_DOWN) {
-					world->controller.down = 0;
-				}
-			} else if (event.type == SDL_QUIT) {
-				loop = 0;
-			}
-		}
-		
-		updateWorld(world);
 		
 		/* Draw. */
 		if (drawWorld(world, screen)) {

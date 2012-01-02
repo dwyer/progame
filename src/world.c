@@ -26,8 +26,37 @@ World *createWorld(const char *filename) {
 	return world;
 }
 
-void updateWorld(World *world) {
+int updateWorld(World *world) {
+	SDL_Event event;
 	int my = 0, mx = 0;
+
+	while (SDL_PollEvent(&event)) {
+		if (event.type == SDL_KEYDOWN) {
+			if (event.key.keysym.sym == SDLK_LEFT) {
+				world->controller.left = 1;
+			} else if (event.key.keysym.sym == SDLK_RIGHT) {
+				world->controller.right = 1;
+			} else if (event.key.keysym.sym == SDLK_UP) {
+				world->controller.up = 1;
+			} else if (event.key.keysym.sym == SDLK_DOWN) {
+				world->controller.down = 1;
+			} else if (event.key.keysym.sym == SDLK_q) {
+				return 0;
+			}
+		} else if (event.type == SDL_KEYUP) {
+			if (event.key.keysym.sym == SDLK_LEFT) {
+				world->controller.left = 0;
+			} else if (event.key.keysym.sym == SDLK_RIGHT) {
+				world->controller.right = 0;
+			} else if (event.key.keysym.sym == SDLK_UP) {
+				world->controller.up = 0;
+			} else if (event.key.keysym.sym == SDLK_DOWN) {
+				world->controller.down = 0;
+			}
+		} else if (event.type == SDL_QUIT) {
+			return 0;
+		}
+	}
 
 	/* Update player position. */
 	mx = 0;
@@ -61,6 +90,7 @@ void updateWorld(World *world) {
 		world->camera.y = 0;
 	else if (world->camera.y >= world->tilemap->height * 16 - SCREEN_H)
 		world->camera.y = world->tilemap->height * 16 - SCREEN_H - 1;
+	return 1;
 }
 
 int drawWorld(World *world, SDL_Surface *surf) {
