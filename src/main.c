@@ -44,14 +44,11 @@ int main(int argc, char *argv[])
 	loop = 1;
 	while (updateWorld(world)) {
 		StartTime = SDL_GetTicks();
-		/* Resolve mouse/keyboard/joystick events. */
-		
 		/* Draw. */
 		if (drawWorld(world, screen)) {
 			fputs(SDL_GetError(), stderr);
 			return -1;
 		}
-		
 		/* Update screen. */
 		if (SDL_Flip(screen) == -1) {
 			fputs(SDL_GetError(), stderr);
@@ -59,7 +56,6 @@ int main(int argc, char *argv[])
 		}
 		GetFPS(&CurrentFPS, &AverageFPS, StartTime);
 	}
-
 	freeWorld(world);
 	SDL_FreeSurface(screen);
 	SDL_Quit();

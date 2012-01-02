@@ -1,7 +1,18 @@
 #include "main.h"
-#include "world.h"
+#include "player.h"
+#include "tmx.h"
 
-#define PLAYER_SPEED 2
+typedef struct {
+	SDL_Rect camera;
+	TMP_Tilemap *tilemap;
+	Player *player;
+	struct {
+		int up;
+		int down;
+		int left;
+		int right;
+	} controller;
+} World;
 
 World *createWorld(const char *filename) {
 	World *world = NULL;
