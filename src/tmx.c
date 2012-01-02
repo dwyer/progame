@@ -30,6 +30,7 @@ TMP_Tilemap *TMP_LoadTilemap(const char *filename)
 			}
 		}
 	}
+	result->collision = result->data[result->depth-1];
 	fclose(f);
 	/* load tileset and tiles */
 	/*TODO: get filename from the TMX file */
@@ -82,4 +83,14 @@ void TMP_FreeTilemap(TMP_Tilemap * tilemap)
 	}
 	free(tilemap->data);
 	free(tilemap->layers);
+}
+
+int TMP_TileIsOccupied(TMP_Tilemap *tilemap, int x, int y) {
+	return tilemap->collision[y][x];
+}
+int TMP_PixelIsOccupied(TMP_Tilemap *tilemap, int x, int y) {
+	return (TMP_TileIsOccupied(tilemap, x / 16, y / 16) ||
+			TMP_TileIsOccupied(tilemap, (x + 15) / 16, y / 16) ||
+			TMP_TileIsOccupied(tilemap, x / 16, (y + 15) / 16) ||
+			TMP_TileIsOccupied(tilemap, (x + 15) / 16, (y + 15) / 16));
 }

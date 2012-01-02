@@ -18,4 +18,9 @@
    eJztzskNg0AQRNEJABvsCFgMcYBJwUAiLCmwJM1PAOQDqA9TX3q3lqqdOy5EhBfeJ3d3leGDHIXBvg+VqPBFbbD/Q4MW3R/3PQaMmG7866gZC1ZsBvvKrwI88DTaj5EgNdpXSimllFLXtgODEge3
   </data>
  </layer>
+ <layer name="Tile Layer 4" width="32" height="32">
+  <data encoding="base64" compression="zlib">
+   eJzt08EJACAMBEGrtf8S/AdEBPEgzEDemyCOwc4so99P+sbaP+3xet90/1a6z1/pt9b31wCgmwVoGxS5
+  </data>
+ </layer>
 </map>

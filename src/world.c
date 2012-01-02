@@ -86,9 +86,11 @@ int updateWorld(World *world) {
 		/*my = Interpolate(SPEEDPPS, CurrentFPS);*/
 		my = PLAYER_SPEED;
 	}
-	
-	if (mx || my)
-	movePlayer(world->player, mx, my);
+
+	if (!TMP_PixelIsOccupied(world->tilemap, world->player->pos.x + mx, world->player->pos.y))
+		world->player->pos.x += mx;
+	if (!TMP_PixelIsOccupied(world->tilemap, world->player->pos.x, world->player->pos.y + my))
+		world->player->pos.y += my;
 
 	/* Update camera position. */
 	world->camera.x = world->player->pos.x - (SCREEN_W - 16) / 2;
@@ -107,8 +109,8 @@ int updateWorld(World *world) {
 int drawWorld(World *world, SDL_Surface *surf) {
 	int i;
 
-	for (i = 0; i < world->tilemap->depth; i++) {
-		if (i == world->tilemap->depth - 1) {
+	for (i = 0; i < world->tilemap->depth - 1; i++) {
+		if (i == 2) { /* no magic numbers, please!!! */
 			if (drawPlayer(world->player, surf, world->camera)) {
 				return -1;
 			}
