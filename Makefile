@@ -18,7 +18,7 @@ debug: CC+=-g -DDEBUG
 debug: all
 
 $(EXECUTABLE): $(OBJS) $(BINDIR)
-	$(CC) $(LDFLAGS) $(OBJS) -o $@
+	$(CC) $(OBJS) $(LDFLAGS) -o $@
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	$(CC) $(CFLAGS) $< -o $@
