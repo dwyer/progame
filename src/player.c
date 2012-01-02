@@ -32,6 +32,8 @@ Player *createPlayer(int x, int y)
 
 void movePlayer(Player * player, int x, int y)
 {
+	int Direction = 0;
+
 	if (player->State.State != p_walk) {
 		player->State.State = p_walk;
 		player->State.StateTime = SDL_GetTicks();
@@ -49,8 +51,6 @@ void movePlayer(Player * player, int x, int y)
 			player->State.StateTime = SDL_GetTicks();
 		}
 	}
-
-	int Direction = 0;
 
 	if (y != 0) {
 		if (x != 0) {

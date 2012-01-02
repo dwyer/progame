@@ -4,6 +4,7 @@
 #include "tmx.h"
 
 typedef struct {
+	int nothing;
 } World;
 
 World *createWorld(const char *filename);
