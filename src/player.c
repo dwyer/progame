@@ -19,6 +19,9 @@ Player *createPlayer(int x, int y)
 	player->src.h = 16;
 	player->src.w = 16;
 	
+	player->State.State = p_idle;
+	player->State.StateTime = 0;
+	
 	if ((player->sprite = SDL_CreateRGBSurface(SDL_HWSURFACE, 16, 16, 32, 0, 0, 0, 0)) == NULL) {
 		fputs(SDL_GetError(), stderr);
 		free(player);

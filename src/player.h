@@ -14,7 +14,17 @@
 #define D_west    7
 #define D_norwest 8
 
+#define p_idle 1
+#define p_walk 2
+
+typedef struct{
+	int State;
+	int StateTime;
+	int TimeSwitch;
+} PState;
+
 typedef struct {
+	PState State;
 	SDL_Rect src;
 	SDL_Rect pos;				/* Player's position relative to the map. */
 	SDL_Rect rel_pos;

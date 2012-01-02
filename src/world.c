@@ -87,9 +87,9 @@ int updateWorld(World *world) {
 		my = PLAYER_SPEED;
 	}
 
-	if (!TMP_PixelIsOccupied(world->tilemap, world->player->pos.x + mx, world->player->pos.y))
+	if (mx && !TMP_PixelIsOccupied(world->tilemap, world->player->pos.x + mx, world->player->pos.y))
 		world->player->pos.x += mx;
-	if (!TMP_PixelIsOccupied(world->tilemap, world->player->pos.x, world->player->pos.y + my))
+	if (my && !TMP_PixelIsOccupied(world->tilemap, world->player->pos.x, world->player->pos.y + my))
 		world->player->pos.y += my;
 
 	/* Update camera position. */
