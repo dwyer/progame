@@ -27,6 +27,9 @@ Player *createPlayer(int x, int y)
 		free(player);
 		return NULL;
 	}
+	SDL_SetColorKey(player->sprite, SDL_SRCCOLORKEY,
+					SDL_MapRGB(player->sprite->format, 255,
+							   0, 255));
 	return player;
 }
 
