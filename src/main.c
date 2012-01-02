@@ -6,6 +6,7 @@
 #define SPEEDPPS 0.2
 
 #define FPS_NO 20
+#define FRAMETIME 16 /*ms*/
 
 int GetFPS();
 float Interpolate(float Speed, int FPS);
@@ -22,7 +23,8 @@ int main(int argc, char *argv[])
 	const char filename[] = "res/untitled.tmx.bin";
 	SDL_Surface *screen = NULL;
 	World *world = NULL;
-	int CurrentFPS = 10, AverageFPS = 10, StartTime = 0;
+	int CurrentFPS = 10, AverageFPS = 10;
+	unsigned int StartTime = 0, CurrentTime = 0;
 
 	if (SDL_Init(SDL_INIT_EVERYTHING)) {
 		fputs(SDL_GetError(), stderr);
@@ -52,6 +54,9 @@ int main(int argc, char *argv[])
 			return -1;
 		}
 		GetFPS(&CurrentFPS, &AverageFPS, StartTime);
+
+		CurrentTime = SDL_GetTicks();
+		if (CurrentTime-StartTime < FRAMETIME) SDL_Delay(FRAMETIME-(CurrentTime-StartTime));
 	}
 	freeWorld(world);
 	SDL_FreeSurface(screen);

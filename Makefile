@@ -27,4 +27,4 @@ $(OBJDIR):
 	mkdir $(OBJDIR)
 
 clean:
-	$(RM) -r $(OBJDIR) $(EXECUTABLE)
+	$(RM) -rf $(OBJDIR) $(EXECUTABLE)
