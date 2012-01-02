@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
 	SDL_Surface *screen = NULL;
 	World *world = NULL;
 	int CurrentFPS = 10, AverageFPS = 10, StartTime = 0;
-	
+
 	if (SDL_Init(SDL_INIT_EVERYTHING)) {
 		fputs(SDL_GetError(), stderr);
 		return -1;
@@ -60,13 +60,13 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
-int GetFPS(int* CurrentFPS, int* AverageFPS, int StartTime)
+int GetFPS(int *CurrentFPS, int *AverageFPS, int StartTime)
 {
 	*CurrentFPS = SDL_GetTicks() - StartTime;
-	
+
 	*AverageFPS += *CurrentFPS;
 	if (*AverageFPS != *CurrentFPS)
-	*AverageFPS /= 2;
+		*AverageFPS /= 2;
 
 	return 0;
 }

@@ -1,7 +1,7 @@
 /*  *  *   *
  *   *  *   *
  * *  *   *   *
- */     
+ */
 
 #ifndef ConfigH
 #define ConfigH
@@ -13,30 +13,30 @@
 #define w_ID    2
 #define w_SprSh 3
 
-struct WeaponList{
+struct WeaponList {
 	int ID;
-	char* Name;
+	char *Name;
 	int max_AP;
 	int min_AP;
-	SDL_Surface* Sprites;
-	struct WeaponList* Next;
+	SDL_Surface *Sprites;
+	struct WeaponList *Next;
 };
 typedef struct WeaponList Weapon;
 
-#define G_Fields 2 		/* General fields, as in
-						 * the PrgConfig Struct */
+#define G_Fields 2				/* General fields, as in
+								 * the PrgConfig Struct */
 #define G_WalkSpeed 0
 #define G_RunSpeed  1
 
-typedef struct{
+typedef struct {
 	float WalkSpeed;
 	float RunSpeed;
 } PrgConfig;
 
-int LoadConfig(PrgConfig* Conf);
-int ReadInt(char* context);
+int LoadConfig(PrgConfig * Conf);
+int ReadInt(char *context);
 int Load_Weapons();
 
-extern struct WeaponList* Weapons;
+extern struct WeaponList *Weapons;
 
 #endif

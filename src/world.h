@@ -7,8 +7,8 @@ typedef struct {
 } World;
 
 World *createWorld(const char *filename);
-int  updateWorld(World *world);
-int  drawWorld(World *world, SDL_Surface *surf);
-void freeWorld(World *world);
+int updateWorld(World * world);
+int drawWorld(World * world, SDL_Surface * surf);
+void freeWorld(World * world);
 
 #endif

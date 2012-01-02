@@ -1,7 +1,7 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include "SDL/SDL.h" /* Polluting the include stream D:*/
+#include "SDL/SDL.h"			/* Polluting the include stream D: */
 
 #define PLAYER_SPEED 2
 
@@ -17,7 +17,7 @@
 #define p_idle 1
 #define p_walk 2
 
-typedef struct{
+typedef struct {
 	int State;
 	int StateTime;
 	int TimeSwitch;
@@ -32,8 +32,8 @@ typedef struct {
 } Player;
 
 Player *createPlayer(int x, int y);
-void    movePlayer(Player * player, int x, int y);
-int     drawPlayer(Player * player, SDL_Surface * surface, SDL_Rect camera);
-void    freePlayer(Player * player);
+void movePlayer(Player * player, int x, int y);
+int drawPlayer(Player * player, SDL_Surface * surface, SDL_Rect camera);
+void freePlayer(Player * player);
 
 #endif

@@ -14,13 +14,13 @@ TMP_Tilemap *TMP_LoadTilemap(const char *filename)
 
 	/* load data */
 	result = malloc(sizeof(TMP_Tilemap));
-	for  (i = 0; (result->source[i] = fgetc(f)) != '\0'; i++);
-	
+	for (i = 0; (result->source[i] = fgetc(f)) != '\0'; i++);
+
 	fread(&result->width, sizeof(int), 1, f);
 	fread(&result->height, sizeof(int), 1, f);
 	fread(&result->depth, sizeof(int), 1, f);
 	result->data = malloc(sizeof(Uint32 **) * result->depth);
-	
+
 	for (i = 0; i < result->depth; i++) {
 		result->data[i] = malloc(sizeof(Uint32 *) * result->height);
 		for (j = 0; j < result->height; j++) {
@@ -30,7 +30,7 @@ TMP_Tilemap *TMP_LoadTilemap(const char *filename)
 			}
 		}
 	}
-	result->collision = result->data[result->depth-1];
+	result->collision = result->data[result->depth - 1];
 	fclose(f);
 	/* load tileset and tiles */
 	/*TODO: get filename from the TMX file */
@@ -85,11 +85,14 @@ void TMP_FreeTilemap(TMP_Tilemap * tilemap)
 	free(tilemap->layers);
 }
 
-int TMP_TileIsOccupied(TMP_Tilemap *tilemap, int x, int y) {
-	return x < 0 || y < 0 || x >= tilemap->width || y >= tilemap->height || tilemap->collision[y][x];
+int TMP_TileIsOccupied(TMP_Tilemap * tilemap, int x, int y)
+{
+	return x < 0 || y < 0 || x >= tilemap->width || y >= tilemap->height
+		|| tilemap->collision[y][x];
 }
 
-int TMP_PixelIsOccupied(TMP_Tilemap *tilemap, int x, int y) {
+int TMP_PixelIsOccupied(TMP_Tilemap * tilemap, int x, int y)
+{
 	return (TMP_TileIsOccupied(tilemap, x / 16, y / 16) ||
 			TMP_TileIsOccupied(tilemap, (x + 15) / 16, y / 16) ||
 			TMP_TileIsOccupied(tilemap, x / 16, (y + 15) / 16) ||

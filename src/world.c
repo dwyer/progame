@@ -14,9 +14,10 @@ typedef struct {
 	} controller;
 } World;
 
-World *createWorld(const char *filename) {
+World *createWorld(const char *filename)
+{
 	World *world = NULL;
-	
+
 	world = malloc(sizeof(World));
 	world->camera.x = 0;
 	world->camera.y = 0;
@@ -37,7 +38,8 @@ World *createWorld(const char *filename) {
 	return world;
 }
 
-int updateWorld(World *world) {
+int updateWorld(World * world)
+{
 	SDL_Event event;
 	int my = 0, mx = 0;
 
@@ -73,23 +75,27 @@ int updateWorld(World *world) {
 	mx = 0;
 	my = 0;
 	if (world->controller.left) {
-		/*mx = Interpolate(SPEEDPPS, CurrentFPS) * -1;*/
-		mx  = -PLAYER_SPEED;
+		/*mx = Interpolate(SPEEDPPS, CurrentFPS) * -1; */
+		mx = -PLAYER_SPEED;
 	} else if (world->controller.right) {
-		/*mx = Interpolate(SPEEDPPS, CurrentFPS);*/
+		/*mx = Interpolate(SPEEDPPS, CurrentFPS); */
 		mx = PLAYER_SPEED;
 	}
 	if (world->controller.up) {
-		/*my = Interpolate(SPEEDPPS, CurrentFPS) * -1;*/
+		/*my = Interpolate(SPEEDPPS, CurrentFPS) * -1; */
 		my = -PLAYER_SPEED;
 	} else if (world->controller.down) {
-		/*my = Interpolate(SPEEDPPS, CurrentFPS);*/
+		/*my = Interpolate(SPEEDPPS, CurrentFPS); */
 		my = PLAYER_SPEED;
 	}
 
-	if (mx && !TMP_PixelIsOccupied(world->tilemap, world->player->pos.x + mx, world->player->pos.y))
+	if (mx
+		&& !TMP_PixelIsOccupied(world->tilemap, world->player->pos.x + mx,
+								world->player->pos.y))
 		movePlayer(world->player, mx, 0);
-	if (my && !TMP_PixelIsOccupied(world->tilemap, world->player->pos.x, world->player->pos.y + my))
+	if (my
+		&& !TMP_PixelIsOccupied(world->tilemap, world->player->pos.x,
+								world->player->pos.y + my))
 		movePlayer(world->player, 0, my);
 
 	/* Update camera position. */
@@ -106,24 +112,27 @@ int updateWorld(World *world) {
 	return 1;
 }
 
-int drawWorld(World *world, SDL_Surface *surf) {
+int drawWorld(World * world, SDL_Surface * surf)
+{
 	int i;
 
 	for (i = 0; i < world->tilemap->depth - 1; i++) {
-		if (i == 2) { /* no magic numbers, please!!! */
+		if (i == 2) {			/* no magic numbers, please!!! */
 			if (drawPlayer(world->player, surf, world->camera)) {
 				return -1;
 			}
-			
+
 		}
-		if (SDL_BlitSurface(world->tilemap->layers[i], &world->camera, surf, NULL)) {
+		if (SDL_BlitSurface
+			(world->tilemap->layers[i], &world->camera, surf, NULL)) {
 			return -1;
 		}
 	}
 	return 0;
 }
 
-void freeWorld(World *world) {
+void freeWorld(World * world)
+{
 	TMP_FreeTilemap(world->tilemap);
 	freePlayer(world->player);
 	free(world);
