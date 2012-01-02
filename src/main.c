@@ -2,7 +2,6 @@
 #include "SDL/SDL.h"
 #include "main.h"
 #include "world.h"
-#include "config.h"
 
 #define SPEEDPPS 0.2
 
