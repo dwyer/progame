@@ -40,9 +40,7 @@ void movePlayer(Player * player, int x, int y)
 		player->src.x = 16;
 	}
 	else {
-		printf("if %d + %d <= %d\n", player->State.StateTime, player->State.TimeSwitch, SDL_GetTicks());
 		if (player->State.StateTime + player->State.TimeSwitch <= SDL_GetTicks()){
-			printf("Switching sprites\n");
 			if (player->src.y == 16)
 			player->src.y = 0;
 			else
