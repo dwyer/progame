@@ -22,7 +22,7 @@ Player *createPlayer(int x, int y)
 	player->State.State = p_idle;
 	player->State.StateTime = 0;
 	
-	if ((player->sprite = SDL_CreateRGBSurface(SDL_HWSURFACE, 16, 16, 32, 0, 0, 0, 0)) == NULL) {
+	if (!(player->sprite = SDL_LoadBMP("res/player1.bmp"))){
 		fputs(SDL_GetError(), stderr);
 		free(player);
 		return NULL;
@@ -32,6 +32,26 @@ Player *createPlayer(int x, int y)
 
 void movePlayer(Player * player, int x, int y)
 {
+	if (player->State.State != p_walk){
+		player->State.State = p_walk;
+		player->State.StateTime = SDL_GetTicks();
+		player->State.TimeSwitch = 50;
+		player->src.y = 0;
+		player->src.x = 16;
+	}
+	else {
+		printf("if %d + %d <= %d\n", player->State.StateTime, player->State.TimeSwitch, SDL_GetTicks());
+		if (player->State.StateTime + player->State.TimeSwitch <= SDL_GetTicks()){
+			printf("Switching sprites\n");
+			if (player->src.y == 16)
+			player->src.y = 0;
+			else
+			player->src.y = 16;
+			
+			player->State.StateTime = SDL_GetTicks();
+		}
+	}
+	
 	int Direction = 0;
 	
 	if (y != 0){
