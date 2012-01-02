@@ -86,7 +86,7 @@ void TMP_FreeTilemap(TMP_Tilemap * tilemap)
 }
 
 int TMP_TileIsOccupied(TMP_Tilemap *tilemap, int x, int y) {
-	return tilemap->collision[y][x];
+	return x < 0 || y < 0 || x >= tilemap->width || y >= tilemap->height || tilemap->collision[y][x];
 }
 int TMP_PixelIsOccupied(TMP_Tilemap *tilemap, int x, int y) {
 	return (TMP_TileIsOccupied(tilemap, x / 16, y / 16) ||
