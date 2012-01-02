@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+"""
+Converts .tmx file to a C-friendly binary format.
+"""
+
 import array
 import base64
 import struct

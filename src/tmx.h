@@ -1,6 +1,8 @@
 #ifndef TMX_H
 #define TMX_H
 
+#include "SDL/SDL.h"
+
 typedef struct {
 	char source[32];
 	int width;
@@ -8,7 +10,7 @@ typedef struct {
 	int depth;
 	int tilesetw;
 	int tileseth;
-	int32_t ***data;
+	Uint32 ***data;
 	SDL_Surface **layers;
 	SDL_Surface *tileset;
 } TMP_Tilemap;

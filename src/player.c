@@ -2,12 +2,15 @@
 
 Player *createPlayer(int x, int y)
 {
-	Player *player = malloc(sizeof(Player));
+	Player *player = NULL;
+	
+	player = malloc(sizeof(Player));
 	player->pos.x = x;
 	player->pos.y = y;
 	player->pos.w = 16; /* h and w in a rect used as dest are ignores. wut */
 	player->pos.h = 16;
 	player->rel_pos = player->pos;
+<<<<<<< HEAD
 	player->sprite =
 		SDL_CreateRGBSurface(SDL_HWSURFACE, 16, 16, 32, 0, 0, 0, 0);
 		
@@ -17,11 +20,19 @@ Player *createPlayer(int x, int y)
 	player->src.h = 16;
 	player->src.w = 16;
 	
+=======
+	if ((player->sprite = SDL_CreateRGBSurface(SDL_HWSURFACE, 16, 16, 32, 0, 0, 0, 0)) == NULL) {
+		fputs(SDL_GetError(), stderr);
+		free(player);
+		return NULL;
+	}
+>>>>>>> 0f98402a21d89c21ba855c017baef74f14f40b07
 	return player;
 }
 
 void movePlayer(Player * player, int x, int y)
-{	int Direction = 0;
+{
+	int Direction = 0;
 	
 	if (y != 0){
 		if (x != 0){
@@ -51,7 +62,7 @@ void movePlayer(Player * player, int x, int y)
 		Direction = D_west;
 	}
 	
-	if (1){
+	if (1) {
 		player->pos.x += x;
 		player->pos.y += y;
 	}
@@ -61,8 +72,12 @@ int drawPlayer(Player * player, SDL_Surface * surface, SDL_Rect camera)
 {	
 	player->rel_pos.x = player->pos.x - camera.x;
 	player->rel_pos.y = player->pos.y - camera.y;
+<<<<<<< HEAD
 	
 	return SDL_BlitSurface(player->sprite, &player->src, surface,
+=======
+	return SDL_BlitSurface(player->sprite, NULL, surface,
+>>>>>>> 0f98402a21d89c21ba855c017baef74f14f40b07
 						   &player->rel_pos);
 }
 
