@@ -24,7 +24,7 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	$(CC) $(CFLAGS) $< -o $@
 
 $(OBJDIR):
-	mkdir $(OBJDIR)
+	if [ ! -d $(OBJDIR) ] ; then mkdir $(OBJDIR) ; fi
 
 clean:
 	$(RM) -r $(OBJDIR) $(EXECUTABLE)

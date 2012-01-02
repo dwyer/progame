@@ -18,14 +18,16 @@ int LoadConfig(PrgConfig* Conf){
 		"RunSpeed"
 	};
 	
-	strcat(path, getenv("HOME"));
-	strcat(path, "/.config/progame/progame.conf");
-	dotConf = fopen(path, "r");
-	free (path);
-	
-	if (dotConf){
+	if (Conf){
+		strcat(path, getenv("HOME"));
+		strcat(path, "/.config/progame/progame.conf");
+		dotConf = fopen(path, "r");
+		free (path);
 		
-		
+		if (dotConf){
+			
+			
+		}
 	}
 	
 	if (Load_Weapons() != 0)
@@ -125,7 +127,7 @@ int Load_Weapons(){
 				}
 				if (c == '='){
 					if (!Current){
-						printf("Field %s defined outside of any weapons. Statement has no effect.\n");
+						printf("Field %s defined outside of any weapons. Statement has no effect.\n", Temp);
 						while (Counter == 1 && c != '\n')
 						Counter = fread(&c, 1, 1, wFile);
 						continue;
@@ -322,7 +324,6 @@ float ReadFloat(char* context){
 }
 
 int MatchedField(char** Fields, char* c){
-	printf("Oh. . . \n");
 	int x;
 	
 	if (!Fields || !c)
@@ -333,6 +334,5 @@ int MatchedField(char** Fields, char* c){
 		break;
 	}
 	
-	printf("Yeah\n");
 	return x;
 }

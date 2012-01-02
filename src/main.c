@@ -47,6 +47,7 @@ int main(int argc, char *argv[])
 	int CurrentFPS = 10, AverageFPS = 10,
 	StartTime = 0;
 	
+	LoadConfig(NULL);
 	if (SDL_Init(SDL_INIT_EVERYTHING)) {
 		fputs(SDL_GetError(), stderr);
 		return -1;
@@ -136,7 +137,7 @@ int main(int argc, char *argv[])
 				}
 				
 			}
-			if (SDL_BlitSurface(tilemap->layers[i], &camera, screen, NULL)) {
+			if (SDL_BlitSurface(tilemap->layers[i], &camera, screen, NULL)){
 				fputs(SDL_GetError(), stderr);
 				return -1;
 			}
@@ -148,7 +149,7 @@ int main(int argc, char *argv[])
 		}
 		GetFPS(&CurrentFPS, &AverageFPS, StartTime);
 	}
-
+	
 	freePlayer(player);
 	TMP_FreeTilemap(tilemap);
 	SDL_FreeSurface(screen);
@@ -158,6 +159,9 @@ int main(int argc, char *argv[])
 
 int GetFPS(int* CurrentFPS, int* AverageFPS, int StartTime)
 {
+	if (!CurrentFPS || !AverageFPS)
+	return -1;
+	
 	*CurrentFPS = SDL_GetTicks() - StartTime;
 	
 	*AverageFPS += *CurrentFPS;

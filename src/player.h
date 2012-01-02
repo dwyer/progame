@@ -15,6 +15,7 @@
 #define D_norwest 8
 
 typedef struct {
+	SDL_Rect src;
 	SDL_Rect pos;				/* Player's position relative to the map. */
 	SDL_Rect rel_pos;
 	SDL_Surface *sprite;
