@@ -23,7 +23,6 @@ int main(int argc, char *argv[])
 	const char filename[] = "res/untitled.tmx.bin";
 	SDL_Surface *screen = NULL;
 	World *world = NULL;
-	int loop;
 	int CurrentFPS = 10, AverageFPS = 10, StartTime = 0;
 	
 	if (SDL_Init(SDL_INIT_EVERYTHING)) {
@@ -41,7 +40,6 @@ int main(int argc, char *argv[])
 	}
 	/* So far the only entity is the player. Later this will be replaced by a
 	 * linked-list of all entities (the player, npcs, enemies, items, etc.) */
-	loop = 1;
 	while (updateWorld(world)) {
 		StartTime = SDL_GetTicks();
 		/* Draw. */
