@@ -9,10 +9,13 @@ TMP_Tilemap *TMP_LoadTilemap(const char *filename)
 	TMP_Tilemap *result = NULL;
 	SDL_Rect src = { 0, 0, TILE_SZ, TILE_SZ };
 	SDL_Rect dst = { 0, 0, TILE_SZ, TILE_SZ };
-	FILE *f = fopen(filename, "rb");
+	FILE *f = NULL;
 	int i, j, k;
 
 	/* load data */
+	if ((f = fopen(filename, "rb")) == NULL) {
+		return NULL;
+	}
 	result = malloc(sizeof(TMP_Tilemap));
 	for (i = 0; (result->source[i] = fgetc(f)) != '\0'; i++);
 
