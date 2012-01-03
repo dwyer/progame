@@ -9,7 +9,6 @@ Player *createPlayer(int x, int y)
 	player->pos.y = y;
 	player->pos.w = 16;
 	player->pos.h = 16;
-	player->rel_pos = player->pos;
 		
 	player->src.x = 32;
 	player->src.y = 18;
@@ -88,11 +87,11 @@ void movePlayer(Player * player, int x, int y)
 
 int drawPlayer(Player * player, SDL_Surface * surface, SDL_Rect camera)
 {
-	player->rel_pos.x = player->pos.x - camera.x;
-	player->rel_pos.y = player->pos.y - camera.y;
+	SDL_Rect dst;
 
-	return SDL_BlitSurface(player->sprite, &player->src, surface,
-						   &player->rel_pos);
+	dst.x = player->pos.x - camera.x;
+	dst.y = player->pos.y - camera.y;
+	return SDL_BlitSurface(player->sprite, &player->src, surface, &dst);
 }
 
 void freePlayer(Player * player)
