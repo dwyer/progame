@@ -35,6 +35,7 @@ int main(int argc, char *argv[])
 	SDL_Surface* screen = NULL;
 	SDL_TimerID	 timer_id;
 	World*       world = NULL;
+	Input input = { 0, 0, 0, 0 };
 
 	SDL_Event    event;
 	
@@ -61,19 +62,36 @@ int main(int argc, char *argv[])
 	}
 	/* So far the only entity is the player. Later this will be replaced by a
 	 * linked-list of all entities (the player, npcs, enemies, items, etc.) */
-	while (updateWorld(world, CurrentDelay)) {
+	while (updateWorld(world, input, CurrentDelay)) {
 		StartTime = SDL_GetTicks();
 
 		/* Events */
-		while (SDL_PollEvent(&event)) {
-			switch (event.type) {
-				case SDL_KEYDOWN:
-				case SDL_KEYUP:
-					ProcessInput(&event);
-					break;
 
-				default:
-					break;
+		while (SDL_PollEvent(&event)) {
+			if (event.type == SDL_KEYDOWN) {
+				if (event.key.keysym.sym == SDLK_LEFT) {
+					input.left = 1;
+				} else if (event.key.keysym.sym == SDLK_RIGHT) {
+					input.right = 1;
+				} else if (event.key.keysym.sym == SDLK_UP) {
+					input.up = 1;
+				} else if (event.key.keysym.sym == SDLK_DOWN) {
+					input.down = 1;
+				} else if (event.key.keysym.sym == SDLK_q) {
+					return 0;
+				}
+			} else if (event.type == SDL_KEYUP) {
+				if (event.key.keysym.sym == SDLK_LEFT) {
+					input.left = 0;
+				} else if (event.key.keysym.sym == SDLK_RIGHT) {
+					input.right = 0;
+				} else if (event.key.keysym.sym == SDLK_UP) {
+					input.up = 0;
+				} else if (event.key.keysym.sym == SDLK_DOWN) {
+					input.down = 0;
+				}
+			} else if (event.type == SDL_QUIT) {
+				return 0;
 			}
 		}
 

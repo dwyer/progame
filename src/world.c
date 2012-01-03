@@ -2,6 +2,7 @@
 #include "player.h"
 #include "tmx.h"
 #include "entity.h"
+#include "input.h"
 
 #define PlayerSpeed 0.3
 
@@ -9,12 +10,6 @@ typedef struct {
 	SDL_Rect camera;
 	TMP_Tilemap *tilemap;
 	Player *player;
-	struct {
-		int up;
-		int down;
-		int left;
-		int right;
-	} controller;
 	EntityList *entities;
 } World;
 
@@ -27,10 +22,6 @@ World *createWorld(const char *filename)
 	world->camera.y = 0;
 	world->camera.w = SCREEN_W;
 	world->camera.h = SCREEN_H;
-	world->controller.up = 0;
-	world->controller.down = 0;
-	world->controller.left = 0;
-	world->controller.right = 0;
 	world->entities = NULL;
 	if ((world->tilemap = TMP_LoadTilemap(filename)) == NULL){
 		fprintf(stderr, "Failed to open tilemap: %s!\n", filename);
@@ -43,49 +34,20 @@ World *createWorld(const char *filename)
 	return world;
 }
 
-int updateWorld(World *world, int CurrentDelay) {
-	SDL_Event event;
+int updateWorld(World *world, Input input, int CurrentDelay) {
 	int my = 0, mx = 0;
-
-	while (SDL_PollEvent(&event)) {
-		if (event.type == SDL_KEYDOWN) {
-			if (event.key.keysym.sym == SDLK_LEFT) {
-				world->controller.left = 1;
-			} else if (event.key.keysym.sym == SDLK_RIGHT) {
-				world->controller.right = 1;
-			} else if (event.key.keysym.sym == SDLK_UP) {
-				world->controller.up = 1;
-			} else if (event.key.keysym.sym == SDLK_DOWN) {
-				world->controller.down = 1;
-			} else if (event.key.keysym.sym == SDLK_q) {
-				return 0;
-			}
-		} else if (event.type == SDL_KEYUP) {
-			if (event.key.keysym.sym == SDLK_LEFT) {
-				world->controller.left = 0;
-			} else if (event.key.keysym.sym == SDLK_RIGHT) {
-				world->controller.right = 0;
-			} else if (event.key.keysym.sym == SDLK_UP) {
-				world->controller.up = 0;
-			} else if (event.key.keysym.sym == SDLK_DOWN) {
-				world->controller.down = 0;
-			}
-		} else if (event.type == SDL_QUIT) {
-			return 0;
-		}
-	}
 
 	/* Update player position. */
 	mx = 0;
 	my = 0;
-	if (world->controller.left) {
+	if (input.left) {
 		mx -= Interpolate(PlayerSpeed, CurrentDelay);
-	} else if (world->controller.right) {
+	} else if (input.right) {
 		mx += Interpolate(PlayerSpeed, CurrentDelay);
 	}
-	if (world->controller.up) {
+	if (input.up) {
 		my -= Interpolate(PlayerSpeed, CurrentDelay); 
-	} else if (world->controller.down) {
+	} else if (input.down) {
 		my += Interpolate(PlayerSpeed, CurrentDelay);
 	}
 
