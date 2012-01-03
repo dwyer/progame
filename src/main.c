@@ -47,6 +47,9 @@ int main(int argc, char *argv[]) {
 		return -1;
 	}
 	luaL_openlibs(lua_state);
+	if (luaL_dofile(lua_state, "./res/scripts/init.lua") == 1) {
+		return -1; /* We should probably print an error message or something */
+	}
 	/* Play the fucking game. */
 	playGame(screen);
 	/* Deinitialization */
