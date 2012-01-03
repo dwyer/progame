@@ -4,8 +4,7 @@
 
 #define TILE_SZ 16
 
-TMP_Tilemap *TMP_LoadTilemap(const char *filename)
-{
+TMP_Tilemap *TMP_LoadTilemap(const char *filename) {
 	TMP_Tilemap *result = NULL;
 	SDL_Rect src = { 0, 0, TILE_SZ, TILE_SZ };
 	SDL_Rect dst = { 0, 0, TILE_SZ, TILE_SZ };
@@ -66,16 +65,14 @@ TMP_Tilemap *TMP_LoadTilemap(const char *filename)
 	return result;
 }
 
-void TMP_DrawTilemap(TMP_Tilemap * tilemap, SDL_Surface * surface)
-{
+void TMP_DrawTilemap(TMP_Tilemap * tilemap, SDL_Surface * surface) {
 	int i;
 
 	for (i = 0; i < tilemap->depth; i++)
 		SDL_BlitSurface(tilemap->layers[i], NULL, surface, NULL);
 }
 
-void TMP_FreeTilemap(TMP_Tilemap * tilemap)
-{
+void TMP_FreeTilemap(TMP_Tilemap * tilemap) {
 	int i, j;
 
 	for (i = 0; i < tilemap->depth; i++) {
@@ -88,14 +85,12 @@ void TMP_FreeTilemap(TMP_Tilemap * tilemap)
 	free(tilemap->layers);
 }
 
-int TMP_TileIsOccupied(TMP_Tilemap * tilemap, int x, int y)
-{
+int TMP_TileIsOccupied(TMP_Tilemap * tilemap, int x, int y) {
 	return x < 0 || y < 0 || x >= tilemap->width || y >= tilemap->height
 		|| tilemap->collision[y][x];
 }
 
-int TMP_PixelIsOccupied(TMP_Tilemap * tilemap, int x, int y)
-{
+int TMP_PixelIsOccupied(TMP_Tilemap * tilemap, int x, int y) {
 	return (TMP_TileIsOccupied(tilemap, x / 16, y / 16) ||
 			TMP_TileIsOccupied(tilemap, (x + 15) / 16, y / 16) ||
 			TMP_TileIsOccupied(tilemap, x / 16, (y + 15) / 16) ||

@@ -6,29 +6,28 @@
 
 struct WeaponList *Weapons = NULL;
 
-int LoadConfig()
-{
+int LoadConfig() {
 	int Status = 0;
-	char*       Path = calloc(80, 1);
-	Dictionary* Dict = NULL;
-	confField* Fields = calloc(G_Fields, sizeof(confField));
+	char *Path = calloc(80, 1);
+	Dictionary *Dict = NULL;
+	confField *Fields = calloc(G_Fields, sizeof(confField));
 	int x;
-	
+
 	memset(Path, 0, 80);
 	strcat(Path, getenv("HOME"));
 	strcat(Path, "/.config/progame/progame.conf");
-	
+
 	Dict = LoadIni(Path);
-	
+
 	/*Fields[0].Name = (char*) "general:walkspeed";
-	Fields[0].Type = C_float;
-	
-	for (x = 0; x < G_Fields; x++){
-		LoadValue(Dict, &Fields[x]);
-	}
-	
-	printf("Walkspeed = %f\n", *(float*)Fields[0].Value);
-	*/
+	   Fields[0].Type = C_float;
+
+	   for (x = 0; x < G_Fields; x++){
+	   LoadValue(Dict, &Fields[x]);
+	   }
+
+	   printf("Walkspeed = %f\n", *(float*)Fields[0].Value);
+	 */
 	return Status;
 }
 
@@ -72,87 +71,87 @@ int LoadConfig()
 }
 */
 
-Dictionary* LoadIni(char* Path){
-	FILE* Ini = NULL;
-	int   Counter;
-	int   x;
-	char  c;
-	char* Temp;
-	Dictionary* Result = malloc(sizeof(Dictionary));
+Dictionary *LoadIni(char *Path) {
+	FILE *Ini = NULL;
+	int Counter;
+	int x;
+	char c;
+	char *Temp;
+	Dictionary *Result = malloc(sizeof(Dictionary));
 	memset(Result, 0, sizeof(Dictionary));
-	
+
 	Ini = fopen(Path, "r");
-	if (!Ini){
+	if (!Ini) {
 		printf("Config error: No such file %s\n", Path);
 		return NULL;
 	}
-	
+
 	Counter = fread(&c, 1, 1, Ini);
-	do{
-		if (c == '['){
+	do {
+		if (c == '[') {
 			Temp = calloc(80, sizeof(char));
-			
-			for (x = 0; Counter == 1; x++){
+
+			for (x = 0; Counter == 1; x++) {
 				Counter = fread(&Temp[x], 1, 1, Ini);
-				if (Temp[x] == ']'){
+				if (Temp[x] == ']') {
 					Temp[x] = 0;
 					break;
 				}
 			}
-			
+
 			if (Temp[x] == ']')
-			Temp[x] = 0;
-			
+				Temp[x] = 0;
+
 			printf("Temp: %s\n", Temp);
 		}
-		
+
 		Counter = fread(&c, 1, 1, Ini);
 	} while (Counter == 1);
-	
+
 	return Result;
 }
 
-struct Section* AddSection(Dictionary* Dict, char* name){
-	struct Section* Current = NULL;
+struct Section *AddSection(Dictionary * Dict, char *name) {
+	struct Section *Current = NULL;
 	int x;
-	
+
 	if (!Dict || !name)
-	return NULL;
-	
+		return NULL;
+
 	/* Checking if said section already exists */
-	if ((Current = GetSection(Dict, name))){
+	if ((Current = GetSection(Dict, name))) {
 		return Current;
 	}
-	
-	if (!Dict->Sections){
+
+	if (!Dict->Sections) {
 		Dict->Sections = malloc(sizeof(struct Section));
 		Current = Dict->Sections;
-	}
-	else {
+	} else {
 		Current = Dict->Sections;
-		while (Current->Next){
+		while (Current->Next) {
 			Current = Current->Next;
 		}
-		
+
 		Current->Next = malloc(sizeof(struct Section));
 	}
-	
+
 	Current->Name = name;
 	Current->Next = NULL;
-	
+
 	return Current;
 }
 
-struct Section* GetSection(Dictionary* Dict, char* name){
-	struct Section* Current = Dict->Sections;
-	if (!Dict || !Dict->Sections || !name) return NULL;
-	
-	while (Current){
+struct Section *GetSection(Dictionary * Dict, char *name) {
+	struct Section *Current = Dict->Sections;
+	if (!Dict || !Dict->Sections || !name)
+		return NULL;
+
+	while (Current) {
 		if (strcmp(Current->Name, name) == 0)
-		break;
-		
+			break;
+
 		Current = Current->Next;
 	}
-	
+
 	return Current;
 }
