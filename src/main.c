@@ -8,16 +8,12 @@
 /* Number of milliseconds between logic updates. */
 #define UPDATE_INTERVAL 10
 
-#define SPEEDPPS 0.2
-
-#define FPS_NO 20
-#define FRAMETIME 16 /*ms*/
-
 /* 
  * Pushes a user event to the event queue which will indicate that it's time to
  * update world.
  */
-Uint32 pushUpdateEvent(Uint32 interval, void *param) {
+Uint32 pushUpdateEvent(Uint32 interval, void *param)
+{
 	SDL_Event event;
 	SDL_UserEvent user;
 
@@ -39,24 +35,21 @@ Uint32 pushUpdateEvent(Uint32 interval, void *param) {
  */
 int main(int argc, char *argv[])
 {
-	const char   filename[] = "res/untitled.tmx.bin";
-	SDL_Surface* screen = NULL;
-	SDL_TimerID	 timer_id;
-	World*       world = NULL;
+	const char filename[] = "res/untitled.tmx.bin";
+	SDL_Surface *screen = NULL;
+	SDL_TimerID timer_id;
+	World *world = NULL;
 	Input input = { 0, 0, 0, 0 };
 	bool play = true;
 
-	SDL_Event    event;
-	
-	int          CurrentDelay = 10,
-				 AverageDelay = 10;
-	unsigned int StartTime = 0;
+	SDL_Event event;
 
 	if (SDL_Init(SDL_INIT_EVERYTHING)) {
 		fprintf(stderr, "%s\n", SDL_GetError());
 		return -1;
 	}
-	if ((timer_id = SDL_AddTimer(UPDATE_INTERVAL, pushUpdateEvent, NULL)) == NULL) {
+	if ((timer_id =
+		 SDL_AddTimer(UPDATE_INTERVAL, pushUpdateEvent, NULL)) == NULL) {
 		fputs(SDL_GetError(), stderr);
 		return -1;
 	}
@@ -72,8 +65,6 @@ int main(int argc, char *argv[])
 	/* So far the only entity is the player. Later this will be replaced by a
 	 * linked-list of all entities (the player, npcs, enemies, items, etc.) */
 	do {
-		StartTime = SDL_GetTicks();
-
 		/* Events */
 		while (SDL_PollEvent(&event)) {
 			if (event.type == SDL_USEREVENT) {
@@ -110,40 +101,16 @@ int main(int argc, char *argv[])
 			fprintf(stderr, "%s\n", SDL_GetError());
 			return -1;
 		}
-		
-		/*Delay to prevent CPU chewing*/
-		if (CurrentDelay-StartTime < FRAMETIME)
-			SDL_Delay(FRAMETIME - (CurrentDelay-StartTime));
-		
+
 		/* Update screen. */
 		if (SDL_Flip(screen) == -1) {
 			fprintf(stderr, "%s\n", SDL_GetError());
 			return -1;
 		}
-				
-		GetDelay(&CurrentDelay, &AverageDelay, StartTime);
 	} while (play);
 	freeWorld(world);
 	SDL_FreeSurface(screen);
 	SDL_RemoveTimer(timer_id);
 	SDL_Quit();
 	return 0;
-}
-
-void GetDelay(int *CurrentDelay, int *AverageDelay, int StartTime)
-{
-	*CurrentDelay = (SDL_GetTicks() - StartTime);
-
-	*AverageDelay += *CurrentDelay;
-	if (*AverageDelay != *CurrentDelay)
-		*AverageDelay /= 2;
-}
-
-/* 
- * Floating point arithmetic may be CPU intensive
- * but this yields great benifits, and scales better than 
- * any fixed speed alternative.
- */
-float Interpolate(float Speed, float Time){
-	return (Speed * Time);
 }
