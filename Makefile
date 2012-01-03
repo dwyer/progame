@@ -1,8 +1,8 @@
 CC=gcc
 RM=rm
-CFILES=main.c world.c player.c tmx.c entity.c input.c
+CFILES=main.c world.c player.c tmx.c entity.c input.c config.c
 CFLAGS=-c -ansi -pedantic
-LDFLAGS=-lSDL
+LDFLAGS=-lSDL -liniparser
 OBJDIR=obj
 SRCDIR=src
 EXECUTABLE=game
