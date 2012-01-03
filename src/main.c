@@ -9,6 +9,20 @@
 #define FPS_NO 20
 #define FRAMETIME 16 /*ms*/
 
+Uint32 inc_timer(Uint32 interval, void *param) {
+	SDL_Event event;
+	SDL_UserEvent user;
+
+	user.type = SDL_USEREVENT;
+	user.code = 0;
+	user.data1 = NULL;
+	user.data2 = NULL;
+	event.type = SDL_USEREVENT;
+	event.user = user;
+	SDL_PushEvent(&event);
+	return interval;
+}
+
 /*
  * So far all we're doing here is loading a tilemap and allowing the ``player''
  * (a 16x18 dragon guy) to run around.
@@ -19,6 +33,7 @@ int main(int argc, char *argv[])
 {
 	const char   filename[] = "res/untitled.tmx.bin";
 	SDL_Surface* screen = NULL;
+	SDL_TimerID	 timer_id;
 	World*       world = NULL;
 	
 	int          CurrentDelay = 10,
@@ -27,6 +42,10 @@ int main(int argc, char *argv[])
 
 	if (SDL_Init(SDL_INIT_EVERYTHING)) {
 		fprintf(stderr, "%s\n", SDL_GetError());
+		return -1;
+	}
+	if ((timer_id = SDL_AddTimer(1, inc_timer, NULL)) == NULL) {
+		fputs(SDL_GetError(), stderr);
 		return -1;
 	}
 	if ((screen =
@@ -64,6 +83,7 @@ int main(int argc, char *argv[])
 	}
 	freeWorld(world);
 	SDL_FreeSurface(screen);
+	SDL_RemoveTimer(timer_id);
 	SDL_Quit();
 	return 0;
 }
