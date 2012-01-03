@@ -41,8 +41,8 @@ int main(int argc, char *argv[]) {
 	}
 	SDL_WM_SetCaption("/prog/ame", NULL);
 	
-	if ((lua_state = luaL_newstate()) != NULL) {
-		fprintf(stderr, "Error create Lua state.\n");
+	if ((lua_state = luaL_newstate()) == NULL) {
+		fprintf(stderr, "Error creating Lua state.\n");
 		SDL_Quit();
 		return -1;
 	}
