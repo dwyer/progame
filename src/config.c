@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "iniparser.h"
 #include "config.h"
 
 struct WeaponList *Weapons = NULL;
@@ -19,16 +18,21 @@ int LoadConfig(PrgConfig* Conf)
 	strcat(Path, getenv("HOME"));
 	strcat(Path, "/.config/progame/progame.conf");
 	
-	Dict = iniparser_load(Path);
+	/*Dict = iniparser_load(Path);
+	
+	Fields[0].Name = (char*) "general:walkspeed";
+	Fields[0].Type = C_float;
 	
 	for (x = 0; x < G_Fields; x++){
-		LoadValue(Dict, Fields[x]);
+		LoadValue(Dict, &Fields[x]);
 	}
 	
+	printf("Walkspeed = %f\n", *(float*)Fields[0].Value);
+	*/
 	return Status;
 }
 
-int LoadValue(dictionary* dict, confField* Field){
+/*int LoadValue(dictionary* dict, confField* Field){
 	if (!Field)
 	return -1;
 	
@@ -66,3 +70,4 @@ int LoadValue(dictionary* dict, confField* Field){
 	
 	return 0;
 }
+*/
