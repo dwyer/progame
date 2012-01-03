@@ -32,34 +32,17 @@ Uint32 pushUpdateEvent(Uint32 interval, void *param) {
  * TODO:
  * * Player moves (swing swords, shoot arrows, kick, punch, whatever).
  */
-int main(int argc, char *argv[]) {
+int playGame(SDL_Surface *screen) {
 	const char filename[] = "res/untitled.tmx.bin";
-	SDL_Surface *screen = NULL;
-	SDL_TimerID timer_id;
 	SDL_Event event;
 	World *world = NULL;
 	Input input = { 0, 0, 0, 0 };
 	bool play = true;
 
-	if (SDL_Init(SDL_INIT_EVERYTHING)) {
-		fprintf(stderr, "%s\n", SDL_GetError());
-		return -1;
-	}
-	if ((timer_id =
-		SDL_AddTimer(UPDATE_INTERVAL, pushUpdateEvent, NULL)) == NULL) {
-		fprintf(stderr, "%s\n", SDL_GetError());
-		return -1;
-	}
-	if ((screen =
-		SDL_SetVideoMode(SCREEN_W, SCREEN_H, SCREEN_BPP,
-						 SDL_HWSURFACE)) == NULL) {
-		fprintf(stderr, "%s\n", SDL_GetError());
-		return -1;
-	}
-	SDL_WM_SetCaption("/prog/ame", NULL);
 	if ((world = createWorld(filename)) == NULL) {
 		return -1;
 	}
+
 	do {
 		/* Events */
 		while (SDL_PollEvent(&event)) {
@@ -105,6 +88,33 @@ int main(int argc, char *argv[]) {
 		}
 	} while (play);
 	freeWorld(world);
+	return 0;
+}
+
+int main(int argc, char *argv[]) {
+	SDL_Surface *screen = NULL;
+	SDL_TimerID timer_id;
+
+	/* Initialization. */
+	if (SDL_Init(SDL_INIT_EVERYTHING)) {
+		fprintf(stderr, "%s\n", SDL_GetError());
+		return -1;
+	}
+	if ((timer_id =
+		SDL_AddTimer(UPDATE_INTERVAL, pushUpdateEvent, NULL)) == NULL) {
+		fprintf(stderr, "%s\n", SDL_GetError());
+		return -1;
+	}
+	if ((screen =
+		SDL_SetVideoMode(SCREEN_W, SCREEN_H, SCREEN_BPP,
+						 SDL_HWSURFACE)) == NULL) {
+		fprintf(stderr, "%s\n", SDL_GetError());
+		return -1;
+	}
+	SDL_WM_SetCaption("/prog/ame", NULL);
+	/* Play the fucking game. */
+	playGame(screen);
+	/* Deinitialization */
 	SDL_FreeSurface(screen);
 	SDL_RemoveTimer(timer_id);
 	SDL_Quit();
