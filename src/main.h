@@ -5,7 +5,7 @@
 #define SCREEN_H 240
 #define SCREEN_BPP 32
 
-int GetFPS();
-float Interpolate(float Speed, float FPS);
+void GetDelay(int *CurrentDelay, int *AverageDelay, int StartTime);
+float Interpolate(float Speed, float Delay);
 
 #endif

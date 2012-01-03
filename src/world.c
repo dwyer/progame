@@ -40,7 +40,7 @@ World *createWorld(const char *filename)
 	return world;
 }
 
-int updateWorld(World *world, int CurrentFPS) {
+int updateWorld(World *world, int CurrentDelay) {
 	SDL_Event event;
 	int my = 0, mx = 0;
 
@@ -76,14 +76,14 @@ int updateWorld(World *world, int CurrentFPS) {
 	mx = 0;
 	my = 0;
 	if (world->controller.left) {
-		mx -= Interpolate(PlayerSpeed, CurrentFPS);
+		mx -= Interpolate(PlayerSpeed, CurrentDelay);
 	} else if (world->controller.right) {
-		mx += Interpolate(PlayerSpeed, CurrentFPS);
+		mx += Interpolate(PlayerSpeed, CurrentDelay);
 	}
 	if (world->controller.up) {
-		my -= Interpolate(PlayerSpeed, CurrentFPS); 
+		my -= Interpolate(PlayerSpeed, CurrentDelay); 
 	} else if (world->controller.down) {
-		my += Interpolate(PlayerSpeed, CurrentFPS);
+		my += Interpolate(PlayerSpeed, CurrentDelay);
 	}
 
 	if (mx && TMP_PixelIsOccupied(world->tilemap, world->player->pos.x + mx,

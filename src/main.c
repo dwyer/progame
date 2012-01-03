@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
 	const char filename[] = "res/untitled.tmx.bin";
 	SDL_Surface *screen = NULL;
 	World *world = NULL;
-	int CurrentFPS = 10, AverageFPS = 10;
+	int CurrentDelay = 10, AverageDelay = 10;
 	unsigned int StartTime = 0, CurrentTime = 0;
 
 	if (SDL_Init(SDL_INIT_EVERYTHING)) {
@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
 	}
 	/* So far the only entity is the player. Later this will be replaced by a
 	 * linked-list of all entities (the player, npcs, enemies, items, etc.) */
-	while (updateWorld(world, CurrentFPS)) {
+	while (updateWorld(world, CurrentDelay)) {
 		StartTime = SDL_GetTicks();
 		/* Draw. */
 		if (drawWorld(world, screen)) {
@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
 			fputs(SDL_GetError(), stderr);
 			return -1;
 		}
-		GetFPS(&CurrentFPS, &AverageFPS, StartTime);
+		GetDelay(&CurrentDelay, &AverageDelay, StartTime);
 
 		CurrentTime = SDL_GetTicks();
 		if (CurrentTime-StartTime < FRAMETIME) SDL_Delay(FRAMETIME-(CurrentTime-StartTime));
@@ -68,15 +68,13 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
-int GetFPS(int *CurrentFPS, int *AverageFPS, int StartTime)
+void GetDelay(int *CurrentDelay, int *AverageDelay, int StartTime)
 {
-	*CurrentFPS = (SDL_GetTicks() - StartTime);
+	*CurrentDelay = (SDL_GetTicks() - StartTime);
 
-	*AverageFPS += *CurrentFPS;
-	if (*AverageFPS != *CurrentFPS)
-		*AverageFPS /= 2;
-
-	return 0;
+	*AverageDelay += *CurrentDelay;
+	if (*AverageDelay != *CurrentDelay)
+		*AverageDelay /= 2;
 }
 
 /* 
@@ -84,7 +82,6 @@ int GetFPS(int *CurrentFPS, int *AverageFPS, int StartTime)
  * but this yields great benifits, and scales better than 
  * any fixed speed alternative.
  */
-float Interpolate(float Speed, float FPS)
-{
-	return (Speed * FPS);
+float Interpolate(float Speed, float Time){
+	return (Speed * Time);
 }
