@@ -9,8 +9,7 @@ typedef struct {
 	Player *player;
 } World;
 
-World *createWorld(const char *filename)
-{
+World *createWorld(const char *filename) {
 	World *world = NULL;
 
 	world = malloc(sizeof(World));
@@ -29,8 +28,7 @@ World *createWorld(const char *filename)
 	return world;
 }
 
-int updateWorld(World * world, Input input)
-{
+int updateWorld(World * world, Input input) {
 	int my = 0, mx = 0;
 
 	/* Update player position. */
@@ -80,8 +78,7 @@ int updateWorld(World * world, Input input)
 	return 1;
 }
 
-int drawWorld(World * world, SDL_Surface * surf)
-{
+int drawWorld(World * world, SDL_Surface * surf) {
 	int i;
 
 	for (i = 0; i < world->tilemap->depth - 1; i++) {
@@ -99,8 +96,7 @@ int drawWorld(World * world, SDL_Surface * surf)
 	return 0;
 }
 
-void freeWorld(World * world)
-{
+void freeWorld(World * world) {
 	TMP_FreeTilemap(world->tilemap);
 	freePlayer(world->player);
 	free(world);

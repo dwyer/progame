@@ -2,8 +2,7 @@
 #include "entity.h"
 
 int drawEntities(EntityList * List, SDL_Surface * Surface, int camx,
-				 int camy)
-{
+				 int camy) {
 	EntityList *Current = List;
 
 	while (Current) {

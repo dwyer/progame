@@ -12,8 +12,7 @@
  * Pushes a user event to the event queue which will indicate that it's time to
  * update world.
  */
-Uint32 pushUpdateEvent(Uint32 interval, void *param)
-{
+Uint32 pushUpdateEvent(Uint32 interval, void *param) {
 	SDL_Event event;
 	SDL_UserEvent user;
 
@@ -33,8 +32,7 @@ Uint32 pushUpdateEvent(Uint32 interval, void *param)
  * TODO:
  * * Player moves (swing swords, shoot arrows, kick, punch, whatever).
  */
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 	const char filename[] = "res/untitled.tmx.bin";
 	SDL_Surface *screen = NULL;
 	SDL_TimerID timer_id;
@@ -42,7 +40,7 @@ int main(int argc, char *argv[])
 	World *world = NULL;
 	Input input = { 0, 0, 0, 0 };
 	bool play = true;
-	
+
 	if (SDL_Init(SDL_INIT_EVERYTHING)) {
 		fprintf(stderr, "%s\n", SDL_GetError());
 		return -1;
@@ -58,15 +56,10 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "%s\n", SDL_GetError());
 		return -1;
 	}
+	SDL_WM_SetCaption("/prog/ame", NULL);
 	if ((world = createWorld(filename)) == NULL) {
 		return -1;
 	}
-
-	LoadConfig();
-	SDL_WM_SetCaption("/huhrurruhrhrur", NULL);
-	
-	/* So far the only entity is the player. Later this will be replaced by a
-	 * linked-list of all entities (the player, npcs, enemies, items, etc.) */
 	do {
 		/* Events */
 		while (SDL_PollEvent(&event)) {
