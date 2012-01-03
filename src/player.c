@@ -67,9 +67,11 @@ void movePlayer(Player * player, int x, int y)
 		case D_north: player->src.y = 0;
 		break;
 		
+		case D_east:
 		case D_soueast:
 		player->src.y = 18;
 		break;
+		case D_west:
 		case D_souwest:
 		player->src.y = 54;
 		break;
@@ -98,6 +100,9 @@ void freePlayer(Player * player)
 }
 
 int switchPlayerstate(Player* player, int State){
+	if (!player)
+	return -1;
+	
 	switch (State){
 		case p_walk:{
 			if (player->State.State != p_walk){
