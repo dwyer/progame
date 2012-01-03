@@ -13,6 +13,11 @@
 #define w_ID    2
 #define w_SprSh 3
 
+struct Field{
+	int Type;
+	void* data;
+};
+
 struct WeaponList {
 	int ID;
 	char *Name;

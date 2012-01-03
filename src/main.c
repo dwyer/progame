@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
 	SDL_Surface *screen = NULL;
 	World *world = NULL;
 	int CurrentDelay = 10, AverageDelay = 10;
-	unsigned int StartTime = 0, CurrentTime = 0;
+	unsigned int StartTime = 0;
 
 	if (SDL_Init(SDL_INIT_EVERYTHING)) {
 		fprintf(stderr, "%s\n", SDL_GetError());
@@ -47,15 +47,15 @@ int main(int argc, char *argv[])
 			fprintf(stderr, "%s\n", SDL_GetError());
 			return -1;
 		}
+		
+		if (CurrentDelay-StartTime < FRAMETIME) SDL_Delay(FRAMETIME-(CurrentDelay-StartTime));
 		/* Update screen. */
 		if (SDL_Flip(screen) == -1) {
 			fprintf(stderr, "%s\n", SDL_GetError());
 			return -1;
 		}
+				
 		GetDelay(&CurrentDelay, &AverageDelay, StartTime);
-
-		CurrentTime = SDL_GetTicks();
-		if (CurrentTime-StartTime < FRAMETIME) SDL_Delay(FRAMETIME-(CurrentTime-StartTime));
 	}
 	freeWorld(world);
 	SDL_FreeSurface(screen);
