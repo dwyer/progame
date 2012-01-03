@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
 	}
 	/* So far the only entity is the player. Later this will be replaced by a
 	 * linked-list of all entities (the player, npcs, enemies, items, etc.) */
-	while (play) {
+	do {
 		StartTime = SDL_GetTicks();
 		updateWorld(world, input, CurrentDelay);
 
@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
 		}
 				
 		GetDelay(&CurrentDelay, &AverageDelay, StartTime);
-	}
+	} while (play);
 	freeWorld(world);
 	SDL_FreeSurface(screen);
 	SDL_RemoveTimer(timer_id);
