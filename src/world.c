@@ -76,29 +76,14 @@ int updateWorld(World *world, int CurrentFPS) {
 	mx = 0;
 	my = 0;
 	if (world->controller.left) {
-<<<<<<< HEAD
-		mx -= (int)Interpolate(PlayerSpeed, (float)CurrentFPS) /* 2*/;
-		/*mx = -PLAYER_SPEED; */
+		mx -= Interpolate(PlayerSpeed, CurrentFPS);
 	} else if (world->controller.right) {
-		mx += (int)Interpolate(PlayerSpeed, (float)CurrentFPS) /* 2*/;
-		/*mx = PLAYER_SPEED; */
+		mx += Interpolate(PlayerSpeed, CurrentFPS);
 	}
 	if (world->controller.up) {
-		my -= (int)Interpolate(PlayerSpeed, (float)CurrentFPS) /* 2*/; 
-		/*my = -PLAYER_SPEED;*/
+		my -= Interpolate(PlayerSpeed, CurrentFPS); 
 	} else if (world->controller.down) {
-		my += (int)Interpolate(PlayerSpeed, (float)CurrentFPS) /* 2*/;
-		/*my = PLAYER_SPEED; */
-=======
-		mx = Interpolate(PlayerSpeed, CurrentFPS) * -1;
-	} else if (world->controller.right) {
-		mx = Interpolate(PlayerSpeed, CurrentFPS);
-	}
-	if (world->controller.up) {
-		my = Interpolate(PlayerSpeed, CurrentFPS) * -1; 
-	} else if (world->controller.down) {
-		my = Interpolate(PlayerSpeed, CurrentFPS);
->>>>>>> 89e7f9fc9d9482c0ff140a745ed1a5bfefbc2848
+		my += Interpolate(PlayerSpeed, CurrentFPS);
 	}
 
 	if (mx
