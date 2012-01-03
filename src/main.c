@@ -10,7 +10,7 @@
 
 /*
  * So far all we're doing here is loading a tilemap and allowing the ``player''
- * (a 16x16 black square) to run around.
+ * (a 16x18 dragon guy) to run around.
  * TODO:
  * * Player moves (swing swords, shoot arrows, kick, punch, whatever).
  */
@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
 	const char filename[] = "res/untitled.tmx.bin";
 	SDL_Surface *screen = NULL;
 	World *world = NULL;
-	int CurrentFPS = 10, AverageFPS = 10;
+	int CurrentDelay = 10, AverageDelay = 10;
 	unsigned int StartTime = 0, CurrentTime = 0;
 
 	if (SDL_Init(SDL_INIT_EVERYTHING)) {
@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
 	}
 	/* So far the only entity is the player. Later this will be replaced by a
 	 * linked-list of all entities (the player, npcs, enemies, items, etc.) */
-	while (updateWorld(world, CurrentFPS)) {
+	while (updateWorld(world, CurrentDelay)) {
 		StartTime = SDL_GetTicks();
 		/* Draw. */
 		if (drawWorld(world, screen)) {
@@ -49,18 +49,10 @@ int main(int argc, char *argv[])
 			fputs(SDL_GetError(), stderr);
 			return -1;
 		}
-		GetFPS(&CurrentFPS, &AverageFPS, StartTime);
+		GetDelay(&CurrentDelay, &AverageDelay, StartTime);
 
 		CurrentTime = SDL_GetTicks();
 		if (CurrentTime-StartTime < FRAMETIME) SDL_Delay(FRAMETIME-(CurrentTime-StartTime));
-		/* Honestly, delaying for frames is not enterprise quality. 
-		 * Using the framerate to compensate the animations so they
-		 * match the actual speed is much more flexible, and is
-		 * ENTERPRISE QUALITY. It allows for soeeds to not fluxuate
-		 * despite the framerate, so it looks great, and as the engine
-		 * grows, framerates will fluxuate. That is simply inevitable.
-		 * I have written a working implementation for fps independant
-		 * interpolation, and I think we should use it. */
 	}
 	freeWorld(world);
 	SDL_FreeSurface(screen);
@@ -68,15 +60,13 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
-int GetFPS(int *CurrentFPS, int *AverageFPS, int StartTime)
+void GetDelay(int *CurrentDelay, int *AverageDelay, int StartTime)
 {
-	*CurrentFPS = (SDL_GetTicks() - StartTime);
+	*CurrentDelay = (SDL_GetTicks() - StartTime);
 
-	*AverageFPS += *CurrentFPS;
-	if (*AverageFPS != *CurrentFPS)
-		*AverageFPS /= 2;
-
-	return 0;
+	*AverageDelay += *CurrentDelay;
+	if (*AverageDelay != *CurrentDelay)
+		*AverageDelay /= 2;
 }
 
 /* 
@@ -84,7 +74,6 @@ int GetFPS(int *CurrentFPS, int *AverageFPS, int StartTime)
  * but this yields great benifits, and scales better than 
  * any fixed speed alternative.
  */
-float Interpolate(float Speed, float FPS)
-{
-	return (Speed * FPS);
+float Interpolate(float Speed, float Time){
+	return (Speed * Time);
 }

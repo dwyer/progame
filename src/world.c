@@ -1,6 +1,7 @@
 #include "main.h"
 #include "player.h"
 #include "tmx.h"
+#include "entity.h"
 
 #define PlayerSpeed 0.6
 
@@ -14,6 +15,7 @@ typedef struct {
 		int left;
 		int right;
 	} controller;
+	EntityList *entities;
 } World;
 
 World *createWorld(const char *filename)
@@ -29,6 +31,7 @@ World *createWorld(const char *filename)
 	world->controller.down = 0;
 	world->controller.left = 0;
 	world->controller.right = 0;
+	world->entities = NULL;
 	if ((world->tilemap = TMP_LoadTilemap(filename)) == NULL){
 		fprintf(stderr, "Failed to open tilemap: %s!\n", filename);
 		return NULL;
@@ -40,7 +43,7 @@ World *createWorld(const char *filename)
 	return world;
 }
 
-int updateWorld(World *world, int CurrentFPS) {
+int updateWorld(World *world, int CurrentDelay) {
 	SDL_Event event;
 	int my = 0, mx = 0;
 
@@ -76,27 +79,27 @@ int updateWorld(World *world, int CurrentFPS) {
 	mx = 0;
 	my = 0;
 	if (world->controller.left) {
-		mx -= Interpolate(PlayerSpeed, CurrentFPS);
+		mx -= Interpolate(PlayerSpeed, CurrentDelay);
 	} else if (world->controller.right) {
-		mx += Interpolate(PlayerSpeed, CurrentFPS);
+		mx += Interpolate(PlayerSpeed, CurrentDelay);
 	}
 	if (world->controller.up) {
-		my -= Interpolate(PlayerSpeed, CurrentFPS); 
+		my -= Interpolate(PlayerSpeed, CurrentDelay); 
 	} else if (world->controller.down) {
-		my += Interpolate(PlayerSpeed, CurrentFPS);
+		my += Interpolate(PlayerSpeed, CurrentDelay);
 	}
 
-	if (mx
-		&& !TMP_PixelIsOccupied(world->tilemap, world->player->pos.x + mx,
+	if (mx && TMP_PixelIsOccupied(world->tilemap, world->player->pos.x + mx,
 								world->player->pos.y))
-		movePlayer(world->player, mx, 0);
-	if (my
-		&& !TMP_PixelIsOccupied(world->tilemap, world->player->pos.x,
+		mx = 0;  /* Allowing for soueast, etc */
+	if (my && TMP_PixelIsOccupied(world->tilemap, world->player->pos.x,
 								world->player->pos.y + my))
-		movePlayer(world->player, 0, my);
+		my = 0;
 	
 	if (!mx && !my)
-	switchPlayerstate(world->player, p_idle);
+	updatePlayerstate(world->player, p_idle);
+	else
+	movePlayer(world->player, mx, my);
 
 	/* Update camera position. */
 	world->camera.x = world->player->pos.x - (SCREEN_W - world->player->src.w) / 2;
