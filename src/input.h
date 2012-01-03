@@ -1,6 +1,6 @@
 #ifndef INPUT_H
 #define INPUT_H
 
-void ProcessInput();
+void ProcessInput( SDL_Event *event );
 
 #endif
