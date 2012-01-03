@@ -75,17 +75,13 @@ int updateWorld(World *world, int CurrentFPS) {
 	my = 0;
 	if (world->controller.left) {
 		mx = Interpolate(PlayerSpeed, CurrentFPS) * -1;
-		/*mx = -PLAYER_SPEED; */
 	} else if (world->controller.right) {
 		mx = Interpolate(PlayerSpeed, CurrentFPS);
-		/*mx = PLAYER_SPEED; */
 	}
 	if (world->controller.up) {
 		my = Interpolate(PlayerSpeed, CurrentFPS) * -1; 
-		/*my = -PLAYER_SPEED;*/
 	} else if (world->controller.down) {
 		my = Interpolate(PlayerSpeed, CurrentFPS);
-		/*my = PLAYER_SPEED; */
 	}
 
 	if (mx
@@ -101,16 +97,16 @@ int updateWorld(World *world, int CurrentFPS) {
 	switchPlayerstate(world->player, p_idle);
 
 	/* Update camera position. */
-	world->camera.x = world->player->pos.x - (SCREEN_W - 16) / 2;
+	world->camera.x = world->player->pos.x - (SCREEN_W - world->player->src.w) / 2;
 	if (world->camera.x < 0)
 		world->camera.x = 0;
-	else if (world->camera.x >= world->tilemap->width * 16 - SCREEN_W)
-		world->camera.x = world->tilemap->width * 16 - SCREEN_W - 1;
-	world->camera.y = world->player->pos.y - (SCREEN_H - 16) / 2;
+	else if (world->camera.x >= world->tilemap->width * world->player->src.w - SCREEN_W)
+		world->camera.x = world->tilemap->width * world->player->src.w - SCREEN_W - 1;
+	world->camera.y = world->player->pos.y - (SCREEN_H - world->player->src.h) / 2;
 	if (world->camera.y < 0)
 		world->camera.y = 0;
-	else if (world->camera.y >= world->tilemap->height * 16 - SCREEN_H)
-		world->camera.y = world->tilemap->height * 16 - SCREEN_H - 1;
+	else if (world->camera.y >= world->tilemap->height * world->player->src.h - SCREEN_H)
+		world->camera.y = world->tilemap->height * world->player->src.h - SCREEN_H - 1;
 	return 1;
 }
 
