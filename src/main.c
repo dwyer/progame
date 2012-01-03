@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdbool.h>
 #include "SDL/SDL.h"
 #include "main.h"
 #include "world.h"
@@ -36,6 +37,7 @@ int main(int argc, char *argv[])
 	SDL_TimerID	 timer_id;
 	World*       world = NULL;
 	Input input = { 0, 0, 0, 0 };
+	bool play = true;
 
 	SDL_Event    event;
 	
@@ -62,8 +64,9 @@ int main(int argc, char *argv[])
 	}
 	/* So far the only entity is the player. Later this will be replaced by a
 	 * linked-list of all entities (the player, npcs, enemies, items, etc.) */
-	while (updateWorld(world, input, CurrentDelay)) {
+	while (play) {
 		StartTime = SDL_GetTicks();
+		updateWorld(world, input, CurrentDelay);
 
 		/* Events */
 
@@ -78,7 +81,7 @@ int main(int argc, char *argv[])
 				} else if (event.key.keysym.sym == SDLK_DOWN) {
 					input.down = 1;
 				} else if (event.key.keysym.sym == SDLK_q) {
-					return 0;
+					play = false;
 				}
 			} else if (event.type == SDL_KEYUP) {
 				if (event.key.keysym.sym == SDLK_LEFT) {
@@ -91,7 +94,7 @@ int main(int argc, char *argv[])
 					input.down = 0;
 				}
 			} else if (event.type == SDL_QUIT) {
-				return 0;
+				play = false;
 			}
 		}
 
