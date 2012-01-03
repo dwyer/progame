@@ -6,6 +6,7 @@
 #define SPEEDPPS 0.2
 
 #define FPS_NO 20
+#define FRAMETIME 16 /*ms*/
 
 int GetFPS();
 float Interpolate(float Speed, int FPS);
@@ -14,7 +15,6 @@ float Interpolate(float Speed, int FPS);
  * So far all we're doing here is loading a tilemap and allowing the ``player''
  * (a 16x16 black square) to run around.
  * TODO:
- * * Collision detection.
  * * Player sprites with animations.
  * * Player moves (swing swords, shoot arrows, kick, punch, whatever).
  */
@@ -23,8 +23,9 @@ int main(int argc, char *argv[])
 	const char filename[] = "res/untitled.tmx.bin";
 	SDL_Surface *screen = NULL;
 	World *world = NULL;
-	int CurrentFPS = 10, AverageFPS = 10, StartTime = 0;
-	
+	int CurrentFPS = 10, AverageFPS = 10;
+	unsigned int StartTime = 0, CurrentTime = 0;
+
 	if (SDL_Init(SDL_INIT_EVERYTHING)) {
 		fputs(SDL_GetError(), stderr);
 		return -1;
@@ -53,6 +54,9 @@ int main(int argc, char *argv[])
 			return -1;
 		}
 		GetFPS(&CurrentFPS, &AverageFPS, StartTime);
+
+		CurrentTime = SDL_GetTicks();
+		if (CurrentTime-StartTime < FRAMETIME) SDL_Delay(FRAMETIME-(CurrentTime-StartTime));
 	}
 	freeWorld(world);
 	SDL_FreeSurface(screen);
@@ -60,13 +64,13 @@ int main(int argc, char *argv[])
 	return 0;
 }
 
-int GetFPS(int* CurrentFPS, int* AverageFPS, int StartTime)
+int GetFPS(int *CurrentFPS, int *AverageFPS, int StartTime)
 {
 	*CurrentFPS = SDL_GetTicks() - StartTime;
-	
+
 	*AverageFPS += *CurrentFPS;
 	if (*AverageFPS != *CurrentFPS)
-	*AverageFPS /= 2;
+		*AverageFPS /= 2;
 
 	return 0;
 }

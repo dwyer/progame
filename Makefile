@@ -1,7 +1,7 @@
 CC=gcc
 RM=rm
-CFILES=main.c world.c player.c tmx.c config.c entity.c
-CFLAGS=-c -ansi -pedantic -Wall
+CFILES=main.c world.c player.c tmx.c
+CFLAGS=-c -ansi -pedantic
 LDFLAGS=-lSDL
 OBJDIR=obj
 SRCDIR=src
@@ -18,13 +18,13 @@ debug: CC+=-g -DDEBUG
 debug: all
 
 $(EXECUTABLE): $(OBJS) $(BINDIR)
-	$(CC) $(LDFLAGS) $(OBJS) -o $@
+	$(CC) $(OBJS) $(LDFLAGS) -o $@
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	$(CC) $(CFLAGS) $< -o $@
 
 $(OBJDIR):
-	if [ ! -d $(OBJDIR) ] ; then mkdir $(OBJDIR) ; fi
+	mkdir $(OBJDIR)
 
 clean:
-	$(RM) -r $(OBJDIR) $(EXECUTABLE)
+	$(RM) -rf $(OBJDIR) $(EXECUTABLE)
