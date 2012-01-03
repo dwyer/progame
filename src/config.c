@@ -78,6 +78,8 @@ Dictionary* LoadIni(char* Path){
 	int   x;
 	char  c;
 	char* Temp;
+	Dictionary* Result = malloc(sizeof(Dictionary));
+	memset(Result, 0, sizeof(Dictionary));
 	
 	Ini = fopen(Path, "r");
 	if (!Ini){
@@ -106,6 +108,8 @@ Dictionary* LoadIni(char* Path){
 		
 		Counter = fread(&c, 1, 1, Ini);
 	} while (Counter == 1);
+	
+	return Result;
 }
 
 struct Section* AddSection(Dictionary* Dict, char* name){
@@ -113,7 +117,7 @@ struct Section* AddSection(Dictionary* Dict, char* name){
 	int x;
 	
 	if (!Dict || !name)
-	return -1;
+	return NULL;
 	
 	/* Checking if said section already exists */
 	if ((Current = GetSection(Dict, name))){
@@ -134,14 +138,14 @@ struct Section* AddSection(Dictionary* Dict, char* name){
 	}
 	
 	Current->Name = name;
+	Current->Next = NULL;
 	
 	return Current;
 }
 
 struct Section* GetSection(Dictionary* Dict, char* name){
-	if (!Dict || !Dict->Sections || !name) return NULL;
-	
 	struct Section* Current = Dict->Sections;
+	if (!Dict || !Dict->Sections || !name) return NULL;
 	
 	while (Current){
 		if (strcmp(Current->Name, name) == 0)
