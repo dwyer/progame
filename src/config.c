@@ -26,7 +26,8 @@ int LoadConfig(PrgConfig * Conf)
 		free(path);
 
 		if (dotConf) {
-
+			ConfLoad ConfStruct;
+			LoadIni(dotConf, &ConfStruct);
 
 		}
 	}
@@ -217,7 +218,7 @@ void* LoadIni(FILE* Ini){
 	
 }
 
-void* ParseIniSection(FILE* Ini, char** Fields, int fDelim, Field** Fields){
+void* ParseIniSection(FILE* Ini, char** Fields, int fDelim, Field** FieldList){
 	char  c;
 	int   x;
 	char* Name = NULL;
@@ -276,7 +277,7 @@ void* ParseIniSection(FILE* Ini, char** Fields, int fDelim, Field** Fields){
 					}
 
 
-					if (x == w_minAP || x == w_maxAP || x == w_ID) {	/* Numerical fields */
+					if (FieldList[x]->Type == I_num) {	/* Numerical fields */
 						Temp = malloc(10);
 						memset(Temp, 0, 10);
 
@@ -359,5 +360,6 @@ void* ParseIniSection(FILE* Ini, char** Fields, int fDelim, Field** Fields){
 				break;
 			}
 		}
+		Counter = fread(&c, 1, 1, wFile);
 	} while (Counter == 1);
 }

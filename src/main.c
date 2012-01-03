@@ -17,10 +17,12 @@
  */
 int main(int argc, char *argv[])
 {
-	const char filename[] = "res/untitled.tmx.bin";
-	SDL_Surface *screen = NULL;
-	World *world = NULL;
-	int CurrentDelay = 10, AverageDelay = 10;
+	const char   filename[] = "res/untitled.tmx.bin";
+	SDL_Surface* screen = NULL;
+	World*       world = NULL;
+	
+	int          CurrentDelay = 10,
+				 AverageDelay = 10;
 	unsigned int StartTime = 0;
 
 	if (SDL_Init(SDL_INIT_EVERYTHING)) {
@@ -48,7 +50,10 @@ int main(int argc, char *argv[])
 			return -1;
 		}
 		
-		if (CurrentDelay-StartTime < FRAMETIME) SDL_Delay(FRAMETIME-(CurrentDelay-StartTime));
+		/*Delay to prevent CPU chewing*/
+		if (CurrentDelay-StartTime < FRAMETIME)
+		SDL_Delay(FRAMETIME - (CurrentDelay-StartTime));
+		
 		/* Update screen. */
 		if (SDL_Flip(screen) == -1) {
 			fprintf(stderr, "%s\n", SDL_GetError());
