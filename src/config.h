@@ -1,53 +1,25 @@
-/*  *  *   *
- *   *  *   *
- * *  *   *   *
+/*  *  *   * *  *  *  *   *
+ *   *  *   * ASTERISKS  *
+ * *  *   *   * * * *  *
  */
 
 #ifndef ConfigH
 #define ConfigH
 
-#define WeaponFields 4
+#define G_Fields 2
 
-#define w_minAP 0
-#define w_maxAP 1
-#define w_ID    2
-#define w_SprSh 3
+#define C_int    1
+#define C_float  2
+#define C_string 3
 
-#define I_num 1
-
-typedef struct {
-	char** Sections;
-} ConfLoad;
-
-struct Field{
-	int Type;
-	void* data;
-};
-
-struct WeaponList {
-	int ID;
-	char *Name;
-	int max_AP;
-	int min_AP;
-	SDL_Surface *Sprites;
-	struct WeaponList *Next;
-};
-typedef struct WeaponList Weapon;
-
-#define G_Fields 2				/* General fields, as in
-								 * the PrgConfig Struct */
-#define G_WalkSpeed 0
-#define G_RunSpeed  1
-
-typedef struct {
-	float WalkSpeed;
-	float RunSpeed;
+typedef struct{ /* Main configuration values */
+	
 } PrgConfig;
 
-int LoadConfig(PrgConfig * Conf);
-int ReadInt(char *context);
-int Load_Weapons();
-
-extern struct WeaponList *Weapons;
+typedef struct{
+	int Type;
+	void* Value;
+	char* Name;
+} confField;
 
 #endif
