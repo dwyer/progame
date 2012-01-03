@@ -17,8 +17,6 @@
 #define p_idle 1
 #define p_walk 2
 
-#define PlayerSpeed 0.2
-
 typedef struct {
 	int State;
 	int StateTime;
@@ -35,7 +33,7 @@ typedef struct {
 
 Player *createPlayer(int x, int y);
 void movePlayer(Player * player, int x, int y);
-int drawPlayer(Player * player, SDL_Surface * surface, SDL_Rect camera);
+int  drawPlayer(Player * player, SDL_Surface * surface, SDL_Rect camera);
 void freePlayer(Player * player);
 
 #endif
