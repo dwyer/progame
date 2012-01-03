@@ -53,14 +53,6 @@ int main(int argc, char *argv[])
 
 		CurrentTime = SDL_GetTicks();
 		if (CurrentTime-StartTime < FRAMETIME) SDL_Delay(FRAMETIME-(CurrentTime-StartTime));
-		/* Honestly, delaying for frames is not enterprise quality. 
-		 * Using the framerate to compensate the animations so they
-		 * match the actual speed is much more flexible, and is
-		 * ENTERPRISE QUALITY. It allows for soeeds to not fluxuate
-		 * despite the framerate, so it looks great, and as the engine
-		 * grows, framerates will fluxuate. That is simply inevitable.
-		 * I have written a working implementation for fps independant
-		 * interpolation, and I think we should use it. */
 	}
 	freeWorld(world);
 	SDL_FreeSurface(screen);

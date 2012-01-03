@@ -97,7 +97,7 @@ int updateWorld(World *world, int CurrentDelay) {
 		my = 0;
 	
 	if (!mx && !my)
-	switchPlayerstate(world->player, p_idle);
+	updatePlayerstate(world->player, p_idle);
 	else
 	movePlayer(world->player, mx, my);
 

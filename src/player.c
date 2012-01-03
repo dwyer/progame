@@ -34,7 +34,7 @@ void movePlayer(Player * player, int x, int y)
 {
 	int Direction = 0;
 	
-	switchPlayerstate(player, p_walk);
+	updatePlayerstate(player, p_walk);
 
 	if (y != 0) {
 		if (x != 0) {
@@ -99,7 +99,7 @@ void freePlayer(Player * player)
 	free(player);
 }
 
-int switchPlayerstate(Player* player, int State){
+int updatePlayerstate(Player* player, int State){
 	if (!player)
 	return -1;
 	
@@ -127,8 +127,13 @@ int switchPlayerstate(Player* player, int State){
 		case p_idle:{
 			player->State.State = p_idle;
 			player->src.x = 32;
-			player->State.TimeSwitch = 0;
-			player->State.StateTime  = 0;
+			
+			if (player->src.x != 32 && player->State.StateTime + player->State.TimeSwitch <= SDL_GetTicks()){
+				player->src.x = 32;
+				
+				player->State.TimeSwitch = 0;
+				player->State.StateTime  = 0;
+			}
 		}
 	}
 	
