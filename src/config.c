@@ -41,14 +41,7 @@ int Load_Weapons()
 {
 	FILE *wFile = NULL;
 	struct WeaponList *Current = NULL;
-	char c;
-	int x;
-	char *path = malloc(80);
-	char *Name = NULL;
-	int Counter = 0;
-	int counter = 0;
-	char *Temp = NULL;
-
+	
 	char *Fields[WeaponFields] = {
 		"min_AP",
 		"max_AP",
@@ -106,134 +99,6 @@ int Load_Weapons()
 				break;
 			}
 
-		default:{
-				Temp = calloc(50, sizeof(char));
-				memset(Temp, 0, 50);
-
-				Temp[0] = c;
-				Counter = fread(&c, 1, 1, wFile);
-				counter = 1;
-
-				while (Counter == 1 && c != ' ' && c != '\n'
-					   && c != '\t' && c != '=') {
-					Temp[counter] = c;
-					Counter = fread(&c, 1, 1, wFile);
-
-					counter += 1;
-				}
-
-				if (c != '=') {
-					while (Counter == 1
-						   && (c == ' ' || c == '\n' || c == '\t')) {
-						Counter = fread(&c, 1, 1, wFile);
-					}
-				}
-				if (c == '=') {
-					if (!Current) {
-						printf
-							("Field %s defined outside of any weapons. Statement has no effect.\n",
-							 Temp);
-						while (Counter == 1 && c != '\n')
-							Counter = fread(&c, 1, 1, wFile);
-						continue;
-					}
-
-					x = MatchedField(Fields, Temp);
-
-					if (x == WeaponFields) {
-						printf
-							("Warning: No field '%s' within weapon; statement has no effect\n",
-							 Temp);
-
-						while (Counter == 1 && c == '\n') {
-							Counter = fread(&c, 1, 1, wFile);
-						}
-						continue;
-					}
-
-
-					if (x == w_minAP || x == w_maxAP || x == w_ID) {	/* Numerical fields */
-						Temp = malloc(10);
-						memset(Temp, 0, 10);
-
-						counter = 0;
-						Counter = fread(&Temp[counter], 1, 1, wFile);
-
-						while (Counter
-							   && (Temp[counter] == ' '
-								   || Temp[counter] == '\t'))
-							Counter = fread(&Temp[counter], 1, 1, wFile);
-
-						if (Temp[0] == '\n') {
-							Counter = fread(&c, 1, 1, wFile);
-							continue;
-						}
-
-						counter++;
-
-						do {
-							Counter = fread(&Temp[counter], 1, 1, wFile);
-							counter++;
-						} while (Counter == 1
-								 && (Temp[counter] >= '0'
-									 && Temp[counter] <= '9'));
-						counter = ReadInt(Temp);
-						free(Temp);
-
-						switch (x) {
-						case w_minAP:
-							Current->min_AP = counter;
-							break;
-
-
-						case w_maxAP:
-							Current->max_AP = counter;
-							break;
-
-
-						case w_ID:
-							Current->ID = counter;
-							break;
-
-
-						default:
-							break;
-						}
-					} else if (x == w_SprSh) {	/* String fields */
-						while (Counter == 1
-							   && (c == ' ' || c == '\n' || c == '\t')) {
-							Counter = fread(&c, 1, 1, wFile);
-						}
-						if (c == '\n') {
-							Counter = fread(&c, 1, 1, wFile);
-							continue;
-						}
-
-						Temp = calloc(50, sizeof(char));
-						memset(Temp, 0, 50);
-
-						Counter = fread(&c, 1, 1, wFile);
-						counter = 0;
-
-						while (Counter == 1 && c != '\n') {
-							Temp[counter] = c;
-							Counter = fread(&c, 1, 1, wFile);
-
-							counter += 1;
-						}
-
-						if (Current) {
-							Current->Sprites =
-								realloc(Temp, counter * sizeof(char) + 1);
-						}
-					} else {
-
-
-					}
-				} else {
-					fseek(wFile, -1, SEEK_CUR);
-				}
-			}
 		}
 
 		Counter = fread(&c, 1, 1, wFile);
@@ -346,4 +211,153 @@ int MatchedField(char **Fields, char *c)
 	}
 
 	return x;
+}
+
+void* LoadIni(FILE* Ini){
+	
+}
+
+void* ParseIniSection(FILE* Ini, char** Fields, int fDelim, Field** Fields){
+	char  c;
+	int   x;
+	char* Name = NULL;
+	int   Counter = 0;
+	int   counter = 0;
+	char* Temp = NULL;
+	
+	Counter = fread(&c, 1, 1, wFile);
+	
+	do {
+		switch (c){
+			case ' ':
+			case '\n':
+			case '\t':
+				while (Counter == 1 && (c == ' ' || c == '\n' || c == '\t'))
+					Counter = fread(&c, 1, 1, wFile);
+				continue;
+				break;
+
+			case '[':{	/*A name for a section */
+				
+				break;
+			}
+		
+			default:{
+				Temp = calloc(50, sizeof(char));
+				memset(Temp, 0, 50);
+
+				Temp[0] = c;
+				Counter = fread(&c, 1, 1, wFile);
+				counter = 1;
+
+				while (Counter == 1 && c != ' ' && c != '\n'
+					   && c != '\t' && c != '=') {
+					Temp[counter] = c;
+					Counter = fread(&c, 1, 1, wFile);
+
+					counter += 1;
+				}
+
+				if (c != '=') {
+					while (Counter == 1 && (c == ' ' || c == '\n' || c == '\t')) {
+						Counter = fread(&c, 1, 1, wFile);
+					}
+				}
+				if (c == '=') {
+					x = MatchedField(Fields, Temp);
+
+					if (x == fDelim) {
+						printf("Warning: No field '%s'; statement has no effect\n", Temp);
+
+						while (Counter == 1 && c == '\n') {
+							Counter = fread(&c, 1, 1, wFile);
+						}
+						continue;
+					}
+
+
+					if (x == w_minAP || x == w_maxAP || x == w_ID) {	/* Numerical fields */
+						Temp = malloc(10);
+						memset(Temp, 0, 10);
+
+						counter = 0;
+						Counter = fread(&Temp[counter], 1, 1, wFile);
+
+						while (Counter
+							   && (Temp[counter] == ' '
+								   || Temp[counter] == '\t'))
+							Counter = fread(&Temp[counter], 1, 1, wFile);
+
+						if (Temp[0] == '\n') {
+							Counter = fread(&c, 1, 1, wFile);
+							continue;
+						}
+
+						counter++;
+
+						do {
+							Counter = fread(&Temp[counter], 1, 1, wFile);
+							counter++;
+						} while (Counter == 1
+								 && (Temp[counter] >= '0'
+									 && Temp[counter] <= '9'));
+						counter = ReadInt(Temp);
+						free(Temp);
+
+						switch (x) {
+						case w_minAP:
+							Current->min_AP = counter;
+							break;
+
+
+						case w_maxAP:
+							Current->max_AP = counter;
+							break;
+
+
+						case w_ID:
+							Current->ID = counter;
+							break;
+
+
+						default:
+							break;
+						}
+					} else if (x == w_SprSh) {	/* String fields */
+						while (Counter == 1
+							   && (c == ' ' || c == '\n' || c == '\t')) {
+							Counter = fread(&c, 1, 1, wFile);
+						}
+						if (c == '\n') {
+							Counter = fread(&c, 1, 1, wFile);
+							continue;
+						}
+
+						Temp = calloc(50, sizeof(char));
+						memset(Temp, 0, 50);
+
+						Counter = fread(&c, 1, 1, wFile);
+						counter = 0;
+
+						while (Counter == 1 && c != '\n') {
+							Temp[counter] = c;
+							Counter = fread(&c, 1, 1, wFile);
+
+							counter += 1;
+						}
+
+						if (Current) {
+							Current->Sprites = realloc(Temp, counter * sizeof(char) + 1);
+						}
+					} else {
+
+
+					}
+				} else {
+					fseek(wFile, -1, SEEK_CUR);
+				}
+				break;
+			}
+		}
+	} while (Counter == 1);
 }
