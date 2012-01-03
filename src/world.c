@@ -1,14 +1,12 @@
 #include "main.h"
 #include "player.h"
 #include "tmx.h"
-#include "entity.h"
 #include "input.h"
 
 typedef struct {
 	SDL_Rect camera;
 	TMP_Tilemap *tilemap;
 	Player *player;
-	EntityList *entities;
 } World;
 
 World *createWorld(const char *filename)
@@ -20,7 +18,6 @@ World *createWorld(const char *filename)
 	world->camera.y = 0;
 	world->camera.w = SCREEN_W;
 	world->camera.h = SCREEN_H;
-	world->entities = NULL;
 	if ((world->tilemap = TMP_LoadTilemap(filename)) == NULL) {
 		fprintf(stderr, "Failed to open tilemap: %s!\n", filename);
 		return NULL;

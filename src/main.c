@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
 	Input input = { 0, 0, 0, 0 };
 	bool play = true;
 
-	if (SDL_Init(SDL_INIT_EVERYTHING)) {
+	if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO)) {
 		fputs(SDL_GetError(), stderr);
 		return -1;
 	}
