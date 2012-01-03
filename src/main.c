@@ -44,12 +44,12 @@ int main(int argc, char *argv[])
 	bool play = true;
 	
 	if (SDL_Init(SDL_INIT_EVERYTHING)) {
-		fputs(SDL_GetError(), stderr);
+		fprintf(stderr, "%s\n", SDL_GetError());
 		return -1;
 	}
 	if ((timer_id =
-		 SDL_AddTimer(UPDATE_INTERVAL, pushUpdateEvent, NULL)) == NULL) {
-		fputs(SDL_GetError(), stderr);
+		SDL_AddTimer(UPDATE_INTERVAL, pushUpdateEvent, NULL)) == NULL) {
+		fprintf(stderr, "%s\n", SDL_GetError());
 		return -1;
 	}
 	if ((screen =
