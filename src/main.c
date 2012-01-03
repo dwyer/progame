@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
 	}
 	/* So far the only entity is the player. Later this will be replaced by a
 	 * linked-list of all entities (the player, npcs, enemies, items, etc.) */
-	while (updateWorld(world)) {
+	while (updateWorld(world, CurrentFPS)) {
 		StartTime = SDL_GetTicks();
 		/* Draw. */
 		if (drawWorld(world, screen)) {
@@ -78,5 +78,5 @@ int GetFPS(int* CurrentFPS, int* AverageFPS, int StartTime)
  */
 float Interpolate(float Speed, int FPS)
 {
-	return Speed * FPS;
+	return (Speed / 2) * FPS;
 }

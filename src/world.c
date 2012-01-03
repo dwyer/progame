@@ -26,7 +26,7 @@ World *createWorld(const char *filename) {
 	world->controller.down = 0;
 	world->controller.left = 0;
 	world->controller.right = 0;
-	if ((world->tilemap = TMP_LoadTilemap(filename)) == NULL) {
+	if ((world->tilemap = TMP_LoadTilemap(filename)) == NULL){
 		fprintf(stderr, "Failed to open tilemap: %s!\n", filename);
 		return NULL;
 	}
@@ -37,7 +37,7 @@ World *createWorld(const char *filename) {
 	return world;
 }
 
-int updateWorld(World *world) {
+int updateWorld(World *world, int CurrentFPS) {
 	SDL_Event event;
 	int my = 0, mx = 0;
 
@@ -73,24 +73,28 @@ int updateWorld(World *world) {
 	mx = 0;
 	my = 0;
 	if (world->controller.left) {
-		/*mx = Interpolate(SPEEDPPS, CurrentFPS) * -1;*/
+		/*mx += (int)Interpolate(PlayerSpeed, CurrentFPS) * -1;*/
 		mx  = -PLAYER_SPEED;
 	} else if (world->controller.right) {
-		/*mx = Interpolate(SPEEDPPS, CurrentFPS);*/
+		/*mx += (int)Interpolate(PlayerSpeed, CurrentFPS);*/
 		mx = PLAYER_SPEED;
 	}
 	if (world->controller.up) {
-		/*my = Interpolate(SPEEDPPS, CurrentFPS) * -1;*/
+		/*my += (int)Interpolate(PlayerSpeed, CurrentFPS) * -1;*/
 		my = -PLAYER_SPEED;
 	} else if (world->controller.down) {
-		/*my = Interpolate(SPEEDPPS, CurrentFPS);*/
+		/*my += (int)Interpolate(PlayerSpeed, CurrentFPS);*/
 		my = PLAYER_SPEED;
 	}
-
+	
+	printf("%dx%d\n", mx, my);
 	if (mx && !TMP_PixelIsOccupied(world->tilemap, world->player->pos.x + mx, world->player->pos.y))
 		movePlayer(world->player, mx, 0);
 	if (my && !TMP_PixelIsOccupied(world->tilemap, world->player->pos.x, world->player->pos.y + my))
 		movePlayer(world->player, 0, my);
+	
+	if (!mx && !my)
+	switchPlayerstate(world->player, p_idle);
 
 	/* Update camera position. */
 	world->camera.x = world->player->pos.x - (SCREEN_W - 16) / 2;
@@ -110,7 +114,7 @@ int drawWorld(World *world, SDL_Surface *surf) {
 	int i;
 
 	for (i = 0; i < world->tilemap->depth - 1; i++) {
-		if (i == 2) { /* no magic numbers, please!!! */
+		if (i == 2) { /* no magic numbers, please!!! wut*/
 			if (drawPlayer(world->player, surf, world->camera)) {
 				return -1;
 			}

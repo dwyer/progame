@@ -10,11 +10,9 @@ Player *createPlayer(int x, int y)
 	player->pos.w = 16; /* h and w in a rect used as dest are ignores. wut */
 	player->pos.h = 16;
 	player->rel_pos = player->pos;
-	player->sprite =
-		SDL_CreateRGBSurface(SDL_HWSURFACE, 16, 16, 32, 0, 0, 0, 0);
 		
-	player->src.x = 0;
-	player->src.y = 0;
+	player->src.x = 32;
+	player->src.y = 16;
 	
 	player->src.h = 16;
 	player->src.w = 16;
@@ -27,29 +25,14 @@ Player *createPlayer(int x, int y)
 		free(player);
 		return NULL;
 	}
+	SDL_SetColorKey(player->sprite, SDL_SRCCOLORKEY,
+					SDL_MapRGB(player->sprite->format, 255, 0, 255));
 	return player;
 }
 
 void movePlayer(Player * player, int x, int y)
 {
-	if (player->State.State != p_walk){
-		player->State.State = p_walk;
-		player->State.StateTime = SDL_GetTicks();
-		player->State.TimeSwitch = 50;
-		player->src.y = 0;
-		player->src.x = 16;
-	}
-	else {
-		if (player->State.StateTime + player->State.TimeSwitch <= SDL_GetTicks()){
-			if (player->src.y == 16)
-			player->src.y = 0;
-			else
-			player->src.y = 16;
-			
-			player->State.StateTime = SDL_GetTicks();
-		}
-	}
-	
+	switchPlayerstate(player, p_walk);
 	int Direction = 0;
 	
 	if (y != 0){
@@ -80,6 +63,22 @@ void movePlayer(Player * player, int x, int y)
 		Direction = D_west;
 	}
 	
+	switch (Direction){
+		case D_norwest: case D_noreast:
+		case D_north: player->src.y = 0;
+		break;
+		
+		case D_soueast:
+		player->src.y = 16;
+		break;
+		case D_souwest:
+		player->src.y = 32 + 16;
+		break;
+		case D_south:
+		player->src.y = 32;
+		break;
+	}
+	
 	if (1) {
 		player->pos.x += x;
 		player->pos.y += y;
@@ -99,4 +98,36 @@ void freePlayer(Player * player)
 {
 	SDL_FreeSurface(player->sprite);
 	free(player);
+}
+
+int switchPlayerstate(Player* player, int State){
+	switch (State){
+		case p_walk:{
+			if (player->State.State != p_walk){
+				player->State.State = p_walk;
+				player->State.StateTime = SDL_GetTicks();
+				player->State.TimeSwitch = 50;
+				player->src.x = 32;
+			}
+			else {
+				if (player->State.StateTime + player->State.TimeSwitch <= SDL_GetTicks()){
+					if (player->src.x == 32)
+					player->src.x = 0;
+					else
+					player->src.x = 32;
+					
+					player->State.StateTime = SDL_GetTicks();
+				}
+			}
+			break;
+		}
+		
+		case p_idle:{
+			player->State.State = p_idle;
+			player->src.x = 16;
+			player->State.TimeSwitch = 0;
+			player->State.StateTime  = 0;
+		}
+	}
+	
 }

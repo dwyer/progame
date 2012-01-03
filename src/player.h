@@ -17,6 +17,8 @@
 #define p_idle 1
 #define p_walk 2
 
+#define PlayerSpeed 0.0001
+
 typedef struct{
 	int State;
 	int StateTime;
