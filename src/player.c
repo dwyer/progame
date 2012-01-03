@@ -7,12 +7,12 @@ Player *createPlayer(int x, int y)
 	player = malloc(sizeof(Player));
 	player->pos.x = x;
 	player->pos.y = y;
-	player->pos.w = 16;			/* h and w in a rect used as dest are ignores. wut */
+	player->pos.w = 16;
 	player->pos.h = 16;
 	player->rel_pos = player->pos;
 		
 	player->src.x = 32;
-	player->src.y = 16;
+	player->src.y = 18;
 	
 	player->src.h = 16;
 	player->src.w = 16;
@@ -126,7 +126,7 @@ int switchPlayerstate(Player* player, int State){
 		
 		case p_idle:{
 			player->State.State = p_idle;
-			player->src.x = 16;
+			player->src.x = 32;
 			player->State.TimeSwitch = 0;
 			player->State.StateTime  = 0;
 		}
