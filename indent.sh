@@ -10,3 +10,4 @@
 # -ts4	Treat tabs like four spaces. This is just to determine which column is 
 #	column 80.
 indent -kr -brf -ts4 src/*.[ch]
+rm -f src/*.[ch]~
