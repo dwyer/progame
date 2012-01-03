@@ -1,6 +1,7 @@
 #include "main.h"
 #include "player.h"
 #include "tmx.h"
+#include "entity.h"
 
 #define PlayerSpeed 0.6
 
@@ -14,6 +15,7 @@ typedef struct {
 		int left;
 		int right;
 	} controller;
+	EntityList *entities;
 } World;
 
 World *createWorld(const char *filename)
@@ -29,6 +31,7 @@ World *createWorld(const char *filename)
 	world->controller.down = 0;
 	world->controller.left = 0;
 	world->controller.right = 0;
+	world->entities = NULL;
 	if ((world->tilemap = TMP_LoadTilemap(filename)) == NULL){
 		fprintf(stderr, "Failed to open tilemap: %s!\n", filename);
 		return NULL;
