@@ -214,7 +214,7 @@ int MatchedField(char **Fields, char *c)
 	return x;
 }
 
-void* LoadIni(FILE* Ini){
+void* LoadIni(FILE* Ini, LoadConf* ConfStruct){
 	
 }
 
@@ -239,7 +239,7 @@ void* ParseIniSection(FILE* Ini, char** Fields, int fDelim, Field** FieldList){
 				break;
 
 			case '[':{	/*A name for a section */
-				
+				return NULL;
 				break;
 			}
 		
@@ -267,7 +267,7 @@ void* ParseIniSection(FILE* Ini, char** Fields, int fDelim, Field** FieldList){
 				if (c == '=') {
 					x = MatchedField(Fields, Temp);
 
-					if (x == fDelim) {
+					if (x >= fDelim) {
 						printf("Warning: No field '%s'; statement has no effect\n", Temp);
 
 						while (Counter == 1 && c == '\n') {
