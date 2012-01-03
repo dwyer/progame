@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
 		return -1;
 	}
 	SDL_WM_SetCaption("/prog/ame", NULL);
-	lua_state = lua_open();
+	lua_state = luaL_newstate();
 	luaopen_base(lua_state);
 	/* Play the fucking game. */
 	playGame(screen);
