@@ -7,7 +7,7 @@
 typedef struct World World;
 
 World *createWorld(const char *filename);
-int  updateWorld(World *world, Input input, int CurrentDelay);
+int  updateWorld(World *world, Input input);
 int  drawWorld(World *world, SDL_Surface *surf);
 void freeWorld(World *world);
 

@@ -5,6 +5,9 @@
 #include "world.h"
 #include "input.h"
 
+/* Number of milliseconds between logic updates. */
+#define UPDATE_INTERVAL 10
+
 #define SPEEDPPS 0.2
 
 #define FPS_NO 20
@@ -53,7 +56,7 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "%s\n", SDL_GetError());
 		return -1;
 	}
-	if ((timer_id = SDL_AddTimer(1, pushUpdateEvent, NULL)) == NULL) {
+	if ((timer_id = SDL_AddTimer(UPDATE_INTERVAL, pushUpdateEvent, NULL)) == NULL) {
 		fputs(SDL_GetError(), stderr);
 		return -1;
 	}
@@ -74,7 +77,7 @@ int main(int argc, char *argv[])
 		/* Events */
 		while (SDL_PollEvent(&event)) {
 			if (event.type == SDL_USEREVENT) {
-				updateWorld(world, input, CurrentDelay);
+				updateWorld(world, input);
 			} else if (event.type == SDL_KEYDOWN) {
 				if (event.key.keysym.sym == SDLK_LEFT) {
 					input.left = 1;

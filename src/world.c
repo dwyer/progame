@@ -4,7 +4,7 @@
 #include "entity.h"
 #include "input.h"
 
-#define PlayerSpeed 0.3
+#define PlayerSpeed 1
 
 typedef struct {
 	SDL_Rect camera;
@@ -34,21 +34,21 @@ World *createWorld(const char *filename)
 	return world;
 }
 
-int updateWorld(World *world, Input input, int CurrentDelay) {
+int updateWorld(World *world, Input input) {
 	int my = 0, mx = 0;
 
 	/* Update player position. */
 	mx = 0;
 	my = 0;
 	if (input.left) {
-		mx -= Interpolate(PlayerSpeed, CurrentDelay);
+		mx -= PlayerSpeed;
 	} else if (input.right) {
-		mx += Interpolate(PlayerSpeed, CurrentDelay);
+		mx += PlayerSpeed;
 	}
 	if (input.up) {
-		my -= Interpolate(PlayerSpeed, CurrentDelay); 
+		my -= PlayerSpeed; 
 	} else if (input.down) {
-		my += Interpolate(PlayerSpeed, CurrentDelay);
+		my += PlayerSpeed;
 	}
 
 	if (mx && TMP_PixelIsOccupied(world->tilemap, world->player->pos.x + mx,

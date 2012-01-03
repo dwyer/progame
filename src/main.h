@@ -6,6 +6,5 @@
 #define SCREEN_BPP 32
 
 void GetDelay(int *CurrentDelay, int *AverageDelay, int StartTime);
-float Interpolate(float Speed, float Delay);
 
 #endif
