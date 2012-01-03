@@ -46,13 +46,13 @@ int main(int argc, char *argv[]) {
 		return -1;
 	}
 	if ((timer_id =
-		 SDL_AddTimer(UPDATE_INTERVAL, pushUpdateEvent, NULL)) == NULL) {
+		SDL_AddTimer(UPDATE_INTERVAL, pushUpdateEvent, NULL)) == NULL) {
 		fprintf(stderr, "%s\n", SDL_GetError());
 		return -1;
 	}
 	if ((screen =
-		 SDL_SetVideoMode(SCREEN_W, SCREEN_H, SCREEN_BPP,
-						  SDL_HWSURFACE)) == NULL) {
+		SDL_SetVideoMode(SCREEN_W, SCREEN_H, SCREEN_BPP,
+						 SDL_HWSURFACE)) == NULL) {
 		fprintf(stderr, "%s\n", SDL_GetError());
 		return -1;
 	}
