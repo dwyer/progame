@@ -35,6 +35,8 @@ int main(int argc, char *argv[])
 	SDL_Surface* screen = NULL;
 	SDL_TimerID	 timer_id;
 	World*       world = NULL;
+
+	SDL_Event    event;
 	
 	int          CurrentDelay = 10,
 				 AverageDelay = 10;
@@ -61,7 +63,19 @@ int main(int argc, char *argv[])
 	 * linked-list of all entities (the player, npcs, enemies, items, etc.) */
 	while (updateWorld(world, CurrentDelay)) {
 		StartTime = SDL_GetTicks();
-		ProcessInput();
+
+		/* Events */
+		while (SDL_PollEvent(&event)) {
+			switch (event.type) {
+				case SDL_KEYDOWN:
+				case SDL_KEYUP:
+					ProcessInput(&event);
+					break;
+
+				default:
+					break;
+			}
+		}
 
 		/* Draw. */
 		if (drawWorld(world, screen)) {
