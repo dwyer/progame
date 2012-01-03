@@ -29,6 +29,7 @@ typedef struct {
 	SDL_Rect pos;				/* Player's position relative to the map. */
 	SDL_Rect rel_pos;
 	SDL_Surface *sprite;
+	Uint32 speed;
 } Player;
 
 Player *createPlayer(int x, int y);

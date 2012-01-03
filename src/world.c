@@ -4,8 +4,6 @@
 #include "entity.h"
 #include "input.h"
 
-#define PlayerSpeed 1
-
 typedef struct {
 	SDL_Rect camera;
 	TMP_Tilemap *tilemap;
@@ -41,14 +39,14 @@ int updateWorld(World *world, Input input) {
 	mx = 0;
 	my = 0;
 	if (input.left) {
-		mx -= PlayerSpeed;
+		mx -= world->player->speed;
 	} else if (input.right) {
-		mx += PlayerSpeed;
+		mx += world->player->speed;
 	}
 	if (input.up) {
-		my -= PlayerSpeed; 
+		my -= world->player->speed; 
 	} else if (input.down) {
-		my += PlayerSpeed;
+		my += world->player->speed;
 	}
 
 	if (mx && TMP_PixelIsOccupied(world->tilemap, world->player->pos.x + mx,

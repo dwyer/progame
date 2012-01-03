@@ -17,6 +17,8 @@ Player *createPlayer(int x, int y)
 	player->src.h = 16;
 	player->src.w = 16;
 
+	player->speed = 1;
+
 	player->State.State = p_idle;
 	player->State.StateTime = 0;
 
