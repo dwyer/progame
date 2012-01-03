@@ -6,29 +6,29 @@
 
 struct WeaponList *Weapons = NULL;
 
-int LoadConfig(PrgConfig* Conf)
+int LoadConfig(PrgConfig * Conf)
 {
 	int Status = 0;
-	char*       Path = calloc(80, 1);
-	dictionary* Dict = NULL;
-	confField* Fields = calloc(G_Fields, sizeof(confField));
+	char *Path = calloc(80, 1);
+	dictionary *Dict = NULL;
+	confField *Fields = calloc(G_Fields, sizeof(confField));
 	int x;
-	
+
 	memset(Path, 0, 80);
 	strcat(Path, getenv("HOME"));
 	strcat(Path, "/.config/progame/progame.conf");
-	
+
 	/*Dict = iniparser_load(Path);
-	
-	Fields[0].Name = (char*) "general:walkspeed";
-	Fields[0].Type = C_float;
-	
-	for (x = 0; x < G_Fields; x++){
-		LoadValue(Dict, &Fields[x]);
-	}
-	
-	printf("Walkspeed = %f\n", *(float*)Fields[0].Value);
-	*/
+
+	   Fields[0].Name = (char*) "general:walkspeed";
+	   Fields[0].Type = C_float;
+
+	   for (x = 0; x < G_Fields; x++){
+	   LoadValue(Dict, &Fields[x]);
+	   }
+
+	   printf("Walkspeed = %f\n", *(float*)Fields[0].Value);
+	 */
 	return Status;
 }
 

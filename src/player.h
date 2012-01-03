@@ -33,8 +33,8 @@ typedef struct {
 
 Player *createPlayer(int x, int y);
 void movePlayer(Player * player, int x, int y);
-int  drawPlayer(Player * player, SDL_Surface * surface, SDL_Rect camera);
+int drawPlayer(Player * player, SDL_Surface * surface, SDL_Rect camera);
 void freePlayer(Player * player);
-int updatePlayerstate(Player* player, int State);
+int updatePlayerstate(Player * player, int State);
 
 #endif

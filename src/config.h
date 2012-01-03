@@ -12,14 +12,14 @@
 #define C_float  2
 #define C_string 3
 
-typedef struct{ /* Main configuration values */
-	
+typedef struct {				/* Main configuration values */
+
 } PrgConfig;
 
-typedef struct{
+typedef struct {
 	int Type;
-	void* Value;
-	char* Name;
+	void *Value;
+	char *Name;
 } confField;
 
 #endif

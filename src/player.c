@@ -9,10 +9,10 @@ Player *createPlayer(int x, int y)
 	player->pos.y = y;
 	player->pos.w = 16;
 	player->pos.h = 16;
-		
+
 	player->src.x = 32;
 	player->src.y = 18;
-	
+
 	player->src.h = 16;
 	player->src.w = 16;
 
@@ -34,7 +34,7 @@ Player *createPlayer(int x, int y)
 void movePlayer(Player * player, int x, int y)
 {
 	int Direction = 0;
-	
+
 	updatePlayerstate(player, p_walk);
 
 	if (y != 0) {
@@ -62,25 +62,27 @@ void movePlayer(Player * player, int x, int y)
 		else
 			Direction = D_west;
 	}
-	
-	switch (Direction){
-		case D_norwest: case D_noreast:
-		case D_north: player->src.y = 0;
+
+	switch (Direction) {
+	case D_norwest:
+	case D_noreast:
+	case D_north:
+		player->src.y = 0;
 		break;
-		
-		case D_east:
-		case D_soueast:
+
+	case D_east:
+	case D_soueast:
 		player->src.y = 18;
 		break;
-		case D_west:
-		case D_souwest:
+	case D_west:
+	case D_souwest:
 		player->src.y = 54;
 		break;
-		case D_south:
+	case D_south:
 		player->src.y = 36;
 		break;
 	}
-	
+
 	player->pos.x += x;
 	player->pos.y += y;
 }
@@ -100,42 +102,45 @@ void freePlayer(Player * player)
 	free(player);
 }
 
-int updatePlayerstate(Player* player, int State){
+int updatePlayerstate(Player * player, int State)
+{
 	if (!player)
-	return -1;
-	
-	switch (State){
-		case p_walk:{
-			if (player->State.State != p_walk){
+		return -1;
+
+	switch (State) {
+	case p_walk:{
+			if (player->State.State != p_walk) {
 				player->State.State = p_walk;
 				player->State.StateTime = SDL_GetTicks();
 				player->State.TimeSwitch = 75;
 				player->src.x = 32;
-			}
-			else {
-				if (player->State.StateTime + player->State.TimeSwitch <= SDL_GetTicks()){
+			} else {
+				if (player->State.StateTime + player->State.TimeSwitch <=
+					SDL_GetTicks()) {
 					if (player->src.x == 32)
-					player->src.x = 0;
+						player->src.x = 0;
 					else
-					player->src.x = 32;
-					
+						player->src.x = 32;
+
 					player->State.StateTime = SDL_GetTicks();
 				}
 			}
 			break;
 		}
-		
-		case p_idle:{
+
+	case p_idle:{
 			player->State.State = p_idle;
 			player->src.x = 32;
-			
-			if (player->src.x != 32 && player->State.StateTime + player->State.TimeSwitch <= SDL_GetTicks()){
+
+			if (player->src.x != 32
+				&& player->State.StateTime + player->State.TimeSwitch <=
+				SDL_GetTicks()) {
 				player->src.x = 32;
-				
+
 				player->State.TimeSwitch = 0;
-				player->State.StateTime  = 0;
+				player->State.StateTime = 0;
 			}
 		}
 	}
-	
+
 }
