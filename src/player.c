@@ -21,7 +21,7 @@ Player *createPlayer(int x, int y) {
 	player->State.StateTime = 0;
 
 	if (!(player->sprite = SDL_LoadBMP("res/player1.bmp"))) {
-		fputs(SDL_GetError(), stderr);
+		fprintf(stderr, "%s\n", SDL_GetError());
 		free(player);
 		return NULL;
 	}
