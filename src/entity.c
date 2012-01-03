@@ -5,7 +5,7 @@ int drawEntities(EntityList * List, SDL_Surface * Surface, int camx,
 				 int camy)
 {
 	EntityList *Current = List;
-	
+
 	while (Current) {
 		Current->Subject->rel_Dest.x = Current->Subject->Dest.x - camx;
 		Current->Subject->rel_Dest.y = Current->Subject->Dest.y - camy;

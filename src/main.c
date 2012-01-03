@@ -38,14 +38,13 @@ int main(int argc, char *argv[])
 	const char filename[] = "res/untitled.tmx.bin";
 	SDL_Surface *screen = NULL;
 	SDL_TimerID timer_id;
+	SDL_Event event;
 	World *world = NULL;
 	Input input = { 0, 0, 0, 0 };
 	bool play = true;
 
-	SDL_Event event;
-
 	if (SDL_Init(SDL_INIT_EVERYTHING)) {
-		fprintf(stderr, "%s\n", SDL_GetError());
+		fputs(SDL_GetError(), stderr);
 		return -1;
 	}
 	if ((timer_id =

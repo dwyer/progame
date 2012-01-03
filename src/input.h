@@ -8,6 +8,6 @@ typedef struct {
 	int right;
 } Input;
 
-void ProcessInput( SDL_Event *event );
+void ProcessInput(SDL_Event * event);
 
 #endif

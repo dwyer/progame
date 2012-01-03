@@ -4,8 +4,6 @@
 #include "entity.h"
 #include "input.h"
 
-#define PlayerSpeed 1
-
 typedef struct {
 	SDL_Rect camera;
 	TMP_Tilemap *tilemap;
@@ -23,7 +21,7 @@ World *createWorld(const char *filename)
 	world->camera.w = SCREEN_W;
 	world->camera.h = SCREEN_H;
 	world->entities = NULL;
-	if ((world->tilemap = TMP_LoadTilemap(filename)) == NULL){
+	if ((world->tilemap = TMP_LoadTilemap(filename)) == NULL) {
 		fprintf(stderr, "Failed to open tilemap: %s!\n", filename);
 		return NULL;
 	}
@@ -34,46 +32,54 @@ World *createWorld(const char *filename)
 	return world;
 }
 
-int updateWorld(World *world, Input input) {
+int updateWorld(World * world, Input input)
+{
 	int my = 0, mx = 0;
 
 	/* Update player position. */
 	mx = 0;
 	my = 0;
 	if (input.left) {
-		mx -= PlayerSpeed;
+		mx -= world->player->speed;
 	} else if (input.right) {
-		mx += PlayerSpeed;
+		mx += world->player->speed;
 	}
 	if (input.up) {
-		my -= PlayerSpeed; 
+		my -= world->player->speed;
 	} else if (input.down) {
-		my += PlayerSpeed;
+		my += world->player->speed;
 	}
 
-	if (mx && TMP_PixelIsOccupied(world->tilemap, world->player->pos.x + mx,
-								world->player->pos.y))
-		mx = 0;  /* Allowing for soueast, etc */
+	if (mx
+		&& TMP_PixelIsOccupied(world->tilemap, world->player->pos.x + mx,
+							   world->player->pos.y))
+		mx = 0;					/* Allowing for soueast, etc */
 	if (my && TMP_PixelIsOccupied(world->tilemap, world->player->pos.x,
-								world->player->pos.y + my))
+								  world->player->pos.y + my))
 		my = 0;
-	
+
 	if (!mx && !my)
-	updatePlayerstate(world->player, p_idle);
+		updatePlayerstate(world->player, p_idle);
 	else
-	movePlayer(world->player, mx, my);
+		movePlayer(world->player, mx, my);
 
 	/* Update camera position. */
-	world->camera.x = world->player->pos.x - (SCREEN_W - world->player->src.w) / 2;
+	world->camera.x =
+		world->player->pos.x - (SCREEN_W - world->player->pos.w) / 2;
 	if (world->camera.x < 0)
 		world->camera.x = 0;
-	else if (world->camera.x >= world->tilemap->width * world->player->src.w - SCREEN_W)
-		world->camera.x = world->tilemap->width * world->player->src.w - SCREEN_W - 1;
-	world->camera.y = world->player->pos.y - (SCREEN_H - world->player->src.h) / 2;
+	else if (world->camera.x >=
+			 world->tilemap->width * world->player->pos.w - SCREEN_W)
+		world->camera.x =
+			world->tilemap->width * world->player->pos.w - SCREEN_W - 1;
+	world->camera.y =
+		world->player->pos.y - (SCREEN_H - world->player->pos.h) / 2;
 	if (world->camera.y < 0)
 		world->camera.y = 0;
-	else if (world->camera.y >= world->tilemap->height * world->player->src.h - SCREEN_H)
-		world->camera.y = world->tilemap->height * world->player->src.h - SCREEN_H - 1;
+	else if (world->camera.y >=
+			 world->tilemap->height * world->player->pos.h - SCREEN_H)
+		world->camera.y =
+			world->tilemap->height * world->player->pos.h - SCREEN_H - 1;
 	return 1;
 }
 

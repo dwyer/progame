@@ -27,14 +27,14 @@ typedef struct {
 	PState State;
 	SDL_Rect src;
 	SDL_Rect pos;				/* Player's position relative to the map. */
-	SDL_Rect rel_pos;
 	SDL_Surface *sprite;
+	Uint32 speed;
 } Player;
 
 Player *createPlayer(int x, int y);
 void movePlayer(Player * player, int x, int y);
-int  drawPlayer(Player * player, SDL_Surface * surface, SDL_Rect camera);
+int drawPlayer(Player * player, SDL_Surface * surface, SDL_Rect camera);
 void freePlayer(Player * player);
-int updatePlayerstate(Player* player, int State);
+int updatePlayerstate(Player * player, int State);
 
 #endif

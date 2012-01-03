@@ -1,6 +1,6 @@
 CC=gcc
 RM=rm
-CFILES=main.c world.c player.c tmx.c entity.c input.c
+CFILES=main.c world.c player.c tmx.c entity.c input.c config.c
 CFLAGS=-c -ansi -pedantic
 LDFLAGS=-lSDL
 OBJDIR=obj
