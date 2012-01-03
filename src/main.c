@@ -41,6 +41,11 @@ int main(int argc, char *argv[]) {
 	}
 	SDL_WM_SetCaption("/prog/ame", NULL);
 	lua_state = luaL_newstate();
+	if (!lua_state) {
+		fprintf(stderr, "memory alloc error\n");
+		SDL_Quit();
+		return -1;
+	}
 	luaopen_base(lua_state);
 	/* Play the fucking game. */
 	playGame(screen);
