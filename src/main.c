@@ -2,6 +2,7 @@
 #include "SDL/SDL.h"
 #include "main.h"
 #include "world.h"
+#include "input.h"
 
 #define SPEEDPPS 0.2
 
@@ -16,20 +17,22 @@
  */
 int main(int argc, char *argv[])
 {
-	const char filename[] = "res/untitled.tmx.bin";
-	SDL_Surface *screen = NULL;
-	World *world = NULL;
-	int CurrentDelay = 10, AverageDelay = 10;
-	unsigned int StartTime = 0, CurrentTime = 0;
+	const char   filename[] = "res/untitled.tmx.bin";
+	SDL_Surface* screen = NULL;
+	World*       world = NULL;
+	
+	int          CurrentDelay = 10,
+				 AverageDelay = 10;
+	unsigned int StartTime = 0;
 
 	if (SDL_Init(SDL_INIT_EVERYTHING)) {
-		fputs(SDL_GetError(), stderr);
+		fprintf(stderr, "%s\n", SDL_GetError());
 		return -1;
 	}
 	if ((screen =
 		 SDL_SetVideoMode(SCREEN_W, SCREEN_H, SCREEN_BPP,
 						  SDL_HWSURFACE)) == NULL) {
-		fputs(SDL_GetError(), stderr);
+		fprintf(stderr, "%s\n", SDL_GetError());
 		return -1;
 	}
 	if ((world = createWorld(filename)) == NULL) {
@@ -39,20 +42,25 @@ int main(int argc, char *argv[])
 	 * linked-list of all entities (the player, npcs, enemies, items, etc.) */
 	while (updateWorld(world, CurrentDelay)) {
 		StartTime = SDL_GetTicks();
+		ProcessInput();
+
 		/* Draw. */
 		if (drawWorld(world, screen)) {
-			fputs(SDL_GetError(), stderr);
+			fprintf(stderr, "%s\n", SDL_GetError());
 			return -1;
 		}
+		
+		/*Delay to prevent CPU chewing*/
+		if (CurrentDelay-StartTime < FRAMETIME)
+		SDL_Delay(FRAMETIME - (CurrentDelay-StartTime));
+		
 		/* Update screen. */
 		if (SDL_Flip(screen) == -1) {
-			fputs(SDL_GetError(), stderr);
+			fprintf(stderr, "%s\n", SDL_GetError());
 			return -1;
 		}
+				
 		GetDelay(&CurrentDelay, &AverageDelay, StartTime);
-
-		CurrentTime = SDL_GetTicks();
-		if (CurrentTime-StartTime < FRAMETIME) SDL_Delay(FRAMETIME-(CurrentTime-StartTime));
 	}
 	freeWorld(world);
 	SDL_FreeSurface(screen);

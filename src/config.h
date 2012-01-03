@@ -13,6 +13,17 @@
 #define w_ID    2
 #define w_SprSh 3
 
+#define I_num 1
+
+typedef struct {
+	char** Sections;
+} ConfLoad;
+
+struct Field{
+	int Type;
+	void* data;
+};
+
 struct WeaponList {
 	int ID;
 	char *Name;

@@ -3,7 +3,7 @@
 #include "tmx.h"
 #include "entity.h"
 
-#define PlayerSpeed 0.6
+#define PlayerSpeed 0.3
 
 typedef struct {
 	SDL_Rect camera;
