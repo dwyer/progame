@@ -10,9 +10,8 @@
 
 /*
  * So far all we're doing here is loading a tilemap and allowing the ``player''
- * (a 16x16 black square) to run around.
+ * (a 16x18 dragon guy) to run around.
  * TODO:
- * * Player sprites with animations.
  * * Player moves (swing swords, shoot arrows, kick, punch, whatever).
  */
 int main(int argc, char *argv[])
