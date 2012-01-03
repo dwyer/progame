@@ -2,23 +2,31 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#ifdef __unix
+#include <sys/stat.h>
+#endif
 #include "config.h"
 
 struct WeaponList *Weapons = NULL;
 
-int LoadConfig() {
-	int Status = 0;
-	char *Path = calloc(80, 1);
-	Dictionary *Dict = NULL;
-	confField *Fields = calloc(G_Fields, sizeof(confField));
+int LoadConfig()
+{
+	int         Status = 0;
+	char        Path[80];
+	Dictionary* Dict = NULL;
+	confField*  Fields = calloc(G_Fields, sizeof(confField));
 	int x;
 
 	memset(Path, 0, 80);
 	strcat(Path, getenv("HOME"));
 	strcat(Path, "/.config/progame/progame.conf");
-
-	Dict = LoadIni(Path);
-
+	
+	Dict = I_LoadIni(Path);
+	
+	if (!Dict){
+		GenerateConfig(Path);
+	}
+	
 	/*Fields[0].Name = (char*) "general:walkspeed";
 	   Fields[0].Type = C_float;
 
@@ -71,13 +79,13 @@ int LoadConfig() {
 }
 */
 
-Dictionary *LoadIni(char *Path) {
-	FILE *Ini = NULL;
-	int Counter;
-	int x;
-	char c;
-	char *Temp;
-	Dictionary *Result = malloc(sizeof(Dictionary));
+Dictionary* I_LoadIni(char* Path){
+	FILE* Ini = NULL;
+	int   Counter;
+	int   x;
+	char  c;
+	char* Temp;
+	Dictionary* Result = malloc(sizeof(Dictionary));
 	memset(Result, 0, sizeof(Dictionary));
 
 	Ini = fopen(Path, "r");
@@ -100,9 +108,7 @@ Dictionary *LoadIni(char *Path) {
 			}
 
 			if (Temp[x] == ']')
-				Temp[x] = 0;
-
-			printf("Temp: %s\n", Temp);
+			Temp[x] = 0;
 		}
 
 		Counter = fread(&c, 1, 1, Ini);
@@ -111,15 +117,15 @@ Dictionary *LoadIni(char *Path) {
 	return Result;
 }
 
-struct Section *AddSection(Dictionary * Dict, char *name) {
-	struct Section *Current = NULL;
+struct Section* I_AddSection(Dictionary* Dict, char* name){
+	struct Section* Current = NULL;
 	int x;
 
 	if (!Dict || !name)
 		return NULL;
 
 	/* Checking if said section already exists */
-	if ((Current = GetSection(Dict, name))) {
+	if ((Current = I_GetSection(Dict, name))){
 		return Current;
 	}
 
@@ -141,12 +147,11 @@ struct Section *AddSection(Dictionary * Dict, char *name) {
 	return Current;
 }
 
-struct Section *GetSection(Dictionary * Dict, char *name) {
-	struct Section *Current = Dict->Sections;
-	if (!Dict || !Dict->Sections || !name)
-		return NULL;
-
-	while (Current) {
+struct Section* I_GetSection(Dictionary* Dict, char* name){
+	struct Section* Current = Dict->Sections;
+	if (!Dict || !Dict->Sections || !name) return NULL;
+	
+	while (Current){
 		if (strcmp(Current->Name, name) == 0)
 			break;
 
@@ -154,4 +159,54 @@ struct Section *GetSection(Dictionary * Dict, char *name) {
 	}
 
 	return Current;
+}
+
+char* I_GetString(Dictionary* Dict, char* name){
+	struct Field* var = I_FindField(Dict, name);
+	char* value = NULL;
+	
+	if (var){
+		return var->Value;
+	}
+}
+
+Field* I_FindField(Dictionary* Dict, char* name){
+	char     c;
+	int      x;
+	char*    Sect;
+	Field*   Result = NULL;
+	Section* Where = NULL;
+	int Len = strlen(name);
+	
+	Sect = malloc(strlen(Sect));
+	memset(Sect, 0, 1);
+	
+	for (x = 0; x < Len && name[x] != ';'; x++) /*I didnt want to realloc*/
+	Sect[x] = name[x];
+	
+	if (strlen(Sect) == 0){
+		Where = Dict->Global;
+	}
+}
+
+int GenerateConfig(char* Path){
+	FILE* Ini = NULL;
+	
+	#ifdef __unix /* Who uses Windows, anyway? */
+	if (stat("~/.config/progame", malloc(sizeof(struct stat))) != 0){	
+		printf("Dicks\n");
+		mkdir("~/.config/progame", 777);
+	}
+	
+	#endif
+	
+	Ini = fopen(Path, "w");
+	if (Ini){
+		fputs(
+			"[general]\n",
+			Ini);
+		fclose(Ini);
+	}
+	
+	return 0;
 }

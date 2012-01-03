@@ -17,13 +17,15 @@ struct Field {
 	char *Value;
 	struct Field *Next;
 };
-
-struct Section {
+typedef struct Field Field; /* I really don't eant to have to type ``struct
+								x'' every goddamned time */
+struct Section{
 	int FieldNo;
 	char *Name;
 	struct Field *Fields;
 	struct Section *Next;
 };
+typedef struct Section Section;
 
 typedef struct {
 	struct Section *Global;
@@ -38,13 +40,15 @@ typedef struct {
 
 int LoadConfig();
 
-Dictionary *LoadIni(char *Path);
-int FindField(Dictionary * Dict, char *name);
+Dictionary* I_LoadIni(char* Path);
+struct Field* I_FindField(Dictionary* Dict, char* name);
 
-int GetInt(Dictionary * Dict, char *name, int err);
-float Getfloat(Dictionary * Dict, char *name, float err);
+int I_GetInt(Dictionary* Dict, char* name, int err);
+float I_Getfloat(Dictionary* Dict, char* name, float err);
 
-struct Section *AddSection(Dictionary * Dict, char *name);
-struct Section *GetSection(Dictionary * Dict, char *name);
+struct Section* I_AddSection(Dictionary* Dict, char* name);
+struct Section* I_GetSection(Dictionary* Dict, char* name);
+
+int GenerateConfig(char* Path);
 
 #endif
