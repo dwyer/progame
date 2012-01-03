@@ -42,8 +42,8 @@ int main(int argc, char *argv[])
 	World *world = NULL;
 	Input input = { 0, 0, 0, 0 };
 	bool play = true;
-
-	if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO)) {
+	
+	if (SDL_Init(SDL_INIT_EVERYTHING)) {
 		fputs(SDL_GetError(), stderr);
 		return -1;
 	}
@@ -61,6 +61,10 @@ int main(int argc, char *argv[])
 	if ((world = createWorld(filename)) == NULL) {
 		return -1;
 	}
+
+	LoadConfig();
+	SDL_WM_SetCaption("/huhrurruhrhrur", NULL);
+	
 	/* So far the only entity is the player. Later this will be replaced by a
 	 * linked-list of all entities (the player, npcs, enemies, items, etc.) */
 	do {

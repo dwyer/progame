@@ -1,6 +1,6 @@
 CC=gcc
 RM=rm
-CFILES=main.c world.c player.c tmx.c entity.c input.c
+CFILES=main.c world.c player.c tmx.c entity.c input.c config.c
 CFLAGS=-c -ansi -pedantic
 LDFLAGS=-lSDL
 OBJDIR=obj
@@ -11,9 +11,7 @@ OBJS=$(addprefix $(OBJDIR)/, $(CFILES:.c=.o))
 SRCS=$(addprefix $(SRCDIR)/, $(CFILES))
 
 all: $(OBJDIR) $(SRCS) $(EXECUTABLE)
-	@if [ ! -d $(HOME)/.config/progame ] ; then mkdir $(HOME)/.config/progame ; fi
-	@cp -R ./conf/* $(HOME)/.config/progame
-	
+
 debug: CC+=-g -DDEBUG
 debug: all
 
