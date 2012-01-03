@@ -12,30 +12,30 @@
 #define C_float  2
 #define C_string 3
 
-struct Field{
-	char* Name;
-	char* Value;
-	struct Field* Next;
+struct Field {
+	char *Name;
+	char *Value;
+	struct Field *Next;
 };
 typedef struct Field Field; /* I really don't eant to have to type ``struct
 								x'' every goddamned time */
 struct Section{
 	int FieldNo;
-	char* Name;
-	struct Field* Fields;
-	struct Section* Next;
+	char *Name;
+	struct Field *Fields;
+	struct Section *Next;
 };
 typedef struct Section Section;
 
-typedef struct{
-	struct Section* Global;
-	struct Section* Sections;
+typedef struct {
+	struct Section *Global;
+	struct Section *Sections;
 } Dictionary;
 
-typedef struct{
+typedef struct {
 	int Type;
-	void* Value;
-	char* Name;
+	void *Value;
+	char *Name;
 } confField;
 
 int LoadConfig();
