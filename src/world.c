@@ -86,17 +86,17 @@ int updateWorld(World *world, int CurrentFPS) {
 		my += Interpolate(PlayerSpeed, CurrentFPS);
 	}
 
-	if (mx
-		&& !TMP_PixelIsOccupied(world->tilemap, world->player->pos.x + mx,
+	if (mx && TMP_PixelIsOccupied(world->tilemap, world->player->pos.x + mx,
 								world->player->pos.y))
-		movePlayer(world->player, mx, 0);
-	if (my
-		&& !TMP_PixelIsOccupied(world->tilemap, world->player->pos.x,
+		mx = 0;  /* Allowing for soueast, etc */
+	if (my && TMP_PixelIsOccupied(world->tilemap, world->player->pos.x,
 								world->player->pos.y + my))
-		movePlayer(world->player, 0, my);
+		my = 0;
 	
 	if (!mx && !my)
 	switchPlayerstate(world->player, p_idle);
+	else
+	movePlayer(world->player, mx, my);
 
 	/* Update camera position. */
 	world->camera.x = world->player->pos.x - (SCREEN_W - world->player->src.w) / 2;
