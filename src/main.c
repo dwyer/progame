@@ -10,7 +10,11 @@
 #define FPS_NO 20
 #define FRAMETIME 16 /*ms*/
 
-Uint32 inc_timer(Uint32 interval, void *param) {
+/* 
+ * Pushes a user event to the event queue which will indicate that it's time to
+ * update world.
+ */
+Uint32 pushUpdateEvent(Uint32 interval, void *param) {
 	SDL_Event event;
 	SDL_UserEvent user;
 
@@ -49,7 +53,7 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "%s\n", SDL_GetError());
 		return -1;
 	}
-	if ((timer_id = SDL_AddTimer(1, inc_timer, NULL)) == NULL) {
+	if ((timer_id = SDL_AddTimer(1, pushUpdateEvent, NULL)) == NULL) {
 		fputs(SDL_GetError(), stderr);
 		return -1;
 	}
@@ -66,12 +70,12 @@ int main(int argc, char *argv[])
 	 * linked-list of all entities (the player, npcs, enemies, items, etc.) */
 	do {
 		StartTime = SDL_GetTicks();
-		updateWorld(world, input, CurrentDelay);
 
 		/* Events */
-
 		while (SDL_PollEvent(&event)) {
-			if (event.type == SDL_KEYDOWN) {
+			if (event.type == SDL_USEREVENT) {
+				updateWorld(world, input, CurrentDelay);
+			} else if (event.type == SDL_KEYDOWN) {
 				if (event.key.keysym.sym == SDLK_LEFT) {
 					input.left = 1;
 				} else if (event.key.keysym.sym == SDLK_RIGHT) {
@@ -106,7 +110,7 @@ int main(int argc, char *argv[])
 		
 		/*Delay to prevent CPU chewing*/
 		if (CurrentDelay-StartTime < FRAMETIME)
-		SDL_Delay(FRAMETIME - (CurrentDelay-StartTime));
+			SDL_Delay(FRAMETIME - (CurrentDelay-StartTime));
 		
 		/* Update screen. */
 		if (SDL_Flip(screen) == -1) {
