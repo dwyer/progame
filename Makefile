@@ -1,8 +1,8 @@
 CC=gcc
 RM=rm
 CFILES=main.c world.c player.c tmx.c entity.c input.c config.c
-CFLAGS=-c -ansi -pedantic
-LDFLAGS=-lSDL
+CFLAGS=-I/usr/include/lua5.1/ -c -ansi -pedantic
+LDFLAGS=-lSDL -llua5.1
 OBJDIR=obj
 SRCDIR=src
 EXECUTABLE=game

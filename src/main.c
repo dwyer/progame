@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
 #include "SDL/SDL.h"
 #include "main.h"
 #include "world.h"
@@ -18,6 +21,7 @@ bool handleEvents(World *world, Input *input);
 int main(int argc, char *argv[]) {
 	SDL_Surface *screen = NULL;
 	SDL_TimerID timer_id;
+	lua_State *lua_state;
 
 	/* Initialization. */
 	if (SDL_Init(SDL_INIT_EVERYTHING)) {
@@ -36,9 +40,12 @@ int main(int argc, char *argv[]) {
 		return -1;
 	}
 	SDL_WM_SetCaption("/prog/ame", NULL);
+	lua_state = lua_open();
+	luaopen_base(lua_state);
 	/* Play the fucking game. */
 	playGame(screen);
 	/* Deinitialization */
+	lua_close(lua_state);
 	SDL_FreeSurface(screen);
 	SDL_RemoveTimer(timer_id);
 	SDL_Quit();
