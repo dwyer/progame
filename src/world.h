@@ -1,13 +1,9 @@
 #ifndef WORLD_H
 #define WORLD_H
 
-
-
 #include "tmx.h"
 
-typedef struct {
-	int nothing;
-} World;
+typedef struct World World;
 
 World *createWorld(const char *filename);
 int  updateWorld(World *world, int CurrentFPS);

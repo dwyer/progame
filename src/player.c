@@ -14,7 +14,7 @@ Player *createPlayer(int x, int y)
 	player->src.x = 32;
 	player->src.y = 16;
 	
-	player->src.h = 18;
+	player->src.h = 16;
 	player->src.w = 16;
 
 	player->State.State = p_idle;
