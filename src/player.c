@@ -108,7 +108,7 @@ int switchPlayerstate(Player* player, int State){
 			if (player->State.State != p_walk){
 				player->State.State = p_walk;
 				player->State.StateTime = SDL_GetTicks();
-				player->State.TimeSwitch = 100;
+				player->State.TimeSwitch = 75;
 				player->src.x = 32;
 			}
 			else {

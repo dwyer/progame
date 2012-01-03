@@ -8,9 +8,6 @@
 #define FPS_NO 20
 #define FRAMETIME 16 /*ms*/
 
-int GetFPS();
-float Interpolate(float Speed, int FPS);
-
 /*
  * So far all we're doing here is loading a tilemap and allowing the ``player''
  * (a 16x16 black square) to run around.
@@ -74,7 +71,7 @@ int main(int argc, char *argv[])
 
 int GetFPS(int *CurrentFPS, int *AverageFPS, int StartTime)
 {
-	*CurrentFPS = SDL_GetTicks() - StartTime;
+	*CurrentFPS = (SDL_GetTicks() - StartTime);
 
 	*AverageFPS += *CurrentFPS;
 	if (*AverageFPS != *CurrentFPS)
@@ -88,7 +85,7 @@ int GetFPS(int *CurrentFPS, int *AverageFPS, int StartTime)
  * but this yields great benifits, and scales better than 
  * any fixed speed alternative.
  */
-float Interpolate(float Speed, int FPS)
+float Interpolate(float Speed, float FPS)
 {
-	return (Speed / 2) * FPS;
+	return (Speed * FPS);
 }

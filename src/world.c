@@ -2,6 +2,8 @@
 #include "player.h"
 #include "tmx.h"
 
+#define PlayerSpeed 0.6
+
 typedef struct {
 	SDL_Rect camera;
 	TMP_Tilemap *tilemap;
@@ -74,17 +76,17 @@ int updateWorld(World *world, int CurrentFPS) {
 	mx = 0;
 	my = 0;
 	if (world->controller.left) {
-		mx = Interpolate(PlayerSpeed, CurrentFPS) * -1;
+		mx -= (int)Interpolate(PlayerSpeed, (float)CurrentFPS) /* 2*/;
 		/*mx = -PLAYER_SPEED; */
 	} else if (world->controller.right) {
-		mx = Interpolate(PlayerSpeed, CurrentFPS);
+		mx += (int)Interpolate(PlayerSpeed, (float)CurrentFPS) /* 2*/;
 		/*mx = PLAYER_SPEED; */
 	}
 	if (world->controller.up) {
-		my = Interpolate(PlayerSpeed, CurrentFPS) * -1; 
+		my -= (int)Interpolate(PlayerSpeed, (float)CurrentFPS) /* 2*/; 
 		/*my = -PLAYER_SPEED;*/
 	} else if (world->controller.down) {
-		my = Interpolate(PlayerSpeed, CurrentFPS);
+		my += (int)Interpolate(PlayerSpeed, (float)CurrentFPS) /* 2*/;
 		/*my = PLAYER_SPEED; */
 	}
 
