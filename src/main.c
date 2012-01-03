@@ -8,7 +8,44 @@
 /* Number of milliseconds between logic updates. */
 #define UPDATE_INTERVAL 10
 
-/* 
+Uint32 pushUpdateEvent(Uint32 interval, void *param);
+int playGame(SDL_Surface *screen);
+bool handleEvents(World *world, Input *input);
+
+/**
+ * Initialize everything, run the game, deinitialize, quit.
+ */
+int main(int argc, char *argv[]) {
+	SDL_Surface *screen = NULL;
+	SDL_TimerID timer_id;
+
+	/* Initialization. */
+	if (SDL_Init(SDL_INIT_EVERYTHING)) {
+		fprintf(stderr, "%s\n", SDL_GetError());
+		return -1;
+	}
+	if ((timer_id =
+		SDL_AddTimer(UPDATE_INTERVAL, pushUpdateEvent, NULL)) == NULL) {
+		fprintf(stderr, "%s\n", SDL_GetError());
+		return -1;
+	}
+	if ((screen =
+		SDL_SetVideoMode(SCREEN_W, SCREEN_H, SCREEN_BPP,
+						 SDL_HWSURFACE)) == NULL) {
+		fprintf(stderr, "%s\n", SDL_GetError());
+		return -1;
+	}
+	SDL_WM_SetCaption("/prog/ame", NULL);
+	/* Play the fucking game. */
+	playGame(screen);
+	/* Deinitialization */
+	SDL_FreeSurface(screen);
+	SDL_RemoveTimer(timer_id);
+	SDL_Quit();
+	return 0;
+}
+
+/** 
  * Pushes a user event to the event queue which will indicate that it's time to
  * update world.
  */
@@ -26,6 +63,33 @@ Uint32 pushUpdateEvent(Uint32 interval, void *param) {
 	return interval;
 }
 
+/**
+ * Play the game. Returns 0 on success, -1 on error.
+ */
+int playGame(SDL_Surface *screen) {
+	const char filename[] = "res/untitled.tmx.bin";
+	World *world = NULL;
+	Input input = { 0, 0, 0, 0 };
+
+	if ((world = createWorld(filename)) == NULL) {
+		return -1;
+	}
+	do {
+		/* Draw. */
+		if (drawWorld(world, screen) || SDL_Flip(screen)) {
+			fprintf(stderr, "%s\n", SDL_GetError());
+			return -1;
+		}
+	} while (handleEvents(world, &input));
+	freeWorld(world);
+	return 0;
+}
+
+/**
+ * Polls for events. Manages the input queue and handles when input must be
+ * passed to the World class. Returns false it the player signaled a quit event,
+ * true otherwise.
+ */
 bool handleEvents(World *world, Input *input) {
 	SDL_Event event;
 
@@ -59,64 +123,4 @@ bool handleEvents(World *world, Input *input) {
 		}
 	}
 	return true;
-}
-
-/*
- * So far all we're doing here is loading a tilemap and allowing the ``player''
- * (a 16x18 dragon guy) to run around.
- * TODO:
- * * Player moves (swing swords, shoot arrows, kick, punch, whatever).
- */
-int playGame(SDL_Surface *screen) {
-	const char filename[] = "res/untitled.tmx.bin";
-	World *world = NULL;
-	Input input = { 0, 0, 0, 0 };
-
-	if ((world = createWorld(filename)) == NULL) {
-		return -1;
-	}
-	do {
-		/* Draw. */
-		if (drawWorld(world, screen)) {
-			fprintf(stderr, "%s\n", SDL_GetError());
-			return -1;
-		}
-		/* Update screen. */
-		if (SDL_Flip(screen) == -1) {
-			fprintf(stderr, "%s\n", SDL_GetError());
-			return -1;
-		}
-	} while (handleEvents(world, &input));
-	freeWorld(world);
-	return 0;
-}
-
-int main(int argc, char *argv[]) {
-	SDL_Surface *screen = NULL;
-	SDL_TimerID timer_id;
-
-	/* Initialization. */
-	if (SDL_Init(SDL_INIT_EVERYTHING)) {
-		fprintf(stderr, "%s\n", SDL_GetError());
-		return -1;
-	}
-	if ((timer_id =
-		SDL_AddTimer(UPDATE_INTERVAL, pushUpdateEvent, NULL)) == NULL) {
-		fprintf(stderr, "%s\n", SDL_GetError());
-		return -1;
-	}
-	if ((screen =
-		SDL_SetVideoMode(SCREEN_W, SCREEN_H, SCREEN_BPP,
-						 SDL_HWSURFACE)) == NULL) {
-		fprintf(stderr, "%s\n", SDL_GetError());
-		return -1;
-	}
-	SDL_WM_SetCaption("/prog/ame", NULL);
-	/* Play the fucking game. */
-	playGame(screen);
-	/* Deinitialization */
-	SDL_FreeSurface(screen);
-	SDL_RemoveTimer(timer_id);
-	SDL_Quit();
-	return 0;
 }
