@@ -58,15 +58,10 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "%s\n", SDL_GetError());
 		return -1;
 	}
+	SDL_WM_SetCaption("/prog/ame", NULL);
 	if ((world = createWorld(filename)) == NULL) {
 		return -1;
 	}
-
-	LoadConfig();
-	SDL_WM_SetCaption("/huhrurruhrhrur", NULL);
-	
-	/* So far the only entity is the player. Later this will be replaced by a
-	 * linked-list of all entities (the player, npcs, enemies, items, etc.) */
 	do {
 		/* Events */
 		while (SDL_PollEvent(&event)) {
