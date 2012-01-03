@@ -38,12 +38,7 @@ World *createWorld(const char *filename)
 	return world;
 }
 
-<<<<<<< HEAD
 int updateWorld(World *world, int CurrentFPS) {
-=======
-int updateWorld(World * world)
-{
->>>>>>> dae736970a6a554d360699b98647d60d468dc1b1
 	SDL_Event event;
 	int my = 0, mx = 0;
 
@@ -79,42 +74,23 @@ int updateWorld(World * world)
 	mx = 0;
 	my = 0;
 	if (world->controller.left) {
-<<<<<<< HEAD
-		/*mx += (int)Interpolate(PlayerSpeed, CurrentFPS) * -1;*/
-		mx  = -PLAYER_SPEED;
+		mx = Interpolate(PlayerSpeed, CurrentFPS) * -1;
+		/*mx = -PLAYER_SPEED; */
 	} else if (world->controller.right) {
-		/*mx += (int)Interpolate(PlayerSpeed, CurrentFPS);*/
-		mx = PLAYER_SPEED;
+		mx = Interpolate(PlayerSpeed, CurrentFPS);
+		/*mx = PLAYER_SPEED; */
 	}
 	if (world->controller.up) {
-		/*my += (int)Interpolate(PlayerSpeed, CurrentFPS) * -1;*/
-		my = -PLAYER_SPEED;
+		my = Interpolate(PlayerSpeed, CurrentFPS) * -1; 
+		/*my = -PLAYER_SPEED;*/
 	} else if (world->controller.down) {
-		/*my += (int)Interpolate(PlayerSpeed, CurrentFPS);*/
-		my = PLAYER_SPEED;
-	}
-	
-	printf("%dx%d\n", mx, my);
-	if (mx && !TMP_PixelIsOccupied(world->tilemap, world->player->pos.x + mx, world->player->pos.y))
-=======
-		/*mx = Interpolate(SPEEDPPS, CurrentFPS) * -1; */
-		mx = -PLAYER_SPEED;
-	} else if (world->controller.right) {
-		/*mx = Interpolate(SPEEDPPS, CurrentFPS); */
-		mx = PLAYER_SPEED;
-	}
-	if (world->controller.up) {
-		/*my = Interpolate(SPEEDPPS, CurrentFPS) * -1; */
-		my = -PLAYER_SPEED;
-	} else if (world->controller.down) {
-		/*my = Interpolate(SPEEDPPS, CurrentFPS); */
-		my = PLAYER_SPEED;
+		my = Interpolate(PlayerSpeed, CurrentFPS);
+		/*my = PLAYER_SPEED; */
 	}
 
 	if (mx
 		&& !TMP_PixelIsOccupied(world->tilemap, world->player->pos.x + mx,
 								world->player->pos.y))
->>>>>>> dae736970a6a554d360699b98647d60d468dc1b1
 		movePlayer(world->player, mx, 0);
 	if (my
 		&& !TMP_PixelIsOccupied(world->tilemap, world->player->pos.x,
@@ -143,11 +119,7 @@ int drawWorld(World * world, SDL_Surface * surf)
 	int i;
 
 	for (i = 0; i < world->tilemap->depth - 1; i++) {
-<<<<<<< HEAD
-		if (i == 2) { /* no magic numbers, please!!! wut*/
-=======
 		if (i == 2) {			/* no magic numbers, please!!! */
->>>>>>> dae736970a6a554d360699b98647d60d468dc1b1
 			if (drawPlayer(world->player, surf, world->camera)) {
 				return -1;
 			}
