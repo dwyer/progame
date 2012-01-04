@@ -12,7 +12,7 @@ struct WeaponList *Weapons = NULL;
 
 int LoadConfig(settings* Pref){
 	int         Status = 0;
-	char        Path[80];
+	char        Path[80] = "./conf/progame.conf";
 	Dictionary* Dict = NULL;
 	int         x;
 	char*       Errc = "it'soverninethousand";
@@ -24,10 +24,6 @@ int LoadConfig(settings* Pref){
 		"keys:right"
 	};
 	int (*callback)(int Action, void* x);
-
-	memset(Path, 0, 80);
-	strcat(Path, getenv("HOME"));
-	strcat(Path, "/.config/progame/progame.conf");
 	
 	Dict = I_LoadIni(Path);
 	
@@ -97,7 +93,6 @@ Dictionary* I_LoadIni(char* Path){
 
 	Ini = fopen(Path, "r");
 	if (!Ini) {
-		printf("Config error: No such file %s\n", Path);
 		return NULL;
 	}
 	
