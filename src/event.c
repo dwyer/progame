@@ -14,4 +14,3 @@ int pushUserEvent(int code, void *data1, void *data2) {
 	SDL_PushEvent(&event);
 	return 0;
 }
-

@@ -22,6 +22,7 @@ bool handleEvents(World *world, Input *input);
  * Initialize everything, run the game, deinitialize, quit.
  */
 int main(int argc, char *argv[]) {
+	int result = 0;
 	SDL_Surface *screen = NULL;
 	SDL_TimerID  timer_id;
 
@@ -44,13 +45,13 @@ int main(int argc, char *argv[]) {
 	SDL_WM_SetCaption("/prog/ame", NULL);
 	
 	/* Play the fucking game. */
-	playGame(screen);
+	result = playGame(screen);
 	
 	/* Deinitialization */
 	SDL_FreeSurface(screen);
 	SDL_RemoveTimer(timer_id);
 	SDL_Quit();
-	return 0;
+	return result;
 }
 
 /** 
