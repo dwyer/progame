@@ -67,21 +67,19 @@ Uint32 pushUpdateEvent(Uint32 interval, void *param) {
  */
 int playGame(SDL_Surface *screen) {
 	const char filename[] = "res/maps/untitled.tmx.bin";
-	lua_State *lua_state = NULL;
+	lua_State *L = NULL;
 	World *world = NULL;
 	Input input = { 0, 0, 0, 0 };
 	settings* pref = malloc(sizeof(settings));
 	memset(pref, 0, sizeof(settings));
 	LoadConfig(pref);
 	
-	if ((lua_state = luaL_newstate()) == NULL) {
+	if ((L = luaL_newstate()) == NULL) {
 		fprintf(stderr, "Error creating Lua state.\n");
 		return -1;
 	}
-
-	luaL_openlibs(lua_state);
-	luaL_dofile(lua_state, "res/scripts/init.lua");
-
+	registerLuaRegs(L);
+	luaL_dofile(L, "res/scripts/init.lua");
 	if ((world = createWorld(filename)) == NULL) {
 		return -1;
 	}
@@ -93,7 +91,7 @@ int playGame(SDL_Surface *screen) {
 		}
 	} while (handleEvents(world, &pref->input));
 	freeWorld(world);
-	lua_close(lua_state);
+	lua_close(L);
 	return 0;
 }
 

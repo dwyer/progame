@@ -12,6 +12,7 @@ static luaL_Reg regs[] = {
 void registerLuaRegs(lua_State *L) {
 	luaL_reg *reg;
 
+	luaL_openlibs(L);
 	for (reg = regs; reg->name != NULL; reg++) {
 		lua_register(L, reg->name, reg->func);
 	}
@@ -19,6 +20,6 @@ void registerLuaRegs(lua_State *L) {
 
 int load_world(lua_State *L) {
 	const char *filename = lua_tostring(L, -1);
-	printf("%s\n", filename);
+	printf("Loading: %s\n", filename);
 	return 1;
 }
