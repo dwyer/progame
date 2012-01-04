@@ -377,6 +377,7 @@ int I_SetField(Dictionary* Dict, Section* Sect, char* Name, char* Val){
 	
 	strcat(FullName, Sect->Name);
 	FullName[Len] = ':';
+	FullName[Len+1] = '\0';
 	
 	strcat(FullName, Name);
 	Subject = I_FindField(Dict, FullName);
