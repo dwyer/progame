@@ -8,19 +8,13 @@
 #include "world.h"
 #include "input.h"
 #include "config.h"
+#include "script.h"
+#include "event.h"
 
 /* Number of milliseconds between logic updates. */
 #define UPDATE_INTERVAL 10
 
-/**
- * Event codes for SDL_UserEvent
- */
-enum {
-	EVENT_UPDATE
-};
-
 Uint32 pushUpdateEvent(Uint32 interval, void *param);
-int pushUserEvent(int code, void *data1, void *data2);
 int playGame(SDL_Surface *screen);
 bool handleEvents(World *world, Input *input);
 
@@ -66,20 +60,6 @@ int main(int argc, char *argv[]) {
 Uint32 pushUpdateEvent(Uint32 interval, void *param) {
 	pushUserEvent(EVENT_UPDATE, NULL, NULL);
 	return interval;
-}
-
-/**
- * Push a ``user'' (developer really) defined update to the update queue.
- */
-int pushUserEvent(int code, void *data1, void *data2) {
-	SDL_Event event;
-
-	event.user.type = event.type = SDL_USEREVENT;
-	event.user.code = code;
-	event.user.data1 = data1;
-	event.user.data2 = data2;
-	SDL_PushEvent(&event);
-	return 0;
 }
 
 /**
