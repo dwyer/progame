@@ -1,8 +1,16 @@
 #ifndef TMX_H
 #define TMX_H
 
+/** For bounds-checking purposes
+ * Length made a define instead of an integer literal.
+ * Alternately the check could be against sizeof(tilemap->source),
+ * however seeing the most obvious improvement is for 'source' to be
+ * made a 'char *' and malloc'd, the sizeof method introduces latent bugs.
+ */
+#define TMP_TILEMAP_SOURCE_LEN 32
+
 typedef struct {
-	char source[32];
+	char source[TMP_TILEMAP_SOURCE_LEN];
 	int width;
 	int height;
 	int depth;

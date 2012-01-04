@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <assert.h>
 #include <SDL/SDL.h>
 #include "tmx.h"
 
@@ -12,11 +13,32 @@ TMP_Tilemap *TMP_LoadTilemap(const char *filename) {
 	int i, j, k;
 
 	/* load data */
-	if ((f = fopen(filename, "rb")) == NULL) {
-		return NULL;
+	assert(filename);
+	if ((f = fopen(filename, "rb")) == NULL)
+	    return NULL;
+
+	result = malloc(sizeof(*result));
+
+	{
+		 int c;
+
+		 /** Read a '\0'-terminated file record, storing bytes in 'source'
+		  * Exit conditions:
+		  *   Read more then TMP_TILEMAP_SOURCE_LEN bytes. (Overflow protection)
+		  *   IO error (fgetc returns EOF).
+		  *   Record fully read (fgetc returns '\0')
+		  */
+		 for (i = 0;
+			  i < TMP_TILEMAP_SOURCE_LEN &&
+			  (c = fgetc(f)) &&
+			  EOF != c && '\0' != c &&
+			  (result->source[i] = c, 1);
+			  ++i);
+
+		 /* Check the two exit conditions that result in a runtime error */
+		 assert(EOF != c &&
+				TMP_TILEMAP_SOURCE_LEN != i);
 	}
-	result = malloc(sizeof(TMP_Tilemap));
-	for (i = 0; (result->source[i] = fgetc(f)) != '\0'; i++);
 
 	fread(&result->width, sizeof(int), 1, f);
 	fread(&result->height, sizeof(int), 1, f);
