@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <SDL/SDL.h>
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
-#include <SDL/SDL.h>
 #include "main.h"
 #include "world.h"
 #include "input.h"
@@ -12,6 +12,9 @@
 /* Number of milliseconds between logic updates. */
 #define UPDATE_INTERVAL 10
 
+/**
+ * Event codes for SDL_UserEvent
+ */
 enum {
 	EVENT_UPDATE
 };
@@ -21,6 +24,17 @@ int pushUserEvent(int code, void *data1, void *data2);
 int playGame(SDL_Surface *screen);
 bool handleEvents(World *world, Input *input);
 
+int load_world(lua_State *L) {
+	const char *filename = lua_tostring(L, -1);
+	printf("%s\n", filename);
+	return 1;
+}
+
+static luaL_Reg regs[] = {
+	{ "load_world", load_world },
+	{ NULL, NULL }
+};
+
 /**
  * Initialize everything, run the game, deinitialize, quit.
  */
@@ -28,6 +42,7 @@ int main(int argc, char *argv[]) {
 	SDL_Surface *screen = NULL;
 	SDL_TimerID  timer_id;
 	lua_State   *lua_state;
+	luaL_Reg *reg = regs;
 
 	/* Initialization. */
 	if (SDL_Init(SDL_INIT_EVERYTHING)) {
@@ -52,6 +67,11 @@ int main(int argc, char *argv[]) {
 		return -1;
 	}
 	luaL_openlibs(lua_state);
+	while (reg->name != NULL) {
+		lua_register(lua_state, reg->name, reg->func);
+		reg++;
+	}
+	luaL_dofile(lua_state, "res/scripts/init.lua");
 	
 	/* Play the fucking game. */
 	playGame(screen);
@@ -94,7 +114,7 @@ int playGame(SDL_Surface *screen) {
 	const char filename[] = "res/maps/untitled.tmx.bin";
 	World *world = NULL;
 	Input input = { 0, 0, 0, 0 };
-	settings*    pref = malloc(sizeof(settings));
+	settings* pref = malloc(sizeof(settings));
 	memset(pref, 0, sizeof(settings));
 	LoadConfig(pref);
 
