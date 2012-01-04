@@ -7,12 +7,13 @@
 #include "main.h"
 #include "world.h"
 #include "input.h"
+#include "config.h"
 
 /* Number of milliseconds between logic updates. */
 #define UPDATE_INTERVAL 10
 
 Uint32 pushUpdateEvent(Uint32 interval, void *param);
-int playGame(SDL_Surface *screen);
+int playGame(SDL_Surface *screen, settings* pref);
 bool handleEvents(World *world, Input *input);
 
 /**
@@ -20,10 +21,14 @@ bool handleEvents(World *world, Input *input);
  */
 int main(int argc, char *argv[]) {
 	SDL_Surface *screen = NULL;
-	SDL_TimerID timer_id;
-	lua_State *lua_state;
+	SDL_TimerID  timer_id;
+	lua_State   *lua_state;
+	settings*    Pref = malloc(sizeof(settings));
+	memset(Pref, 0, sizeof(settings));
 
 	/* Initialization. */
+	LoadConfig(Pref);
+	
 	if (SDL_Init(SDL_INIT_EVERYTHING)) {
 		fprintf(stderr, "%s\n", SDL_GetError());
 		return -1;
@@ -47,8 +52,10 @@ int main(int argc, char *argv[]) {
 		return -1;
 	}
 	luaL_openlibs(lua_state);
+	
 	/* Play the fucking game. */
-	playGame(screen);
+	playGame(screen, Pref);
+	
 	/* Deinitialization */
 	lua_close(lua_state);
 	SDL_FreeSurface(screen);
@@ -78,7 +85,7 @@ Uint32 pushUpdateEvent(Uint32 interval, void *param) {
 /**
  * Play the game. Returns 0 on success, -1 on error.
  */
-int playGame(SDL_Surface *screen) {
+int playGame(SDL_Surface *screen, settings* pref) {
 	const char filename[] = "res/untitled.tmx.bin";
 	World *world = NULL;
 	Input input = { 0, 0, 0, 0 };
@@ -92,7 +99,7 @@ int playGame(SDL_Surface *screen) {
 			fprintf(stderr, "%s\n", SDL_GetError());
 			return -1;
 		}
-	} while (handleEvents(world, &input));
+	} while (handleEvents(world, &pref->input));
 	freeWorld(world);
 	return 0;
 }
@@ -110,27 +117,43 @@ bool handleEvents(World *world, Input *input) {
 			updateWorld(world, *input);
 		} else if (event.type == SDL_KEYDOWN) {
 			if (event.key.keysym.sym == SDLK_LEFT) {
-				input->left = 1;
-			} else if (event.key.keysym.sym == SDLK_RIGHT) {
-				input->right = 1;
-			} else if (event.key.keysym.sym == SDLK_UP) {
-				input->up = 1;
-			} else if (event.key.keysym.sym == SDLK_DOWN) {
-				input->down = 1;
-			} else if (event.key.keysym.sym == SDLK_q) {
+				if (input->left.callback)
+				input->left.callback(key_down, input);
+			}
+			else if (event.key.keysym.sym == SDLK_RIGHT) {
+				if (input->right.callback)
+				input->right.callback(key_down, input);
+			}
+			else if (event.key.keysym.sym == SDLK_UP) {
+				if (input->up.callback)
+				input->up.callback(key_down, input);
+			}
+			else if (event.key.keysym.sym == SDLK_DOWN) {
+				if (input->down.callback)
+				input->down.callback(key_down, input);
+			}
+			else if (event.key.keysym.sym == SDLK_q) {
 				return false;
 			}
 		} else if (event.type == SDL_KEYUP) {
 			if (event.key.keysym.sym == SDLK_LEFT) {
-				input->left = 0;
-			} else if (event.key.keysym.sym == SDLK_RIGHT) {
-				input->right = 0;
-			} else if (event.key.keysym.sym == SDLK_UP) {
-				input->up = 0;
-			} else if (event.key.keysym.sym == SDLK_DOWN) {
-				input->down = 0;
+				if (input->left.callback)
+				input->left.callback(key_up, input);
 			}
-		} else if (event.type == SDL_QUIT) {
+			else if (event.key.keysym.sym == SDLK_RIGHT) {
+				if (input->right.callback)
+				input->right.callback(key_up, input);
+			}
+			else if (event.key.keysym.sym == SDLK_UP) {
+				if (input->up.callback)
+				input->up.callback(key_up, input);
+			}
+			else if (event.key.keysym.sym == SDLK_DOWN) {
+				if (input->left.callback)
+				input->down.callback(key_up, input);
+			}
+		}
+		else if (event.type == SDL_QUIT) {
 			return false;
 		}
 	}
