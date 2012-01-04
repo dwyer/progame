@@ -21,7 +21,7 @@ World *createWorld(const char *filename) {
 		fprintf(stderr, "Failed to open tilemap: %s!\n", filename);
 		return NULL;
 	}
-	if ((world->player = createPlayer(0, 0)) == NULL) {
+	if ((world->player = createPlayer(27*16, 3*16)) == NULL) {
 		fputs("Failed to load player.\n", stderr);
 		return NULL;
 	}
