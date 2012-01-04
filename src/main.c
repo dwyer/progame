@@ -12,7 +12,12 @@
 /* Number of milliseconds between logic updates. */
 #define UPDATE_INTERVAL 10
 
+enum {
+	EVENT_UPDATE
+};
+
 Uint32 pushUpdateEvent(Uint32 interval, void *param);
+int pushUserEvent(int code, void *data1, void *data2);
 int playGame(SDL_Surface *screen, settings* pref);
 bool handleEvents(World *world, Input *input);
 
@@ -69,17 +74,22 @@ int main(int argc, char *argv[]) {
  * update world.
  */
 Uint32 pushUpdateEvent(Uint32 interval, void *param) {
-	SDL_Event event;
-	SDL_UserEvent user;
-
-	user.type = SDL_USEREVENT;
-	user.code = 0;
-	user.data1 = NULL;
-	user.data2 = NULL;
-	event.type = SDL_USEREVENT;
-	event.user = user;
-	SDL_PushEvent(&event);
+	pushUserEvent(EVENT_UPDATE, NULL, NULL);
 	return interval;
+}
+
+/**
+ * Push a ``user'' (developer really) defined update to the update queue.
+ */
+int pushUserEvent(int code, void *data1, void *data2) {
+	SDL_Event event;
+
+	event.user.type = event.type = SDL_USEREVENT;
+	event.user.code = code;
+	event.user.data1 = data1;
+	event.user.data2 = data2;
+	SDL_PushEvent(&event);
+	return 0;
 }
 
 /**
