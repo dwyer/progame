@@ -1,7 +1,7 @@
 #ifndef TMX_H
 #define TMX_H
 
-#include "SDL/SDL.h"
+#include <SDL/SDL.h>
 
 typedef struct {
 	char source[32];

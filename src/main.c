@@ -3,7 +3,7 @@
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
-#include "SDL/SDL.h"
+#include <SDL/SDL.h>
 #include "main.h"
 #include "world.h"
 #include "input.h"

@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "SDL/SDL.h"
+#include <SDL/SDL.h>
 #include "tmx.h"
 
 #define TILE_SZ 16
