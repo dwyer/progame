@@ -86,7 +86,7 @@ Uint32 pushUpdateEvent(Uint32 interval, void *param) {
  * Play the game. Returns 0 on success, -1 on error.
  */
 int playGame(SDL_Surface *screen, settings* pref) {
-	const char filename[] = "res/untitled.tmx.bin";
+	const char filename[] = "res/maps/untitled.tmx.bin";
 	World *world = NULL;
 	Input input = { 0, 0, 0, 0 };
 
