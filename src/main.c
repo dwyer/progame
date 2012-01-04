@@ -49,7 +49,6 @@ int main(int argc, char *argv[]) {
 	
 	if ((lua_state = luaL_newstate()) == NULL) {
 		fprintf(stderr, "Error creating Lua state.\n");
-		SDL_Quit();
 		return -1;
 	}
 	luaL_openlibs(lua_state);
