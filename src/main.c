@@ -18,7 +18,7 @@ enum {
 
 Uint32 pushUpdateEvent(Uint32 interval, void *param);
 int pushUserEvent(int code, void *data1, void *data2);
-int playGame(SDL_Surface *screen, settings* pref);
+int playGame(SDL_Surface *screen);
 bool handleEvents(World *world, Input *input);
 
 /**
@@ -28,12 +28,8 @@ int main(int argc, char *argv[]) {
 	SDL_Surface *screen = NULL;
 	SDL_TimerID  timer_id;
 	lua_State   *lua_state;
-	settings*    Pref = malloc(sizeof(settings));
-	memset(Pref, 0, sizeof(settings));
 
 	/* Initialization. */
-	LoadConfig(Pref);
-	
 	if (SDL_Init(SDL_INIT_EVERYTHING)) {
 		fprintf(stderr, "%s\n", SDL_GetError());
 		return -1;
@@ -59,7 +55,7 @@ int main(int argc, char *argv[]) {
 	luaL_openlibs(lua_state);
 	
 	/* Play the fucking game. */
-	playGame(screen, Pref);
+	playGame(screen);
 	
 	/* Deinitialization */
 	lua_close(lua_state);
@@ -95,10 +91,13 @@ int pushUserEvent(int code, void *data1, void *data2) {
 /**
  * Play the game. Returns 0 on success, -1 on error.
  */
-int playGame(SDL_Surface *screen, settings* pref) {
+int playGame(SDL_Surface *screen) {
 	const char filename[] = "res/maps/untitled.tmx.bin";
 	World *world = NULL;
 	Input input = { 0, 0, 0, 0 };
+	settings*    pref = malloc(sizeof(settings));
+	memset(pref, 0, sizeof(settings));
+	LoadConfig(pref);
 
 	if ((world = createWorld(filename)) == NULL) {
 		return -1;
