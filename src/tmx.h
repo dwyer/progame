@@ -7,13 +7,15 @@
  * however seeing the most obvious improvement is for 'source' to be
  * made a 'char *' and malloc'd, the sizeof method introduces latent bugs.
  */
-#define TMP_TILEMAP_SOURCE_LEN 32
+#define TMP_TILEMAP_SOURCE_LEN 1024
 
 typedef struct {
 	char source[TMP_TILEMAP_SOURCE_LEN];
 	int width;
 	int height;
 	int depth;
+	int layerw;
+	int layerh;
 	int tilesetw;
 	int tileseth;
 	Uint32 ***data;

@@ -59,22 +59,18 @@ int updateWorld(World * world, Input input) {
 		movePlayer(world->player, mx, my);
 
 	/* Update camera position. */
-	world->camera.x =
-		world->player->pos.x - (SCREEN_W - world->player->pos.w) / 2;
-	if (world->camera.x < 0)
-		world->camera.x = 0;
-	else if (world->camera.x >=
-			 world->tilemap->width * world->player->pos.w + SCREEN_W)
-		world->camera.x =
-			world->tilemap->width * world->player->pos.w + SCREEN_W - 1;
-	world->camera.y =
-		world->player->pos.y - (SCREEN_H - world->player->pos.h) / 2;
-	if (world->camera.y < 0)
-		world->camera.y = 0;
-	else if (world->camera.y >=
-			 world->tilemap->height * world->player->pos.h + SCREEN_H)
-		world->camera.y =
-			world->tilemap->height * world->player->pos.h + SCREEN_H - 1;
+	world->camera.x = (world->player->pos.x - (SCREEN_W - world->player->pos.w) / 2);
+	if (world->tilemap->layerw > SCREEN_W)
+		if (world->camera.x < 0)
+			world->camera.x = 0;
+		else if (world->camera.x >= world->tilemap->layerw - SCREEN_W)
+			world->camera.x = world->tilemap->layerw - SCREEN_W - 1;
+	world->camera.y = (world->player->pos.y - (SCREEN_H - world->player->pos.h) / 2);
+	if (world->tilemap->layerh > SCREEN_H)
+		if (world->camera.y < 0)
+			world->camera.y = 0;
+		else if (world->camera.y >= world->tilemap->layerh - SCREEN_H)
+			world->camera.y = world->tilemap->layerh - SCREEN_H - 1;
 	return 1;
 }
 

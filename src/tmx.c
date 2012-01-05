@@ -13,38 +13,16 @@ TMP_Tilemap *TMP_LoadTilemap(const char *filename) {
 	int i, j, k;
 
 	/* load data */
-	assert(filename);
+	if (!filename)
+		return NULL;
 	if ((f = fopen(filename, "rb")) == NULL)
 	    return NULL;
-
-	result = malloc(sizeof(*result));
-
-	{
-		 int c;
-
-		 /** Read a '\0'-terminated file record, storing bytes in 'source'
-		  * Exit conditions:
-		  *   Read more then TMP_TILEMAP_SOURCE_LEN bytes. (Overflow protection)
-		  *   IO error (fgetc returns EOF).
-		  *   Record fully read (fgetc returns '\0')
-		  */
-		 for (i = 0;
-			  i < TMP_TILEMAP_SOURCE_LEN &&
-			  (c = fgetc(f)) &&
-			  EOF != c && '\0' != c &&
-			  (result->source[i] = c, 1);
-			  ++i);
-
-		 /* Check the two exit conditions that result in a runtime error */
-		 assert(EOF != c &&
-				TMP_TILEMAP_SOURCE_LEN != i);
-	}
-
+	result = malloc(sizeof(TMP_Tilemap));
+	for (i = 0; (result->source[i] = fgetc(f)) != '\0'; i++);
 	fread(&result->width, sizeof(int), 1, f);
 	fread(&result->height, sizeof(int), 1, f);
 	fread(&result->depth, sizeof(int), 1, f);
 	result->data = malloc(sizeof(Uint32 **) * result->depth);
-
 	for (i = 0; i < result->depth; i++) {
 		result->data[i] = malloc(sizeof(Uint32 *) * result->height);
 		for (j = 0; j < result->height; j++) {
@@ -55,6 +33,8 @@ TMP_Tilemap *TMP_LoadTilemap(const char *filename) {
 		}
 	}
 	result->collision = result->data[result->depth - 1];
+	result->layerw = result->width * TILE_SZ;
+	result->layerh = result->height * TILE_SZ;
 	fclose(f);
 	/* load tileset and tiles */
 	/*TODO: get filename from the TMX file */
@@ -113,8 +93,8 @@ int TMP_TileIsOccupied(TMP_Tilemap * tilemap, int x, int y) {
 }
 
 int TMP_PixelIsOccupied(TMP_Tilemap * tilemap, int x, int y) {
-	return (TMP_TileIsOccupied(tilemap, x / 16, y / 16) ||
-			TMP_TileIsOccupied(tilemap, (x + 15) / 16, y / 16) ||
-			TMP_TileIsOccupied(tilemap, x / 16, (y + 15) / 16) ||
-			TMP_TileIsOccupied(tilemap, (x + 15) / 16, (y + 15) / 16));
+	return (TMP_TileIsOccupied(tilemap, x / TILE_SZ, y / TILE_SZ) ||
+			TMP_TileIsOccupied(tilemap, (x + TILE_SZ - 1) / TILE_SZ, y / TILE_SZ) ||
+			TMP_TileIsOccupied(tilemap, x / TILE_SZ, (y + TILE_SZ - 1) / TILE_SZ) ||
+			TMP_TileIsOccupied(tilemap, (x + TILE_SZ - 1) / TILE_SZ, (y + TILE_SZ - 1) / TILE_SZ));
 }
