@@ -1,2 +1,4 @@
 print('running init.lua')
-load_world("res/maps/untitled.tmx.bin")
+map=dofile('res/maps/untitled.lua')
+load_map(map)
+print('init.lua exited cleanly')

@@ -1,7 +1,7 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include <SDL/SDL.h>			/* Polluting the include stream D: */
+#include <SDL/SDL.h>
 
 #define PLAYER_SPEED 2
 
