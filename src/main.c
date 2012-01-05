@@ -86,6 +86,7 @@ int playGame(SDL_Surface *screen) {
 	}
 	do {
 		/* Draw. */
+		SDL_FillRect(screen, NULL, 0);
 		if (drawWorld(world, screen) || SDL_Flip(screen)) {
 			fprintf(stderr, "%s\n", SDL_GetError());
 			return -1;

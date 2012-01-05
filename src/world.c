@@ -64,17 +64,17 @@ int updateWorld(World * world, Input input) {
 	if (world->camera.x < 0)
 		world->camera.x = 0;
 	else if (world->camera.x >=
-			 world->tilemap->width * world->player->pos.w - SCREEN_W)
+			 world->tilemap->width * world->player->pos.w + SCREEN_W)
 		world->camera.x =
-			world->tilemap->width * world->player->pos.w - SCREEN_W - 1;
+			world->tilemap->width * world->player->pos.w + SCREEN_W - 1;
 	world->camera.y =
 		world->player->pos.y - (SCREEN_H - world->player->pos.h) / 2;
 	if (world->camera.y < 0)
 		world->camera.y = 0;
 	else if (world->camera.y >=
-			 world->tilemap->height * world->player->pos.h - SCREEN_H)
+			 world->tilemap->height * world->player->pos.h + SCREEN_H)
 		world->camera.y =
-			world->tilemap->height * world->player->pos.h - SCREEN_H - 1;
+			world->tilemap->height * world->player->pos.h + SCREEN_H - 1;
 	return 1;
 }
 
