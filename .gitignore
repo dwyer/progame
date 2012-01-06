@@ -2,6 +2,12 @@
 game
 obj
 
+# Files used by emacs/gtags
+
+GPATH
+GTAGS
+GRTAGS
+
 # Autotools create many files in their invocation directory,
 # ignore everything automatically generated, leaving only the user-made files
 
