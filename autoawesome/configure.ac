@@ -8,6 +8,8 @@ AM_INIT_AUTOMAKE([foreign silent-rules])
 LT_INIT()
 LT_LANG([C])
 
+CFLAGS="-g -O0"
+
 # Requires pkg.m4, was probably shipped with pkg-config install
 PKG_PROG_PKG_CONFIG
 
