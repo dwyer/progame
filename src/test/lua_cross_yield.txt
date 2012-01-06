@@ -1,0 +1,15 @@
+This example demonstrates the cross C-call yield functionality of lua 5.2.
+
+In both lua_cross_yield programs, two lua threads will be created.
+  The first will be used to call a C function, which returns as usual.
+  (See lua_cross_yield@return_normally_cfunc)
+
+  The second will be used to call a C function, which calls a lua function,
+  where said lua function returns by yielding.
+
+lua_cross_yield51 uses the old lua_resume/lua_call API functions.
+Therefore, the second thread's call will fail,
+signaling "attempt to yield across metamethod/C-call boundary".
+
+lua_cross_yield52 uses the new lua_resume/lua_callk API functions.
+Therefore, the second thread's call completes successfully.
