@@ -34,6 +34,32 @@ AC_ARG_WITH([lua52],
 			[want_lua52=yes],
 			[want_lua52=no])
 
+# If --with-blah was not given on command line at all, assume want to check.
+# If --with-blah was given, test whether it was --with-blah=no,
+# in that case disable, otherwise enable.
+
+want_assimp=
+AC_ARG_WITH([assimp],
+			[AS_HELP_STRING([--with-assimp],
+							[assimp support?])],
+			[AS_IF([test "x$with_assimp" = xno],
+				   [want_assimp=no],
+				   [want_assimp=yes])],
+			[want_assimp=check])
+
+AS_IF([test "x$want_assimp" = check],
+	  [PKG_CHECK_EXISTS([assimp],
+						[want_assimp=yes],
+						[want_assimp=no])])
+
+AS_IF([test "x$want_assimp" = xyes],
+	  [PKG_CHECK_MODULES([ASSIMP], [assimp])],
+	  [])
+
+AM_CONDITIONAL([WANT_ASSIMP],
+			   [test "x$want_assimp" = xyes])
+
+
 # Check for SDL
 # Requires sdl.m4, was probably shipped with SDL install
 AM_PATH_SDL([],
