@@ -35,8 +35,5 @@ int move_right(int which, void* Pref){
 }
 
 void toggle(int which, Key* key){
-	if (which == key_up)
-	key->Pushed = 0;
-	else if (which == key_down)
-	key->Pushed = 1;
+	key->Pushed = (which == key_down);
 }

@@ -108,45 +108,27 @@ bool handleEvents(World *world, Input *input) {
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_USEREVENT) {
 			updateWorld(world, *input);
-		} else if (event.type == SDL_KEYDOWN) {
+		} else if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
 			if (event.key.keysym.sym == SDLK_LEFT) {
 				if (input->left.callback)
-				input->left.callback(key_down, input);
+				input->left.callback(event.type == SDL_KEYDOWN, input);
 			}
 			else if (event.key.keysym.sym == SDLK_RIGHT) {
 				if (input->right.callback)
-				input->right.callback(key_down, input);
+				input->right.callback(event.type == SDL_KEYDOWN, input);
 			}
 			else if (event.key.keysym.sym == SDLK_UP) {
 				if (input->up.callback)
-				input->up.callback(key_down, input);
+				input->up.callback(event.type == SDL_KEYDOWN, input);
 			}
 			else if (event.key.keysym.sym == SDLK_DOWN) {
 				if (input->down.callback)
-				input->down.callback(key_down, input);
+				input->down.callback(event.type == SDL_KEYDOWN, input);
 			}
 			else if (event.key.keysym.sym == SDLK_q) {
 				return false;
 			}
-		} else if (event.type == SDL_KEYUP) {
-			if (event.key.keysym.sym == SDLK_LEFT) {
-				if (input->left.callback)
-				input->left.callback(key_up, input);
-			}
-			else if (event.key.keysym.sym == SDLK_RIGHT) {
-				if (input->right.callback)
-				input->right.callback(key_up, input);
-			}
-			else if (event.key.keysym.sym == SDLK_UP) {
-				if (input->up.callback)
-				input->up.callback(key_up, input);
-			}
-			else if (event.key.keysym.sym == SDLK_DOWN) {
-				if (input->left.callback)
-				input->down.callback(key_up, input);
-			}
-		}
-		else if (event.type == SDL_QUIT) {
+		} else if (event.type == SDL_QUIT) {
 			return false;
 		}
 	}
