@@ -23,3 +23,12 @@ lua_cross_yield52_SOURCES = ../src/test/lua_cross_yield52.c
 lua_cross_yield52_CFLAGS = ${LUA52_CFLAGS} ${AM_CFLAGS}
 lua_cross_yield52_LDADD = ${LUA52_LIBS} -lm
 endif # WANT_LUA52
+
+# If assimp is available, compile the example
+
+if WANT_ASSIMP
+bin_PROGRAMS += assimp_basic
+assimp_basic_SOURCES = ../src/test/assimp_basic.c
+assimp_basic_CFLAGS = ${ASSIMP_CFLAGS} ${AM_CFLAGS} -Wno-attributes
+assimp_basic_LDADD = ${ASSIMP_LIBS}
+endif # WANT_ASSIMP
