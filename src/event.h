@@ -5,7 +5,12 @@
  * Event codes for SDL_UserEvent
  */
 enum {
-	EVENT_UPDATE
+	EVENT_UPDATE,
+	EVENT_MOVEUP,
+	EVENT_MOVEDOWN,
+	EVENT_MOVELEFT,
+	EVENT_MOVERIGHT,
+	EVENT_QUIT
 };
 
 int pushUserEvent(int code, void *data1, void *data2);

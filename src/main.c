@@ -14,6 +14,24 @@
 /* Number of milliseconds between logic updates. */
 #define UPDATE_INTERVAL 10
 
+typedef struct InputCode InputCode;
+
+/**
+ * Here's an array that maps keyboard events to action events. Eventually this
+ * will be loaded from a Lua file instead of hardcoded.
+ */
+struct InputCode {
+	int sym;
+	int code;
+} input_codes[] = {
+	{ SDLK_UP, EVENT_MOVEUP },
+	{ SDLK_DOWN, EVENT_MOVEDOWN },
+	{ SDLK_LEFT, EVENT_MOVELEFT },
+	{ SDLK_RIGHT, EVENT_MOVERIGHT },
+	{ SDLK_q, EVENT_QUIT },
+	{ -1, -1 }
+};
+
 Uint32 pushUpdateEvent(Uint32 interval, void *param);
 int playGame(SDL_Surface *screen);
 bool handleEvents(World *world, Input *input);
@@ -107,26 +125,28 @@ bool handleEvents(World *world, Input *input) {
 
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_USEREVENT) {
-			updateWorld(world, *input);
-		} else if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
-			if (event.key.keysym.sym == SDLK_LEFT) {
-				if (input->left.callback)
-				input->left.callback(event.type == SDL_KEYDOWN, input);
-			}
-			else if (event.key.keysym.sym == SDLK_RIGHT) {
-				if (input->right.callback)
-				input->right.callback(event.type == SDL_KEYDOWN, input);
-			}
-			else if (event.key.keysym.sym == SDLK_UP) {
-				if (input->up.callback)
-				input->up.callback(event.type == SDL_KEYDOWN, input);
-			}
-			else if (event.key.keysym.sym == SDLK_DOWN) {
-				if (input->down.callback)
-				input->down.callback(event.type == SDL_KEYDOWN, input);
-			}
-			else if (event.key.keysym.sym == SDLK_q) {
+			if (event.user.code == EVENT_UPDATE)
+				updateWorld(world, *input);
+			else if (event.user.code == EVENT_QUIT)
 				return false;
+			else if (event.user.code == EVENT_MOVEUP)
+				input->up.callback(event.user.data1 != NULL, input);
+			else if (event.user.code == EVENT_MOVEDOWN)
+				input->down.callback(event.user.data1 != NULL, input);
+			else if (event.user.code == EVENT_MOVELEFT)
+				input->left.callback(event.user.data1 != NULL, input);
+			else if (event.user.code == EVENT_MOVERIGHT)
+				input->right.callback(event.user.data1 != NULL, input);
+		} else if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
+			/**
+			 * Instead of hardcoding keyboard events, we'll map them to action
+			 * events so they can be configured in scripting.
+			 */
+			InputCode *code = NULL;
+			for (code = input_codes; code->sym != -1; code++) {
+				if (code->sym == event.key.keysym.sym) {
+					pushUserEvent(code->code, (void *)(event.type == SDL_KEYDOWN), NULL);
+				}
 			}
 		} else if (event.type == SDL_QUIT) {
 			return false;
