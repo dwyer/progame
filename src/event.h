@@ -12,7 +12,7 @@ enum {
 	EVENT_INPUT_MOVE_RIGHT,
 	EVENT_INPUT_QUIT,
 	EVENT_WORLD_UPDATE,
-	EVENT_LAST /* end of the line */
+	EVENT_LAST					/* end of the line */
 };
 
 int Event_push(int code, void *data1, void *data2);

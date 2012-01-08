@@ -2,6 +2,6 @@
 #define SCRIPT_H
 
 int Script_init(void);
-void Script_reg(lua_State *L);
+void Script_reg(lua_State * L);
 
 #endif

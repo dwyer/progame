@@ -1,22 +1,48 @@
 #include <SDL/SDL.h>
 #include "entity.h"
 
-int drawEntities(EntityList * List, SDL_Surface * Surface, int camx,
-				 int camy) {
-	EntityList *Current = List;
+struct EntityNode {
+	Entity *entity;
+	struct EntityNode *last, *next;
+};
 
-	while (Current) {
-		Current->Subject->rel_Dest.x = Current->Subject->Dest.x - camx;
-		Current->Subject->rel_Dest.y = Current->Subject->Dest.y - camy;
+struct EntityList {
+	EntityNode *first;
+};
 
-		if (Current->Subject) {
-			SDL_BlitSurface(Current->Subject->Surf,
-							&Current->Subject->Source, Surface,
-							&Current->Subject->rel_Dest);
-		}
+EntityList *EntityList_new(void) {
+	EntityList *list = malloc(sizeof(EntityList));
 
-		Current = Current->Next;
+	list->first = NULL;
+	return list;
+}
+
+void EntityList_free(EntityList * entities) {
+	EntityNode *node = NULL, *temp;
+
+	while (entities->first) {
+		node = entities->first;
+		entities->first = node->next;
+		free(node->entity);
+		free(node);
 	}
+	free(entities);
+}
 
+void EntityList_append(EntityList * entities, Entity * entity) {
+	EntityNode *node = malloc(sizeof(EntityNode));
+
+	node->last = NULL;
+	node->next = entities->first;
+	entities->first->last = node;
+}
+
+int Entities_draw(EntityList * list, SDL_Surface * surface, int camx,
+				  int camy) {
+	EntityNode *node = NULL;
+
+	for (node = list->first; node != NULL; node = node->next) {
+		SDL_BlitSurface(node->entity->sprite, NULL, surface, NULL);
+	}
 	return 0;
 }

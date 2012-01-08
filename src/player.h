@@ -27,6 +27,7 @@ typedef struct {
 	PState State;
 	SDL_Rect src;
 	SDL_Rect pos;				/* Player's position relative to the map. */
+	SDL_Rect vel;				/* Player's velocity */
 	SDL_Surface *sprite;
 	Uint32 speed;
 } Player;

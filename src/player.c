@@ -127,8 +127,8 @@ int Player_update_state(Player * player, int State) {
 			player->State.State = p_idle;
 			player->src.x = 32;
 
-			if (player->src.x != 32
-				&& player->State.StateTime + player->State.TimeSwitch <=
+			if (player->src.x != 32 &&
+				player->State.StateTime + player->State.TimeSwitch <=
 				SDL_GetTicks()) {
 				player->src.x = 32;
 
@@ -137,5 +137,4 @@ int Player_update_state(Player * player, int State) {
 			}
 		}
 	}
-
 }
