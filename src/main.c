@@ -9,6 +9,7 @@
 #include "input.h"
 #include "script.h"
 #include "event.h"
+#include "config.h"
 
 /* Number of milliseconds between logic updates. */
 #define UPDATE_INTERVAL 10
