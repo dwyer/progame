@@ -2,6 +2,7 @@
 #include "player.h"
 #include "tilemap.h"
 #include "input.h"
+#include "event.h"
 
 typedef struct {
 	SDL_Rect camera;
@@ -28,22 +29,58 @@ World *World_create(const char *filename) {
 	return world;
 }
 
-int World_update(World * world, Input input) {
+void World_free(World *world) {
+	Tilemap_free(world->tilemap);
+	Player_free(world->player);
+	free(world);
+}
+
+int World_event(World *world, Input *input, SDL_UserEvent event) {
+
+	if (event.code == EVENT_WORLD_UPDATE)
+		World_update(world, input);
+	else if (event.code == EVENT_INPUT_QUIT) {
+		SDL_Event e;
+		e.type = SDL_QUIT;
+		SDL_PushEvent(&e);
+	} else if (event.code == EVENT_INPUT_MOVE_UP)
+		input->up = (event.data1 != NULL);
+	else if (event.code == EVENT_INPUT_MOVE_DOWN)
+		input->down = (event.data1 != NULL);
+	else if (event.code == EVENT_INPUT_MOVE_LEFT)
+		input->left = (event.data1 != NULL);
+	else if (event.code == EVENT_INPUT_MOVE_RIGHT)
+		input->right = (event.data1 != NULL);
+	else if (event.code == EVENT_CONFIG_BINDKEY) {
+		InputCode *code = NULL;
+		InputCode *ic = (InputCode *)event.data1;
+		InputCode nil = { -1, -1 };
+
+		/* traverse to the end of the input codes */
+		for (code = input->input_codes; code->sym != -1; code++);
+		*code = *ic;
+		code++;
+		*code = nil; 
+	}
+	return 0;
+}
+
+int World_update(World * world, Input *input) {
 	int my = 0, mx = 0;
 
 	/* Update player position. */
 	mx = 0;
 	my = 0;
-	if (input.left) {
+	if (input->left) {
 		mx -= world->player->speed;
 	}
-	if (input.right) {
+	if (input->right) {
 		mx += world->player->speed;
 	}
-	if (input.up) {
+	if (input->up) {
 		my -= world->player->speed;
 	}
-	if (input.down) {
+	if (input->down) {
 		my += world->player->speed;
 	}
 
@@ -92,10 +129,4 @@ int World_draw(World * world, SDL_Surface * surf) {
 		}
 	}
 	return 0;
-}
-
-void World_free(World * world) {
-	Tilemap_free(world->tilemap);
-	Player_free(world->player);
-	free(world);
 }

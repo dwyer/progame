@@ -14,9 +14,11 @@
 /* Number of milliseconds between logic updates. */
 #define UPDATE_INTERVAL 10
 
+static InputCode ics[100] = { { -1, -1 } };
+
 Uint32 pushUpdateEvent(Uint32 interval, void *param);
-int playGame(SDL_Surface *screen);
-bool handleEvents(World *world, Input *input);
+int Game_play(SDL_Surface *screen);
+bool Game_events(World *world, Input *input);
 
 /**
  * Initialize everything, run the game, deinitialize, quit.
@@ -45,7 +47,7 @@ int main(int argc, char *argv[]) {
 	SDL_WM_SetCaption("/prog/ame", NULL);
 	
 	/* Play the fucking game. */
-	result = playGame(screen);
+	result = Game_play(screen);
 	
 	/* Deinitialization */
 	SDL_FreeSurface(screen);
@@ -66,13 +68,14 @@ Uint32 pushUpdateEvent(Uint32 interval, void *param) {
 /**
  * Play the game. Returns 0 on success, -1 on error.
  */
-int playGame(SDL_Surface *screen) {
+int Game_play(SDL_Surface *screen) {
 	const char filename[] = "res/maps/untitled.tmx.bin";
 	lua_State *L = NULL;
 	World *world = NULL;
 	Input input = { 0, 0, 0, 0 };
 	Config_run();
 	
+	input.input_codes = ics;
 	if ((L = luaL_newstate()) == NULL) {
 		fprintf(stderr, "Error creating Lua state.\n");
 		return -1;
@@ -81,14 +84,14 @@ int playGame(SDL_Surface *screen) {
 	if ((world = World_create(filename)) == NULL) {
 		return -1;
 	}
-	do {
+	while (Game_events(world, &input)) {
 		/* Draw. */
 		SDL_FillRect(screen, NULL, 0);
 		if (World_draw(world, screen) || SDL_Flip(screen)) {
 			fprintf(stderr, "%s\n", SDL_GetError());
 			return -1;
 		}
-	} while (handleEvents(world, &input));
+	};
 	World_free(world);
 	lua_close(L);
 	return 0;
@@ -99,41 +102,19 @@ int playGame(SDL_Surface *screen) {
  * passed to the World class. Returns false it the player signaled a quit event,
  * true otherwise.
  */
-bool handleEvents(World *world, Input *input) {
+bool Game_events(World *world, Input *input) {
 	SDL_Event event;
-	static InputCode ics[100] = { { -1, -1 } };
 
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_USEREVENT) {
-			if (event.user.code == EVENT_WORLD_UPDATE)
-				World_update(world, *input);
-			else if (event.user.code == EVENT_INPUT_QUIT)
-				return false;
-			else if (event.user.code == EVENT_INPUT_MOVE_UP)
-				input->up = (event.user.data1 != NULL);
-			else if (event.user.code == EVENT_INPUT_MOVE_DOWN)
-				input->down = (event.user.data1 != NULL);
-			else if (event.user.code == EVENT_INPUT_MOVE_LEFT)
-				input->left = (event.user.data1 != NULL);
-			else if (event.user.code == EVENT_INPUT_MOVE_RIGHT)
-				input->right = (event.user.data1 != NULL);
-			else if (event.user.code == EVENT_CONFIG_BINDKEY) {
-				InputCode *code = NULL;
-				InputCode *ic = (InputCode *)event.user.data1;
-				InputCode nil = { -1, -1 };
-				/* traverse to the end of the input codes */
-				for (code = ics; code->sym != -1; code++);
-				*code = *ic;
-				code++;
-				*code = nil; 
-			}
+			World_event(world, input, event.user);
 		} else if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
 			/**
 			 * Instead of hardcoding keyboard events, we'll map them to action
 			 * events so they can be configured in scripting.
 			 */
 			InputCode *code = NULL;
-			for (code = ics; code->sym != -1; code++) {
+			for (code = input->input_codes; code->sym != -1; code++) {
 				if (code->sym == event.key.keysym.sym) {
 					Event_push(code->code, (void *)(event.type == SDL_KEYDOWN), NULL);
 				}
