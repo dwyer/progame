@@ -3,5 +3,5 @@ input = {
 	down = { SDLK_DOWN, SDLK_s, SDLK_j },
 	left = { SDLK_LEFT, SDLK_a, SDLK_h },
 	right = { SDLK_RIGHT, SDLK_d, SDLK_l },
-	quit = { SDLK_q }
+	quit = { SDLK_ESCAPE, SDLK_q }
 }

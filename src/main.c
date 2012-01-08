@@ -14,8 +14,6 @@
 /* Number of milliseconds between logic updates. */
 #define UPDATE_INTERVAL 10
 
-static InputCode ics[100] = { { -1, -1 } };
-
 Uint32 pushUpdateEvent(Uint32 interval, void *param);
 int Game_play(SDL_Surface *screen);
 bool Game_events(World *world, Input *input);
@@ -70,12 +68,13 @@ Uint32 pushUpdateEvent(Uint32 interval, void *param) {
  */
 int Game_play(SDL_Surface *screen) {
 	const char filename[] = "res/maps/untitled.tmx.bin";
+	static InputCode input_codes[100] = { { -1, -1 } };
 	lua_State *L = NULL;
 	World *world = NULL;
 	Input input = { 0, 0, 0, 0 };
 	Config_run();
 	
-	input.input_codes = ics;
+	input.codes = input_codes;
 	if ((L = luaL_newstate()) == NULL) {
 		fprintf(stderr, "Error creating Lua state.\n");
 		return -1;
@@ -114,9 +113,12 @@ bool Game_events(World *world, Input *input) {
 			 * events so they can be configured in scripting.
 			 */
 			InputCode *code = NULL;
-			for (code = input->input_codes; code->sym != -1; code++) {
+			for (code = input->codes; code->sym != -1; code++) {
 				if (code->sym == event.key.keysym.sym) {
-					Event_push(code->code, (void *)(event.type == SDL_KEYDOWN), NULL);
+					if (code->code == EVENT_INPUT_QUIT)
+						return false;
+					else
+						Event_push(code->code, (void *)(event.type == SDL_KEYDOWN), NULL);
 				}
 			}
 		} else if (event.type == SDL_QUIT) {

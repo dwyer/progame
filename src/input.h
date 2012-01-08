@@ -16,7 +16,7 @@ typedef struct {
 	bool down;
 	bool left;
 	bool right;
-	InputCode *input_codes;
+	InputCode *codes;
 } Input;
 
 #endif

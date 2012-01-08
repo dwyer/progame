@@ -36,14 +36,9 @@ void World_free(World *world) {
 }
 
 int World_event(World *world, Input *input, SDL_UserEvent event) {
-
 	if (event.code == EVENT_WORLD_UPDATE)
 		World_update(world, input);
-	else if (event.code == EVENT_INPUT_QUIT) {
-		SDL_Event e;
-		e.type = SDL_QUIT;
-		SDL_PushEvent(&e);
-	} else if (event.code == EVENT_INPUT_MOVE_UP)
+	else if (event.code == EVENT_INPUT_MOVE_UP)
 		input->up = (event.data1 != NULL);
 	else if (event.code == EVENT_INPUT_MOVE_DOWN)
 		input->down = (event.data1 != NULL);
@@ -52,15 +47,12 @@ int World_event(World *world, Input *input, SDL_UserEvent event) {
 	else if (event.code == EVENT_INPUT_MOVE_RIGHT)
 		input->right = (event.data1 != NULL);
 	else if (event.code == EVENT_CONFIG_BINDKEY) {
-		InputCode *code = NULL;
-		InputCode *ic = (InputCode *)event.data1;
-		InputCode nil = { -1, -1 };
-
-		/* traverse to the end of the input codes */
-		for (code = input->input_codes; code->sym != -1; code++);
-		*code = *ic;
-		code++;
-		*code = nil; 
+		/* Add code/sym pair to the end of list */
+		int i;
+		for (i = 0; input->codes[i].sym != -1; i++);
+		input->codes[i++] = *(InputCode *)event.data1;
+		input->codes[i].code = -1;
+		input->codes[i].sym = -1;
 	}
 	return 0;
 }
