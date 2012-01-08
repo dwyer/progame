@@ -1,2 +1,0 @@
-Load an example mesh in collada (.dae) format.
-Print name of every node in the hierarchy.
