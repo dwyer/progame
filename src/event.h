@@ -5,6 +5,7 @@
  * Event codes for SDL_UserEvent
  */
 enum {
+	EVENT_BINDKEY,
 	EVENT_UPDATE,
 	EVENT_MOVEUP,
 	EVENT_MOVEDOWN,

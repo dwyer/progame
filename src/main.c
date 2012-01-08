@@ -14,24 +14,6 @@
 /* Number of milliseconds between logic updates. */
 #define UPDATE_INTERVAL 10
 
-typedef struct InputCode InputCode;
-
-/**
- * Here's an array that maps keyboard events to action events. Eventually this
- * will be loaded from a Lua file instead of hardcoded.
- */
-struct InputCode {
-	int sym;
-	int code;
-} input_codes[] = {
-	{ SDLK_UP, EVENT_MOVEUP },
-	{ SDLK_DOWN, EVENT_MOVEDOWN },
-	{ SDLK_LEFT, EVENT_MOVELEFT },
-	{ SDLK_RIGHT, EVENT_MOVERIGHT },
-	{ SDLK_q, EVENT_QUIT },
-	{ -1, -1 }
-};
-
 Uint32 pushUpdateEvent(Uint32 interval, void *param);
 int playGame(SDL_Surface *screen);
 bool handleEvents(World *world, Input *input);
@@ -92,6 +74,7 @@ int playGame(SDL_Surface *screen) {
 	settings* pref = malloc(sizeof(settings));
 	memset(pref, 0, sizeof(settings));
 	LoadConfig(pref);
+	run_config_script();
 	
 	if ((L = luaL_newstate()) == NULL) {
 		fprintf(stderr, "Error creating Lua state.\n");
@@ -122,6 +105,7 @@ int playGame(SDL_Surface *screen) {
  */
 bool handleEvents(World *world, Input *input) {
 	SDL_Event event;
+	static InputCode ics[100] = { { -1, -1 } };
 
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_USEREVENT) {
@@ -137,13 +121,23 @@ bool handleEvents(World *world, Input *input) {
 				input->left.callback(event.user.data1 != NULL, input);
 			else if (event.user.code == EVENT_MOVERIGHT)
 				input->right.callback(event.user.data1 != NULL, input);
+			else if (event.user.code == EVENT_BINDKEY) {
+				InputCode *code = NULL;
+				InputCode *ic = (InputCode *)event.user.data1;
+				InputCode nil = { -1, -1 };
+				/* traverse to the end of the input codes */
+				for (code = ics; code->sym != -1; code++);
+				*code = *ic;
+				code++;
+				*code = nil; 
+			}
 		} else if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
 			/**
 			 * Instead of hardcoding keyboard events, we'll map them to action
 			 * events so they can be configured in scripting.
 			 */
 			InputCode *code = NULL;
-			for (code = input_codes; code->sym != -1; code++) {
+			for (code = ics; code->sym != -1; code++) {
 				if (code->sym == event.key.keysym.sym) {
 					pushUserEvent(code->code, (void *)(event.type == SDL_KEYDOWN), NULL);
 				}

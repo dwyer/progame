@@ -4,11 +4,17 @@
 #define key_down 1
 #define key_up   2
 
+typedef struct {
+	int sym;
+	int code;
+} InputCode;
+
 struct Key{
 	char* Name;
 	int (*callback)(int Action, void* Pref);
 	int Pushed;
 };
+
 typedef struct Key Key;
 
 typedef struct {

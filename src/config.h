@@ -43,6 +43,7 @@ typedef struct {
 	Input input;
 } settings;
 
+int run_config_script();
 int LoadConfig();
 
 Dictionary* I_LoadIni(char* Path);
