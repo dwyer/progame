@@ -250,7 +250,7 @@ int register_key(const char *field, int sym) {
 	return 0;
 }
 
-int run_config_script() {
+int Config_run() {
 	lua_State *L = NULL;
 	KeyReg *reg = NULL;
 	const char **s = NULL;
@@ -295,7 +295,7 @@ int run_config_script() {
 						lua_gettable(L, -2); /* replace k with t[k] */
 						ic->code = code;
 						ic->sym = lua_tonumber(L, -1);
-						pushUserEvent(EVENT_BINDKEY, ic, NULL);
+						Event_push(EVENT_BINDKEY, ic, NULL);
 						lua_pop(L, 1); /* pop t[k] */
 					}
 				}

@@ -5,9 +5,9 @@
 
 typedef struct _World World;
 
-World *createWorld(const char *filename);
-int updateWorld(World * world, Input input);
-int drawWorld(World * world, SDL_Surface * surf);
-void freeWorld(World * world);
+World *World_create(const char *filename);
+int World_update(World * world, Input input);
+int World_draw(World * world, SDL_Surface * surf);
+void World_free(World * world);
 
 #endif

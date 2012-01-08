@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
  * update world.
  */
 Uint32 pushUpdateEvent(Uint32 interval, void *param) {
-	pushUserEvent(EVENT_UPDATE, NULL, NULL);
+	Event_push(EVENT_UPDATE, NULL, NULL);
 	return interval;
 }
 
@@ -71,26 +71,25 @@ int playGame(SDL_Surface *screen) {
 	lua_State *L = NULL;
 	World *world = NULL;
 	Input input = { 0, 0, 0, 0 };
-	run_config_script();
+	Config_run();
 	
 	if ((L = luaL_newstate()) == NULL) {
 		fprintf(stderr, "Error creating Lua state.\n");
 		return -1;
 	}
-	registerLuaRegs(L);
-	luaL_dofile(L, "res/scripts/init.lua");
-	if ((world = createWorld(filename)) == NULL) {
+	Script_reg(L);
+	if ((world = World_create(filename)) == NULL) {
 		return -1;
 	}
 	do {
 		/* Draw. */
 		SDL_FillRect(screen, NULL, 0);
-		if (drawWorld(world, screen) || SDL_Flip(screen)) {
+		if (World_draw(world, screen) || SDL_Flip(screen)) {
 			fprintf(stderr, "%s\n", SDL_GetError());
 			return -1;
 		}
 	} while (handleEvents(world, &input));
-	freeWorld(world);
+	World_free(world);
 	lua_close(L);
 	return 0;
 }
@@ -107,7 +106,7 @@ bool handleEvents(World *world, Input *input) {
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_USEREVENT) {
 			if (event.user.code == EVENT_UPDATE)
-				updateWorld(world, *input);
+				World_update(world, *input);
 			else if (event.user.code == EVENT_QUIT)
 				return false;
 			else if (event.user.code == EVENT_MOVEUP)
@@ -136,7 +135,7 @@ bool handleEvents(World *world, Input *input) {
 			InputCode *code = NULL;
 			for (code = ics; code->sym != -1; code++) {
 				if (code->sym == event.key.keysym.sym) {
-					pushUserEvent(code->code, (void *)(event.type == SDL_KEYDOWN), NULL);
+					Event_push(code->code, (void *)(event.type == SDL_KEYDOWN), NULL);
 				}
 			}
 		} else if (event.type == SDL_QUIT) {

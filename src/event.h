@@ -14,6 +14,6 @@ enum {
 	EVENT_QUIT
 };
 
-int pushUserEvent(int code, void *data1, void *data2);
+int Event_push(int code, void *data1, void *data2);
 
 #endif

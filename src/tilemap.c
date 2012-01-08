@@ -1,12 +1,12 @@
 #include <stdio.h>
 #include <assert.h>
 #include <SDL/SDL.h>
-#include "tmx.h"
+#include "tilemap.h"
 
 #define TILE_SZ 16
 
-TMP_Tilemap *TMP_LoadTilemap(const char *filename) {
-	TMP_Tilemap *result = NULL;
+Tilemap *Tilemap_load(const char *filename) {
+	Tilemap *result = NULL;
 	SDL_Rect src = { 0, 0, TILE_SZ, TILE_SZ };
 	SDL_Rect dst = { 0, 0, TILE_SZ, TILE_SZ };
 	FILE *f = NULL;
@@ -17,7 +17,7 @@ TMP_Tilemap *TMP_LoadTilemap(const char *filename) {
 		return NULL;
 	if ((f = fopen(filename, "rb")) == NULL)
 	    return NULL;
-	result = malloc(sizeof(TMP_Tilemap));
+	result = malloc(sizeof(Tilemap));
 	for (i = 0; (result->source[i] = fgetc(f)) != '\0'; i++);
 	fread(&result->width, sizeof(int), 1, f);
 	fread(&result->height, sizeof(int), 1, f);
@@ -67,14 +67,14 @@ TMP_Tilemap *TMP_LoadTilemap(const char *filename) {
 	return result;
 }
 
-void TMP_DrawTilemap(TMP_Tilemap * tilemap, SDL_Surface * surface) {
+void Tilemap_draw(Tilemap * tilemap, SDL_Surface * surface) {
 	int i;
 
 	for (i = 0; i < tilemap->depth; i++)
 		SDL_BlitSurface(tilemap->layers[i], NULL, surface, NULL);
 }
 
-void TMP_FreeTilemap(TMP_Tilemap * tilemap) {
+void Tilemap_free(Tilemap * tilemap) {
 	int i, j;
 
 	for (i = 0; i < tilemap->depth; i++) {
@@ -87,14 +87,14 @@ void TMP_FreeTilemap(TMP_Tilemap * tilemap) {
 	free(tilemap->layers);
 }
 
-int TMP_TileIsOccupied(TMP_Tilemap * tilemap, int x, int y) {
+int Tilemap_tile_is_occupied(Tilemap * tilemap, int x, int y) {
 	return x < 0 || y < 0 || x >= tilemap->width || y >= tilemap->height
 		|| tilemap->collision[y][x];
 }
 
-int TMP_PixelIsOccupied(TMP_Tilemap * tilemap, int x, int y) {
-	return (TMP_TileIsOccupied(tilemap, x / TILE_SZ, y / TILE_SZ) ||
-			TMP_TileIsOccupied(tilemap, (x + TILE_SZ - 1) / TILE_SZ, y / TILE_SZ) ||
-			TMP_TileIsOccupied(tilemap, x / TILE_SZ, (y + TILE_SZ - 1) / TILE_SZ) ||
-			TMP_TileIsOccupied(tilemap, (x + TILE_SZ - 1) / TILE_SZ, (y + TILE_SZ - 1) / TILE_SZ));
+int Tilemap_pixel_is_occupied(Tilemap * tilemap, int x, int y) {
+	return (Tilemap_tile_is_occupied(tilemap, x / TILE_SZ, y / TILE_SZ) ||
+			Tilemap_tile_is_occupied(tilemap, (x + TILE_SZ - 1) / TILE_SZ, y / TILE_SZ) ||
+			Tilemap_tile_is_occupied(tilemap, x / TILE_SZ, (y + TILE_SZ - 1) / TILE_SZ) ||
+			Tilemap_tile_is_occupied(tilemap, (x + TILE_SZ - 1) / TILE_SZ, (y + TILE_SZ - 1) / TILE_SZ));
 }

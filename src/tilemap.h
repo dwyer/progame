@@ -22,12 +22,12 @@ typedef struct {
 	Uint32 **collision;
 	SDL_Surface **layers;
 	SDL_Surface *tileset;
-} TMP_Tilemap;
+} Tilemap;
 
-TMP_Tilemap *TMP_LoadTilemap(const char *filename);
-void TMP_DrawTilemap(TMP_Tilemap * tilemap, SDL_Surface * surface);
-void TMP_FreeTilemap(TMP_Tilemap * tilemap);
-int TMP_TileIsOccupied(TMP_Tilemap * tilemap, int x, int y);
-int TMP_PixelIsOccupied(TMP_Tilemap * tilemap, int x, int y);
+Tilemap *Tilemap_load(const char *filename);
+void Tilemap_draw(Tilemap * tilemap, SDL_Surface * surface);
+void Tilemap_free(Tilemap * tilemap);
+int Tilemap_tile_is_occupied(Tilemap * tilemap, int x, int y);
+int Tilemap_pixel_is_occupied(Tilemap * tilemap, int x, int y);
 
 #endif

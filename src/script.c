@@ -13,7 +13,7 @@ static luaL_Reg regs[] = {
 	{ NULL, NULL }
 };
 
-void registerLuaRegs(lua_State *L) {
+void Script_reg(lua_State *L) {
 	luaL_reg *reg;
 
 	luaL_openlibs(L);

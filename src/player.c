@@ -1,6 +1,6 @@
 #include "player.h"
 
-Player *createPlayer(int x, int y) {
+Player *Player_create(int x, int y) {
 	Player *player = NULL;
 
 	player = malloc(sizeof(Player));
@@ -30,10 +30,10 @@ Player *createPlayer(int x, int y) {
 	return player;
 }
 
-void movePlayer(Player * player, int x, int y) {
+void Player_move(Player * player, int x, int y) {
 	int Direction = 0;
 
-	updatePlayerstate(player, p_walk);
+	Player_update_state(player, p_walk);
 
 	if (y != 0) {
 		if (x != 0) {
@@ -93,12 +93,12 @@ int drawPlayer(Player * player, SDL_Surface * surface, SDL_Rect camera) {
 	return SDL_BlitSurface(player->sprite, &player->src, surface, &dst);
 }
 
-void freePlayer(Player * player) {
+void Player_free(Player * player) {
 	SDL_FreeSurface(player->sprite);
 	free(player);
 }
 
-int updatePlayerstate(Player * player, int State) {
+int Player_update_state(Player * player, int State) {
 	if (!player)
 		return -1;
 
