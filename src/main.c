@@ -7,7 +7,6 @@
 #include "main.h"
 #include "world.h"
 #include "input.h"
-#include "config.h"
 #include "script.h"
 #include "event.h"
 
@@ -71,9 +70,6 @@ int playGame(SDL_Surface *screen) {
 	lua_State *L = NULL;
 	World *world = NULL;
 	Input input = { 0, 0, 0, 0 };
-	settings* pref = malloc(sizeof(settings));
-	memset(pref, 0, sizeof(settings));
-	LoadConfig(pref);
 	run_config_script();
 	
 	if ((L = luaL_newstate()) == NULL) {
@@ -92,7 +88,7 @@ int playGame(SDL_Surface *screen) {
 			fprintf(stderr, "%s\n", SDL_GetError());
 			return -1;
 		}
-	} while (handleEvents(world, &pref->input));
+	} while (handleEvents(world, &input));
 	freeWorld(world);
 	lua_close(L);
 	return 0;
@@ -114,13 +110,13 @@ bool handleEvents(World *world, Input *input) {
 			else if (event.user.code == EVENT_QUIT)
 				return false;
 			else if (event.user.code == EVENT_MOVEUP)
-				input->up.callback(event.user.data1 != NULL, input);
+				input->up = (event.user.data1 != NULL);
 			else if (event.user.code == EVENT_MOVEDOWN)
-				input->down.callback(event.user.data1 != NULL, input);
+				input->down = (event.user.data1 != NULL);
 			else if (event.user.code == EVENT_MOVELEFT)
-				input->left.callback(event.user.data1 != NULL, input);
+				input->left = (event.user.data1 != NULL);
 			else if (event.user.code == EVENT_MOVERIGHT)
-				input->right.callback(event.user.data1 != NULL, input);
+				input->right = (event.user.data1 != NULL);
 			else if (event.user.code == EVENT_BINDKEY) {
 				InputCode *code = NULL;
 				InputCode *ic = (InputCode *)event.user.data1;

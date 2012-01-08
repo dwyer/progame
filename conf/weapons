@@ -1,8 +1,0 @@
-[Dagger]
-ID=4
-max_AP=10
-min_AP=7
-Sprites=sprites/sword.bmp
-
-[Sword]
-ID=3

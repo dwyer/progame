@@ -34,16 +34,16 @@ int updateWorld(World * world, Input input) {
 	/* Update player position. */
 	mx = 0;
 	my = 0;
-	if (input.left.Pushed) {
+	if (input.left) {
 		mx -= world->player->speed;
 	}
-	if (input.right.Pushed) {
+	if (input.right) {
 		mx += world->player->speed;
 	}
-	if (input.up.Pushed) {
+	if (input.up) {
 		my -= world->player->speed;
 	}
-	if (input.down.Pushed) {
+	if (input.down) {
 		my += world->player->speed;
 	}
 

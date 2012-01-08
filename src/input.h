@@ -4,6 +4,8 @@
 #define key_down 1
 #define key_up   2
 
+#include <stdbool.h>
+
 typedef struct {
 	int sym;
 	int code;
@@ -18,10 +20,10 @@ struct Key{
 typedef struct Key Key;
 
 typedef struct {
-	Key up;
-	Key down;
-	Key left;
-	Key right;
+	bool up;
+	bool down;
+	bool left;
+	bool right;
 } Input;
 
 void ProcessInput(SDL_Event * event);
