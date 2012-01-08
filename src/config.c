@@ -281,11 +281,11 @@ int Config_run() {
 		else {
 			for (s = input_fields; *s != NULL; s++) {
 				int code = 0;
-				if (!strcmp(*s, "up")) code = EVENT_MOVEUP;
-				else if (!strcmp(*s, "down")) code = EVENT_MOVEDOWN;
-				else if (!strcmp(*s, "left")) code = EVENT_MOVELEFT;
-				else if (!strcmp(*s, "right")) code = EVENT_MOVERIGHT;
-				else if (!strcmp(*s, "quit")) code = EVENT_QUIT;
+				if (!strcmp(*s, "up")) code = EVENT_INPUT_MOVE_UP;
+				else if (!strcmp(*s, "down")) code = EVENT_INPUT_MOVE_DOWN;
+				else if (!strcmp(*s, "left")) code = EVENT_INPUT_MOVE_LEFT;
+				else if (!strcmp(*s, "right")) code = EVENT_INPUT_MOVE_RIGHT;
+				else if (!strcmp(*s, "quit")) code = EVENT_INPUT_QUIT;
 				lua_getfield(L, -1, *s); /* push '[field]' table */
 				if (lua_istable(L, -1)) {
 					int i, n = lua_objlen(L, -1);
@@ -295,7 +295,7 @@ int Config_run() {
 						lua_gettable(L, -2); /* replace k with t[k] */
 						ic->code = code;
 						ic->sym = lua_tonumber(L, -1);
-						Event_push(EVENT_BINDKEY, ic, NULL);
+						Event_push(EVENT_CONFIG_BINDKEY, ic, NULL);
 						lua_pop(L, 1); /* pop t[k] */
 					}
 				}

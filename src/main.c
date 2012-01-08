@@ -59,7 +59,7 @@ int main(int argc, char *argv[]) {
  * update world.
  */
 Uint32 pushUpdateEvent(Uint32 interval, void *param) {
-	Event_push(EVENT_UPDATE, NULL, NULL);
+	Event_push(EVENT_WORLD_UPDATE, NULL, NULL);
 	return interval;
 }
 
@@ -105,19 +105,19 @@ bool handleEvents(World *world, Input *input) {
 
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_USEREVENT) {
-			if (event.user.code == EVENT_UPDATE)
+			if (event.user.code == EVENT_WORLD_UPDATE)
 				World_update(world, *input);
-			else if (event.user.code == EVENT_QUIT)
+			else if (event.user.code == EVENT_INPUT_QUIT)
 				return false;
-			else if (event.user.code == EVENT_MOVEUP)
+			else if (event.user.code == EVENT_INPUT_MOVE_UP)
 				input->up = (event.user.data1 != NULL);
-			else if (event.user.code == EVENT_MOVEDOWN)
+			else if (event.user.code == EVENT_INPUT_MOVE_DOWN)
 				input->down = (event.user.data1 != NULL);
-			else if (event.user.code == EVENT_MOVELEFT)
+			else if (event.user.code == EVENT_INPUT_MOVE_LEFT)
 				input->left = (event.user.data1 != NULL);
-			else if (event.user.code == EVENT_MOVERIGHT)
+			else if (event.user.code == EVENT_INPUT_MOVE_RIGHT)
 				input->right = (event.user.data1 != NULL);
-			else if (event.user.code == EVENT_BINDKEY) {
+			else if (event.user.code == EVENT_CONFIG_BINDKEY) {
 				InputCode *code = NULL;
 				InputCode *ic = (InputCode *)event.user.data1;
 				InputCode nil = { -1, -1 };
