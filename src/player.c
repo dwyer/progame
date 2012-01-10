@@ -1,5 +1,20 @@
 #include "player.h"
 
+typedef struct {
+	int State;
+	int StateTime;
+	int TimeSwitch;
+} PState;
+
+struct Player {
+	PState State;
+	SDL_Rect src;
+	SDL_Rect pos;				/* Player's position relative to the map. */
+	SDL_Rect vel;				/* Player's velocity */
+	SDL_Surface *sprite;
+	Uint32 speed;
+};
+
 Player *Player_create(int x, int y) {
 	Player *player = NULL;
 
@@ -28,6 +43,19 @@ Player *Player_create(int x, int y) {
 	SDL_SetColorKey(player->sprite, SDL_SRCCOLORKEY,
 					SDL_MapRGB(player->sprite->format, 255, 0, 255));
 	return player;
+}
+
+void Player_free(Player * player) {
+    SDL_FreeSurface(player->sprite);
+    free(player);
+}
+
+SDL_Rect Player_get_pos(const Player *player) {
+    return player->pos;
+}
+
+int Player_get_speed(const Player *player) {
+    return player->speed;
 }
 
 void Player_move(Player * player, int x, int y) {
@@ -85,17 +113,12 @@ void Player_move(Player * player, int x, int y) {
 	player->pos.y += y;
 }
 
-int drawPlayer(Player * player, SDL_Surface * surface, SDL_Rect camera) {
+int Player_draw(Player * player, SDL_Surface * surface, SDL_Rect camera) {
 	SDL_Rect dst;
 
 	dst.x = player->pos.x - camera.x;
 	dst.y = player->pos.y - camera.y;
 	return SDL_BlitSurface(player->sprite, &player->src, surface, &dst);
-}
-
-void Player_free(Player * player) {
-	SDL_FreeSurface(player->sprite);
-	free(player);
 }
 
 int Player_update_state(Player * player, int State) {

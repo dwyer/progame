@@ -17,25 +17,15 @@
 #define p_idle 1
 #define p_walk 2
 
-typedef struct {
-	int State;
-	int StateTime;
-	int TimeSwitch;
-} PState;
-
-typedef struct {
-	PState State;
-	SDL_Rect src;
-	SDL_Rect pos;				/* Player's position relative to the map. */
-	SDL_Rect vel;				/* Player's velocity */
-	SDL_Surface *sprite;
-	Uint32 speed;
-} Player;
+typedef struct Player Player;
 
 Player *Player_create(int x, int y);
-void Player_move(Player * player, int x, int y);
-int drawPlayer(Player * player, SDL_Surface * surface, SDL_Rect camera);
 void Player_free(Player * player);
+
+SDL_Rect Player_get_pos(const Player *player);
+int Player_get_speed(const Player *player);
+void Player_move(Player * player, int x, int y);
+int Player_draw(Player * player, SDL_Surface * surface, SDL_Rect camera);
 int Player_update_state(Player * player, int State);
 
 #endif

@@ -15,8 +15,6 @@
 struct Tilemap {
 	int w;
 	int h;
-    int tile_w;
-    int tile_h;
     int *collision;
 	SDL_Surface *background;
 	SDL_Surface *foreground;
@@ -143,20 +141,12 @@ Tilemap *Tilemap_load(const char *filename) {
     return tilemap;
 }
 
-SDL_Surface *Tilemap_background(const Tilemap *tilemap) {
-    return tilemap->background;
-}
+SDL_Rect Tilemap_get_area(const Tilemap *tilemap) {
+    SDL_Rect area = { 0, 0, 0, 0 };
 
-SDL_Surface *Tilemap_foreground(const Tilemap *tilemap) {
-    return tilemap->foreground;
-}
-
-int Tilemap_layer_w(const Tilemap *tilemap) {
-    return tilemap->background->w;
-}
-
-int Tilemap_layer_h(const Tilemap *tilemap) {
-    return tilemap->background->h;
+    area.w = tilemap->background->w;
+    area.h = tilemap->foreground->h;
+    return area;
 }
 
 void Tilemap_draw(Tilemap * tilemap, SDL_Surface * surface) {
@@ -171,14 +161,22 @@ void Tilemap_free(Tilemap * tilemap) {
 	free(tilemap);
 }
 
-int Tilemap_tile_is_occupied(Tilemap * tilemap, int x, int y) {
+int Tilemap_tile_is_occupied(const Tilemap * tilemap, int x, int y) {
 	return x < 0 || y < 0 || x >= tilemap->w || y >= tilemap->h
 		|| tilemap->collision[x + y * tilemap->w];
 }
 
-int Tilemap_pixel_is_occupied(Tilemap * tilemap, int x, int y) {
+int Tilemap_pixel_is_occupied(const Tilemap * tilemap, int x, int y) {
 	return (Tilemap_tile_is_occupied(tilemap, x / TILE_SZ, y / TILE_SZ) ||
 			Tilemap_tile_is_occupied(tilemap, (x + TILE_SZ - 1) / TILE_SZ, y / TILE_SZ) ||
 			Tilemap_tile_is_occupied(tilemap, x / TILE_SZ, (y + TILE_SZ - 1) / TILE_SZ) ||
 			Tilemap_tile_is_occupied(tilemap, (x + TILE_SZ - 1) / TILE_SZ, (y + TILE_SZ - 1) / TILE_SZ));
+}
+
+int Tilemap_draw_background(const Tilemap *tilemap, SDL_Surface *screen, SDL_Rect camera) {
+    return SDL_BlitSurface(tilemap->background, &camera, screen, NULL);
+}
+
+int Tilemap_draw_foreground(const Tilemap *tilemap, SDL_Surface *screen, SDL_Rect camera) {
+    return SDL_BlitSurface(tilemap->foreground, &camera, screen, NULL);
 }
