@@ -1,0 +1,10 @@
+When designing levels, keep in mind a few restrictions imposed by the engine. 
+
+* Tile size must be 16x16. Other sizes will lead to unexpected behavior.
+* Use only one tileset. Ignoring this rule will lead to unexpected behavior.
+  [This restriction will probably be lifted in the future.]
+* You must place an object layer between the layers you want to distiguish
+  between background and foreground. 
+* The collision layer must be the topmost layer. If you don't have a collision
+  layer, the engine will use your top layer for collision and not draw it. This
+  means you must have a collision layer, even if it's empty.
