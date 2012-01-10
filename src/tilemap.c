@@ -16,6 +16,7 @@ Tilemap *Tilemap_load(const char *filename) {
     SDL_Surface *layer = NULL;
     SDL_Rect src = { 0, 0, TILE_SZ, TILE_SZ };
     SDL_Rect dst = src;
+    Uint32 color_key = 0;
     lua_State *L = NULL;
     char *str = NULL;
     int i, j, n;
@@ -49,9 +50,7 @@ Tilemap *Tilemap_load(const char *filename) {
     lua_getfield(L, 1, "height");
     tilemap->w = luaL_checknumber(L, -2);
     tilemap->h = luaL_checknumber(L, -1);
-    lua_pop(L, 2);
-    tilemap->layer_w = tilemap->w * TILE_SZ;
-    tilemap->layer_h = tilemap->h * TILE_SZ;
+    lua_pop(L, 2); /* pop width and height */
     /*
      * Get the first tileset for now. In the future we can always add support
      * for additional tilesets.
@@ -65,24 +64,29 @@ Tilemap *Tilemap_load(const char *filename) {
     strcat(str, lua_tostring(L, -1));
     if ((tileset = SDL_LoadBMP(str)) == NULL) {
         fprintf(stderr, "SDL error: %s\n", SDL_GetError());
+        Tilemap_free(tilemap);
         lua_close(L);
         free(str);
-        free(tilemap);
         return NULL;
     }
     free(str);
-    lua_pop(L, 3); /* pop image, tileset 1, and tilesets */
+    lua_pop(L, 1); /* pop image */
+    lua_getfield(L, -1, "transparentColor");
+    sscanf(lua_tostring(L, -1), "#%x", &color_key);
+    lua_pop(L, 3); /* pop transparentColor, tileset 1, and tilesets */
     /*
      * Time to draw the layers.
      */
+    tilemap->layer_w = tilemap->w * TILE_SZ;
+    tilemap->layer_h = tilemap->h * TILE_SZ;
     tilemap->collision = calloc(tilemap->w * tilemap->h, sizeof(*tilemap->collision));
 	tilemap->background = SDL_CreateRGBSurface(SDL_HWSURFACE, tilemap->layer_w, tilemap->layer_h, SCREEN_BPP, 0, 0, 0, 0);
 	tilemap->foreground = SDL_CreateRGBSurface(SDL_HWSURFACE, tilemap->layer_w, tilemap->layer_h, SCREEN_BPP, 0, 0, 0, 0);
-	SDL_FillRect(tilemap->background, NULL, 0xFF00FF);
-	SDL_FillRect(tilemap->foreground, NULL, 0xFF00FF);
-	SDL_SetColorKey(tileset, SDL_SRCCOLORKEY, SDL_MapRGB(tileset->format, 255, 0, 255));
-	SDL_SetColorKey(tilemap->background, SDL_SRCCOLORKEY, SDL_MapRGB(tileset->format, 255, 0, 255));
-	SDL_SetColorKey(tilemap->foreground, SDL_SRCCOLORKEY, SDL_MapRGB(tileset->format, 255, 0, 255));
+	SDL_FillRect(tilemap->background, NULL, color_key);
+	SDL_FillRect(tilemap->foreground, NULL, color_key);
+	SDL_SetColorKey(tileset, SDL_SRCCOLORKEY, color_key);
+	SDL_SetColorKey(tilemap->background, SDL_SRCCOLORKEY, color_key);
+	SDL_SetColorKey(tilemap->foreground, SDL_SRCCOLORKEY, color_key);
     lua_getfield(L, -1, "layers");
     tilemap->depth = lua_objlen(L, -1);
     layer = tilemap->background;
@@ -113,6 +117,7 @@ Tilemap *Tilemap_load(const char *filename) {
         lua_pop(L, 2); /* pop type and layer */
     }
     lua_pop(L, 1); /* pop layers */
+    SDL_FreeSurface(tileset);
     lua_close(L);
     return tilemap;
 }
