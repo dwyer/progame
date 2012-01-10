@@ -17,3 +17,5 @@ When designing levels, keep in mind a few restrictions imposed by the engine.
 * The collision layer must be the topmost layer. If you don't have a collision
   layer, the engine will use your top layer for collision and not draw it. This
   means you must have a collision layer, even if it's empty.
+
+* You may use any tile to indicate collision points.
