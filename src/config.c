@@ -246,15 +246,15 @@ KeyReg key_regs[] = {
 	{"SDLK_LAST", SDLK_LAST},
 };
 
-int register_key(const char *field, int sym) {
-	return 0;
-}
-
-int Config_run() {
+/**
+ * Loads the configuration file. Currently it only configures keyboard input.
+ * \param filename Path to configuration file.
+ * \return 0
+ */
+int Config_run(const char *filename) {
 	lua_State *L = NULL;
 	KeyReg *reg = NULL;
 	const char **s = NULL;
-	const char *filename = "res/scripts/config.lua";
 	const char *input_fields[] = {
 		"up",
 		"down",

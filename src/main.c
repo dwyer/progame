@@ -57,6 +57,9 @@ int main(int argc, char *argv[]) {
 /** 
  * Pushes a user event to the event queue which will indicate that it's time to
  * update world.
+ * \param interval Milliseconds between updates.
+ * \param param Ignored.
+ * \return interval
  */
 Uint32 push_update_event(Uint32 interval, void *param) {
 	Event_push(EVENT_WORLD_UPDATE, NULL, NULL);
@@ -64,15 +67,18 @@ Uint32 push_update_event(Uint32 interval, void *param) {
 }
 
 /**
- * Play the game. Returns 0 on success, -1 on error.
+ * Play the game.
+ * \param screen The screen.
+ * \return 0 on success, -1 on error.
  */
 int Game_play(SDL_Surface * screen) {
-	const char filename[] = "res/maps/untitled.lua";
+	const char *tilemap_file = "res/maps/untitled.lua";
+	const char *config_file = "res/scripts/config.lua";
 	static InputCode input_codes[100] = { {-1, -1} };
 	lua_State *L = NULL;
 	World *world = NULL;
 	Input input = { 0, 0, 0, 0 };
-	Config_run();
+	Config_run(config_file);
 
 	input.codes = input_codes;
 	if ((L = luaL_newstate()) == NULL) {
@@ -80,7 +86,7 @@ int Game_play(SDL_Surface * screen) {
 		return -1;
 	}
 	Script_reg(L);
-	if ((world = World_create(filename)) == NULL) {
+	if ((world = World_create(tilemap_file)) == NULL) {
 		return -1;
 	}
 	while (Game_events(world, &input)) {
@@ -100,6 +106,7 @@ int Game_play(SDL_Surface * screen) {
  * Polls for events. Manages the input queue and handles when input must be
  * passed to the World class. Returns false it the player signaled a quit event,
  * true otherwise.
+ * \return false if a quit event was triggered, true otherwise.
  */
 bool Game_events(World * world, Input * input) {
 	SDL_Event event;

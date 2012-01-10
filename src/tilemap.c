@@ -50,7 +50,6 @@ Tilemap *Tilemap_load(const char *filename) {
     SDL_Rect dst = src;
     Uint32 color_key = 0;
     lua_State *L = NULL;
-    char *str = NULL;
     int i, j, n;
 
     L = luaL_newstate();
@@ -90,19 +89,16 @@ Tilemap *Tilemap_load(const char *filename) {
     lua_getfield(L, 1, "tilesets");
     lua_pushnumber(L, 1);
     lua_gettable(L, -2);
-    lua_getfield(L, -1, "image");
-    str = calloc(strlen(TILEMAP_DIR) + strlen(lua_tostring(L, -1)) + 1, sizeof(char));
-    strcpy(str, TILEMAP_DIR);
-    strcat(str, lua_tostring(L, -1));
-    if ((tileset = SDL_LoadBMP(str)) == NULL) {
+    lua_pushstring(L, TILEMAP_DIR);
+    lua_getfield(L, -2, "image");
+    lua_concat(L, 2);
+    if ((tileset = SDL_LoadBMP(lua_tostring(L, -1))) == NULL) {
         fprintf(stderr, "SDL error: %s\n", SDL_GetError());
         Tilemap_free(tilemap);
         lua_close(L);
-        free(str);
         return NULL;
     }
-    free(str);
-    lua_pop(L, 1); /* pop image */
+    lua_pop(L, 1); /* pop TILEMAP_DIR+image */
     lua_getfield(L, -1, "transparentColor");
     sscanf(lua_tostring(L, -1), "#%x", &color_key);
 	SDL_SetColorKey(tileset, SDL_SRCCOLORKEY, color_key);
