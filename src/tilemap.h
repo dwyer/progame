@@ -7,8 +7,9 @@ typedef struct {
 	int depth;
 	int layer_w;
 	int layer_h;
-	Uint32 ***data;
-	Uint32 **collision;
+    int tile_w;
+    int tile_h;
+    int *collision;
 	SDL_Surface *background;
 	SDL_Surface *foreground;
 } Tilemap;

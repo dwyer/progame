@@ -1,82 +1,119 @@
-#include <stdio.h>
 #include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <SDL/SDL.h>
+#include <lua.h>
+#include <lauxlib.h>
 #include "tilemap.h"
 #include "main.h"
 
 #define TILE_SZ 16
-
-/** For bounds-checking purposes
- * Length made a define instead of an integer literal.
- * Alternately the check could be against sizeof(source),
- * however seeing the most obvious improvement is for 'source' to be
- * made a 'char *' and malloc'd, the sizeof method introduces latent bugs.
- */
-#define TMP_TILEMAP_SOURCE_LEN 1024
+#define TILEMAP_DIR "res/maps/"
 
 Tilemap *Tilemap_load(const char *filename) {
-	Tilemap *tilemap = NULL;
-	SDL_Surface *tileset;
-	SDL_Rect src = { 0, 0, TILE_SZ, TILE_SZ };
-	SDL_Rect dst = { 0, 0, TILE_SZ, TILE_SZ };
-	char source[TMP_TILEMAP_SOURCE_LEN];
-	int tileset_w, tileset_h;
-	FILE *f = NULL;
-	int i, j, k;
+    Tilemap *tilemap = NULL;
+    SDL_Surface *tileset = NULL;
+    SDL_Surface *layer = NULL;
+    SDL_Rect src = { 0, 0, TILE_SZ, TILE_SZ };
+    SDL_Rect dst = src;
+    lua_State *L = NULL;
+    char *str = NULL;
+    int i, j, n;
 
-	/* load data */
-	if (!filename)
-		return NULL;
-	if ((f = fopen(filename, "rb")) == NULL)
-	    return NULL;
-	tilemap = malloc(sizeof(Tilemap));
-	for (i = 0; (source[i] = fgetc(f)) != '\0'; i++);
-	fread(&tilemap->w, sizeof(int), 1, f);
-	fread(&tilemap->h, sizeof(int), 1, f);
-	fread(&tilemap->depth, sizeof(int), 1, f);
-	tilemap->data = malloc(sizeof(Uint32 **) * tilemap->depth);
-	for (i = 0; i < tilemap->depth; i++) {
-		tilemap->data[i] = malloc(sizeof(Uint32 *) * tilemap->h);
-		for (j = 0; j < tilemap->h; j++) {
-			tilemap->data[i][j] = malloc(sizeof(Uint32) * tilemap->w);
-			for (k = 0; k < tilemap->w; k++) {
-				fread(&tilemap->data[i][j][k], sizeof(Uint32), 1, f);
-			}
-		}
-	}
-	tilemap->collision = tilemap->data[tilemap->depth - 1];
-	tilemap->layer_w = tilemap->w * TILE_SZ;
-	tilemap->layer_h = tilemap->h * TILE_SZ;
-	fclose(f);
-	/* load tileset and tiles */
-	/*TODO: get filename from the TMX file */
-	tileset = SDL_LoadBMP("res/tilemap.bmp");
-	tileset_w = tileset->w / TILE_SZ;
-	tileset_h = tileset->h / TILE_SZ;
-	/* draw layers */
+    filename = "res/maps/untitled.lua"; /* override the filename for testing TODO:  delete this */
+    L = luaL_newstate();
+    luaL_dofile(L, filename);
+    /*
+     * Tiled maps exported to Lua have a version number of 1.1 and a luaversion
+     * of 5.1. If these are in order, we'll just assume the rest of the map is
+     * valid and not error check every little thing.
+     */
+    lua_getfield(L, -1, "version");
+    if (strcmp("1.1", lua_tostring(L, -1))) {
+        fprintf(stderr, "Not a valid tilemap: %s\n", filename);
+        lua_close(L);
+        return NULL;
+    }
+    lua_pop(L, 1);
+    /* 
+     * Create a tilemap and load its width and height. Tilesize and orientation
+     * are ignored for now, but we should at least check them to determine the
+     * validity of the map later on.
+     */
+    tilemap = malloc(sizeof(*tilemap));
+    tilemap->collision = NULL;
+    tilemap->background = NULL;
+    tilemap->foreground = NULL;
+    lua_getfield(L, 1, "width");
+    lua_getfield(L, 1, "height");
+    tilemap->w = luaL_checknumber(L, -2);
+    tilemap->h = luaL_checknumber(L, -1);
+    lua_pop(L, 2);
+    tilemap->layer_w = tilemap->w * TILE_SZ;
+    tilemap->layer_h = tilemap->h * TILE_SZ;
+    /*
+     * Get the first tileset for now. In the future we can always add support
+     * for additional tilesets.
+     */
+    lua_getfield(L, 1, "tilesets");
+    lua_pushnumber(L, 1);
+    lua_gettable(L, -2);
+    lua_getfield(L, -1, "image");
+    str = calloc(strlen(TILEMAP_DIR) + strlen(lua_tostring(L, -1)) + 1, sizeof(char));
+    strcpy(str, TILEMAP_DIR);
+    strcat(str, lua_tostring(L, -1));
+    if ((tileset = SDL_LoadBMP(str)) == NULL) {
+        fprintf(stderr, "SDL error: %s\n", SDL_GetError());
+        lua_close(L);
+        free(str);
+        free(tilemap);
+        return NULL;
+    }
+    free(str);
+    lua_pop(L, 3); /* pop image, tileset 1, and tilesets */
+    /*
+     * Time to draw the layers.
+     */
+    tilemap->collision = calloc(tilemap->w * tilemap->h, sizeof(*tilemap->collision));
 	tilemap->background = SDL_CreateRGBSurface(SDL_HWSURFACE, tilemap->layer_w, tilemap->layer_h, SCREEN_BPP, 0, 0, 0, 0);
 	tilemap->foreground = SDL_CreateRGBSurface(SDL_HWSURFACE, tilemap->layer_w, tilemap->layer_h, SCREEN_BPP, 0, 0, 0, 0);
-	SDL_FillRect(tilemap->background, NULL, 0xff00ff);
-	SDL_FillRect(tilemap->foreground, NULL, 0xff00ff);
+	SDL_FillRect(tilemap->background, NULL, 0xFF00FF);
+	SDL_FillRect(tilemap->foreground, NULL, 0xFF00FF);
+	SDL_SetColorKey(tileset, SDL_SRCCOLORKEY, SDL_MapRGB(tileset->format, 255, 0, 255));
 	SDL_SetColorKey(tilemap->background, SDL_SRCCOLORKEY, SDL_MapRGB(tileset->format, 255, 0, 255));
 	SDL_SetColorKey(tilemap->foreground, SDL_SRCCOLORKEY, SDL_MapRGB(tileset->format, 255, 0, 255));
-	for (i = 0; i < tilemap->depth - 1; i++) {
-		SDL_Surface *layer = SDL_CreateRGBSurface(SDL_HWSURFACE, tilemap->layer_w, tilemap->layer_h, SCREEN_BPP, 0, 0, 0, 0);
-		SDL_SetColorKey(layer, SDL_SRCCOLORKEY, SDL_MapRGB(layer->format, 255, 0, 255));
-		SDL_FillRect(layer, NULL, 0xff00ff);
-		for (j = 0; j < tilemap->h; j++) {
-			for (k = 0; k < tilemap->w; k++) {
-				int datum = tilemap->data[i][j][k] - 1;
-				src.x = datum % tileset_w * TILE_SZ;
-				src.y = datum / tileset_w * TILE_SZ;
-				dst.x = k * TILE_SZ;
-				dst.y = j * TILE_SZ;
-				SDL_BlitSurface(tileset, &src, layer, &dst);
-			}
-		}
-		SDL_BlitSurface(layer, NULL, i < 2 ? tilemap->background : tilemap->foreground, NULL);
-	}
-	return tilemap;
+    lua_getfield(L, -1, "layers");
+    tilemap->depth = lua_objlen(L, -1);
+    layer = tilemap->background;
+    for (i = 0; i < tilemap->depth; i++) {
+        lua_rawgeti(L, -1, i + 1); /* get layer */
+        lua_getfield(L, -1, "type"); /* get type */
+        if (!strcmp(lua_tostring(L, -1), "tilelayer")) {
+            lua_getfield(L, -2, "data");
+            for (j = 0; j < lua_objlen(L, -1); j++) {
+                int datum;
+                lua_rawgeti(L, -1, j + 1);
+                datum = lua_tointeger(L, -1);
+                if (i == tilemap->depth - 1) { /* assume last layer is collision */
+                    tilemap->collision[j] = datum;
+                } else if (datum) {
+                    src.x = (datum - 1) % (tileset->w / TILE_SZ) * TILE_SZ;
+                    src.y = (datum - 1) / (tileset->w / TILE_SZ) * TILE_SZ; 
+                    dst.x = (j % tilemap->h) * TILE_SZ;
+                    dst.y = (j / tilemap->h) * TILE_SZ;
+                    SDL_BlitSurface(tileset, &src, layer, &dst);
+                }
+                lua_pop(L, 1); /* pop data[j] */
+            }
+            lua_pop(L, 1); /* pop data */
+        } else if (!strcmp(lua_tostring(L, -1), "objectgroup")) {
+            layer = tilemap->foreground; /* swap layers */
+        }
+        lua_pop(L, 2); /* pop type and layer */
+    }
+    lua_pop(L, 1); /* pop layers */
+    lua_close(L);
+    return tilemap;
 }
 
 void Tilemap_draw(Tilemap * tilemap, SDL_Surface * surface) {
@@ -85,12 +122,7 @@ void Tilemap_draw(Tilemap * tilemap, SDL_Surface * surface) {
 void Tilemap_free(Tilemap * tilemap) {
 	int i, j;
 
-	for (i = 0; i < tilemap->depth; i++) {
-		for (j = 0; j < tilemap->w; j++)
-			free(tilemap->data[i][j]);
-		free(tilemap->data[i]);
-	}
-	free(tilemap->data);
+    free(tilemap->collision);
 	free(tilemap->background);
 	free(tilemap->foreground);
 	free(tilemap);
@@ -98,7 +130,7 @@ void Tilemap_free(Tilemap * tilemap) {
 
 int Tilemap_tile_is_occupied(Tilemap * tilemap, int x, int y) {
 	return x < 0 || y < 0 || x >= tilemap->w || y >= tilemap->h
-		|| tilemap->collision[y][x];
+		|| tilemap->collision[x + y * tilemap->w];
 }
 
 int Tilemap_pixel_is_occupied(Tilemap * tilemap, int x, int y) {
