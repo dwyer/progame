@@ -87,42 +87,41 @@ int World_update(World * world, Input * input) {
 }
 
 int World_draw(World * world, SDL_Surface * surface) {
+    SDL_Surface *layer = NULL;
 	SDL_Rect camera = { 0, 0, SCREEN_W, SCREEN_H };
 	int i;
 
+    layer = Tilemap_background(world->tilemap);
 	/**
 	 * Update camera position.
 	 */
 	camera.x =
 		(world->player->pos.x - (SCREEN_W - world->player->pos.w) / 2);
-	if (world->tilemap->background->w > SCREEN_W)
+	if (layer->w > SCREEN_W)
 		if (camera.x < 0)
 			camera.x = 0;
-		else if (camera.x >= world->tilemap->background->w - SCREEN_W)
-			camera.x = world->tilemap->background->w - SCREEN_W - 1;
+		else if (camera.x >= layer->w - SCREEN_W)
+			camera.x = layer->w - SCREEN_W - 1;
 	camera.y =
 		(world->player->pos.y - (SCREEN_H - world->player->pos.h) / 2);
-	if (world->tilemap->background->h > SCREEN_H)
+	if (layer->h > SCREEN_H)
 		if (camera.y < 0)
 			camera.y = 0;
-		else if (camera.y >= world->tilemap->background->h - SCREEN_H)
-			camera.y = world->tilemap->background->h - SCREEN_H - 1;
+		else if (camera.y >= layer->h - SCREEN_H)
+			camera.y = layer->h - SCREEN_H - 1;
 
 	/**
 	 * Draw tilemap and entities.
 	 */
-	for (i = 0; i < world->tilemap->depth - 1; i++) {
-		if (SDL_BlitSurface(world->tilemap->background, &camera,
-							surface, NULL)) {
-			return -1;
-		}
-		if (drawPlayer(world->player, surface, camera)) {
-			return -1;
-		}
-		if (SDL_BlitSurface(world->tilemap->foreground, &camera,
-							surface, NULL)) {
-			return -1;
-		}
-	}
+    if (SDL_BlitSurface(layer, &camera, surface, NULL)) {
+        return -1;
+    }
+    if (drawPlayer(world->player, surface, camera)) {
+        return -1;
+    }
+    layer = Tilemap_foreground(world->tilemap);
+    if (SDL_BlitSurface(layer, &camera, surface, NULL)) {
+        return -1;
+    }
 	return 0;
 }

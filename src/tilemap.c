@@ -12,6 +12,16 @@
 #define TILEMAP_VERSION "1.1"
 #define TILEMAP_LUAVERSION "5.1"
 
+struct Tilemap {
+	int w;
+	int h;
+    int tile_w;
+    int tile_h;
+    int *collision;
+	SDL_Surface *background;
+	SDL_Surface *foreground;
+};
+
 /*
  * Helper function to assist in creating a surface and setting its transparency.
  */
@@ -99,9 +109,9 @@ Tilemap *Tilemap_load(const char *filename) {
     tilemap->background = create_surface(tilemap->w * TILE_SZ, tilemap->h * TILE_SZ, color_key);
     tilemap->foreground = create_surface(tilemap->w * TILE_SZ, tilemap->h * TILE_SZ, color_key);
     lua_getfield(L, -1, "layers");
-    tilemap->depth = lua_objlen(L, -1);
     layer = tilemap->background;
-    for (i = 0; i < tilemap->depth; i++) {
+    n = lua_objlen(L, -1);
+    for (i = 0; i < n; i++) {
         lua_rawgeti(L, -1, i + 1); /* get layer */
         lua_getfield(L, -1, "type"); /* get type */
         if (!strcmp(lua_tostring(L, -1), "tilelayer")) {
@@ -110,7 +120,7 @@ Tilemap *Tilemap_load(const char *filename) {
                 int datum;
                 lua_rawgeti(L, -1, j + 1);
                 datum = lua_tointeger(L, -1);
-                if (i == tilemap->depth - 1) { /* assume last layer is collision */
+                if (i == n - 1) { /* assume last layer is collision */
                     tilemap->collision[j] = datum;
                 } else if (datum) {
                     src.x = (datum - 1) % (tileset->w / TILE_SZ) * TILE_SZ;
@@ -131,6 +141,22 @@ Tilemap *Tilemap_load(const char *filename) {
     SDL_FreeSurface(tileset);
     lua_close(L);
     return tilemap;
+}
+
+SDL_Surface *Tilemap_background(const Tilemap *tilemap) {
+    return tilemap->background;
+}
+
+SDL_Surface *Tilemap_foreground(const Tilemap *tilemap) {
+    return tilemap->foreground;
+}
+
+int Tilemap_layer_w(const Tilemap *tilemap) {
+    return tilemap->background->w;
+}
+
+int Tilemap_layer_h(const Tilemap *tilemap) {
+    return tilemap->background->h;
 }
 
 void Tilemap_draw(Tilemap * tilemap, SDL_Surface * surface) {
