@@ -5,12 +5,16 @@ CFLAGS=-c -ansi -pedantic $(shell sdl-config --cflags) $(shell pkg-config lua --
 LDFLAGS=$(shell sdl-config --libs) $(shell pkg-config lua --libs --silence-errors) $(shell pkg-config lua5.1 --libs --silence-errors)
 OBJDIR=obj
 SRCDIR=src
+DOCDIR=doc
 EXECUTABLE=game
 
 OBJS=$(addprefix $(OBJDIR)/, $(CFILES:.c=.o))
 SRCS=$(addprefix $(SRCDIR)/, $(CFILES))
 
 all: $(OBJDIR) $(SRCS) $(EXECUTABLE)
+
+$(DOCDIR): $(SRCS)
+	doxygen
 
 debug: CC+=-g -DDEBUG
 debug: all
@@ -25,4 +29,4 @@ $(OBJDIR):
 	mkdir $(OBJDIR)
 
 clean:
-	$(RM) -rf $(OBJDIR) $(EXECUTABLE)
+	$(RM) -rf $(EXECUTABLE) $(OBJDIR) $(DOCDIR)

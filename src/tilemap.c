@@ -141,17 +141,9 @@ Tilemap *Tilemap_load(const char *filename) {
     return tilemap;
 }
 
-SDL_Rect Tilemap_get_area(const Tilemap *tilemap) {
-    SDL_Rect area = { 0, 0, 0, 0 };
-
-    area.w = tilemap->background->w;
-    area.h = tilemap->foreground->h;
-    return area;
-}
-
-void Tilemap_draw(Tilemap * tilemap, SDL_Surface * surface) {
-}
-
+/*
+ * Free the tilemap and all its attributes.
+ */
 void Tilemap_free(Tilemap * tilemap) {
 	int i, j;
 
@@ -161,11 +153,28 @@ void Tilemap_free(Tilemap * tilemap) {
 	free(tilemap);
 }
 
+/*
+ * Returns an SDL_Rect representing the area of the tilemap.
+ */
+SDL_Rect Tilemap_get_area(const Tilemap *tilemap) {
+    SDL_Rect area = { 0, 0, 0, 0 };
+
+    area.w = tilemap->background->w;
+    area.h = tilemap->foreground->h;
+    return area;
+}
+
+/*
+ * Returns non-zero if the given tile has collision data.
+ */
 int Tilemap_tile_is_occupied(const Tilemap * tilemap, int x, int y) {
 	return x < 0 || y < 0 || x >= tilemap->w || y >= tilemap->h
 		|| tilemap->collision[x + y * tilemap->w];
 }
 
+/*
+ * Returns non-zero if the given pixel has collision data.
+ */
 int Tilemap_pixel_is_occupied(const Tilemap * tilemap, int x, int y) {
 	return (Tilemap_tile_is_occupied(tilemap, x / TILE_SZ, y / TILE_SZ) ||
 			Tilemap_tile_is_occupied(tilemap, (x + TILE_SZ - 1) / TILE_SZ, y / TILE_SZ) ||
@@ -173,10 +182,16 @@ int Tilemap_pixel_is_occupied(const Tilemap * tilemap, int x, int y) {
 			Tilemap_tile_is_occupied(tilemap, (x + TILE_SZ - 1) / TILE_SZ, (y + TILE_SZ - 1) / TILE_SZ));
 }
 
+/*
+ * Draw the background to the screen at the given camera position.
+ */
 int Tilemap_draw_background(const Tilemap *tilemap, SDL_Surface *screen, SDL_Rect camera) {
     return SDL_BlitSurface(tilemap->background, &camera, screen, NULL);
 }
 
+/*
+ * Draw the foreground to the screen at the given camera position.
+ */
 int Tilemap_draw_foreground(const Tilemap *tilemap, SDL_Surface *screen, SDL_Rect camera) {
     return SDL_BlitSurface(tilemap->foreground, &camera, screen, NULL);
 }
