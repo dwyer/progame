@@ -20,8 +20,12 @@ struct Tilemap {
 	SDL_Surface *foreground;
 };
 
-/*
+/**
  * Helper function to assist in creating a surface and setting its transparency.
+ * \param w Width of the new surface.
+ * \param h Height of the new surface.
+ * \param color_key Color to represent transparent pixels, e.g. 0xff00ff.
+ * \return An SDL_Surface.
  */
 SDL_Surface *create_surface(int w, int h, Uint32 color_key) {
     SDL_Surface *surface = NULL;
@@ -32,8 +36,11 @@ SDL_Surface *create_surface(int w, int h, Uint32 color_key) {
     return surface;
 }
 
-/*
- * Loads and returns a tilemap. It must be a Tiled tilemap exported to Lua.
+/**
+ * Loads and returns a tilemap.
+ * \param filename Path of the tilemap to be loaded. Must be a Tiled tilemap
+ *        exported to Lua.
+ * \return The loaded tilemap.
  */
 Tilemap *Tilemap_load(const char *filename) {
     Tilemap *tilemap = NULL;
@@ -141,8 +148,9 @@ Tilemap *Tilemap_load(const char *filename) {
     return tilemap;
 }
 
-/*
+/**
  * Free the tilemap and all its attributes.
+ * \param tilemap Tilemap to be freed.
  */
 void Tilemap_free(Tilemap * tilemap) {
 	int i, j;
@@ -153,8 +161,10 @@ void Tilemap_free(Tilemap * tilemap) {
 	free(tilemap);
 }
 
-/*
+/**
  * Returns an SDL_Rect representing the area of the tilemap.
+ * \param tilemap A tilemap.
+ * \returns Area of the tilemap.
  */
 SDL_Rect Tilemap_get_area(const Tilemap *tilemap) {
     SDL_Rect area = { 0, 0, 0, 0 };
@@ -164,7 +174,7 @@ SDL_Rect Tilemap_get_area(const Tilemap *tilemap) {
     return area;
 }
 
-/*
+/**
  * Returns non-zero if the given tile has collision data.
  */
 int Tilemap_tile_is_occupied(const Tilemap * tilemap, int x, int y) {
@@ -172,7 +182,7 @@ int Tilemap_tile_is_occupied(const Tilemap * tilemap, int x, int y) {
 		|| tilemap->collision[x + y * tilemap->w];
 }
 
-/*
+/**
  * Returns non-zero if the given pixel has collision data.
  */
 int Tilemap_pixel_is_occupied(const Tilemap * tilemap, int x, int y) {
@@ -182,14 +192,14 @@ int Tilemap_pixel_is_occupied(const Tilemap * tilemap, int x, int y) {
 			Tilemap_tile_is_occupied(tilemap, (x + TILE_SZ - 1) / TILE_SZ, (y + TILE_SZ - 1) / TILE_SZ));
 }
 
-/*
+/**
  * Draw the background to the screen at the given camera position.
  */
 int Tilemap_draw_background(const Tilemap *tilemap, SDL_Surface *screen, SDL_Rect camera) {
     return SDL_BlitSurface(tilemap->background, &camera, screen, NULL);
 }
 
-/*
+/**
  * Draw the foreground to the screen at the given camera position.
  */
 int Tilemap_draw_foreground(const Tilemap *tilemap, SDL_Surface *screen, SDL_Rect camera) {

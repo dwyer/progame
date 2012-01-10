@@ -13,7 +13,7 @@ SRCS=$(addprefix $(SRCDIR)/, $(CFILES))
 
 all: $(OBJDIR) $(SRCS) $(EXECUTABLE)
 
-$(DOCDIR): $(SRCS)
+$(DOCDIR): Doxyfile $(SRCS)
 	doxygen
 
 debug: CC+=-g -DDEBUG
