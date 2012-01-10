@@ -4,6 +4,8 @@ When designing levels, keep in mind a few restrictions imposed by the engine.
   version is the one that the game will load. Unfortately, Tiled doesn't load
   the .lua format, so we must keep a copy of the .tmx.
 
+* Maps must be saved in res/maps/.
+
 * Tile size must be 16x16. Other sizes will lead to unexpected behavior.
 
 * Use only one tileset. Ignoring this rule will lead to unexpected behavior.
