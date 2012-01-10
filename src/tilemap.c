@@ -20,7 +20,6 @@ Tilemap *Tilemap_load(const char *filename) {
     char *str = NULL;
     int i, j, n;
 
-    filename = "res/maps/untitled.lua"; /* override the filename for testing TODO:  delete this */
     L = luaL_newstate();
     luaL_dofile(L, filename);
     /*
@@ -29,12 +28,14 @@ Tilemap *Tilemap_load(const char *filename) {
      * valid and not error check every little thing.
      */
     lua_getfield(L, -1, "version");
-    if (strcmp("1.1", lua_tostring(L, -1))) {
+    lua_getfield(L, -2, "luaversion");
+    if (strcmp("1.1", lua_tostring(L, -2)) ||
+        strcmp("5.1", lua_tostring(L, -1))) {
         fprintf(stderr, "Not a valid tilemap: %s\n", filename);
         lua_close(L);
         return NULL;
     }
-    lua_pop(L, 1);
+    lua_pop(L, 2); /* pop version and luaversion */
     /* 
      * Create a tilemap and load its width and height. Tilesize and orientation
      * are ignored for now, but we should at least check them to determine the

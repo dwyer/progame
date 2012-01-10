@@ -67,7 +67,7 @@ Uint32 push_update_event(Uint32 interval, void *param) {
  * Play the game. Returns 0 on success, -1 on error.
  */
 int Game_play(SDL_Surface * screen) {
-	const char filename[] = "res/maps/untitled.tmx.bin";
+	const char filename[] = "res/maps/untitled.lua";
 	static InputCode input_codes[100] = { {-1, -1} };
 	lua_State *L = NULL;
 	World *world = NULL;
