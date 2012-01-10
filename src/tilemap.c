@@ -9,7 +9,24 @@
 
 #define TILE_SZ 16
 #define TILEMAP_DIR "res/maps/"
+#define TILEMAP_VERSION "1.1"
+#define TILEMAP_LUAVERSION "5.1"
 
+/*
+ * Helper function to assist in creating a surface and setting its transparency.
+ */
+SDL_Surface *create_surface(int w, int h, Uint32 color_key) {
+    SDL_Surface *surface = NULL;
+
+	surface = SDL_CreateRGBSurface(SDL_HWSURFACE, w, h, SCREEN_BPP, 0, 0, 0, 0);
+	SDL_FillRect(surface, NULL, color_key);
+	SDL_SetColorKey(surface, SDL_SRCCOLORKEY, color_key);
+    return surface;
+}
+
+/*
+ * Loads and returns a tilemap. It must be a Tiled tilemap exported to Lua.
+ */
 Tilemap *Tilemap_load(const char *filename) {
     Tilemap *tilemap = NULL;
     SDL_Surface *tileset = NULL;
@@ -24,23 +41,23 @@ Tilemap *Tilemap_load(const char *filename) {
     L = luaL_newstate();
     luaL_dofile(L, filename);
     /*
-     * Tiled maps exported to Lua have a version number of 1.1 and a luaversion
-     * of 5.1. If these are in order, we'll just assume the rest of the map is
-     * valid and not error check every little thing.
+     * Tiled maps exported to Lua have a version number luaversion number.
+     * If these are in order, we'll just assume the format is valid and resist
+     * error checking every little thing.
      */
     lua_getfield(L, -1, "version");
     lua_getfield(L, -2, "luaversion");
-    if (strcmp("1.1", lua_tostring(L, -2)) ||
-        strcmp("5.1", lua_tostring(L, -1))) {
+    if (strcmp(lua_tostring(L, -2), TILEMAP_VERSION) ||
+        strcmp(lua_tostring(L, -1), TILEMAP_LUAVERSION)) {
         fprintf(stderr, "Not a valid tilemap: %s\n", filename);
         lua_close(L);
         return NULL;
     }
     lua_pop(L, 2); /* pop version and luaversion */
     /* 
-     * Create a tilemap and load its width and height. Tilesize and orientation
-     * are ignored for now, but we should at least check them to determine the
-     * validity of the map later on.
+     * Create a tilemap and load its width and height.
+     * TODO: check to make sure the level designer used the correct tile size
+     * and orientation.
      */
     tilemap = malloc(sizeof(*tilemap));
     tilemap->collision = NULL;
@@ -48,12 +65,12 @@ Tilemap *Tilemap_load(const char *filename) {
     tilemap->foreground = NULL;
     lua_getfield(L, 1, "width");
     lua_getfield(L, 1, "height");
-    tilemap->w = luaL_checknumber(L, -2);
-    tilemap->h = luaL_checknumber(L, -1);
+    tilemap->w = lua_tonumber(L, -2);
+    tilemap->h = lua_tonumber(L, -1);
     lua_pop(L, 2); /* pop width and height */
     /*
-     * Get the first tileset for now. In the future we can always add support
-     * for additional tilesets.
+     * Get the first tileset for now.
+     * TODO: add support for more than one tileset.
      */
     lua_getfield(L, 1, "tilesets");
     lua_pushnumber(L, 1);
@@ -73,20 +90,14 @@ Tilemap *Tilemap_load(const char *filename) {
     lua_pop(L, 1); /* pop image */
     lua_getfield(L, -1, "transparentColor");
     sscanf(lua_tostring(L, -1), "#%x", &color_key);
+	SDL_SetColorKey(tileset, SDL_SRCCOLORKEY, color_key);
     lua_pop(L, 3); /* pop transparentColor, tileset 1, and tilesets */
     /*
      * Time to draw the layers.
      */
-    tilemap->layer_w = tilemap->w * TILE_SZ;
-    tilemap->layer_h = tilemap->h * TILE_SZ;
     tilemap->collision = calloc(tilemap->w * tilemap->h, sizeof(*tilemap->collision));
-	tilemap->background = SDL_CreateRGBSurface(SDL_HWSURFACE, tilemap->layer_w, tilemap->layer_h, SCREEN_BPP, 0, 0, 0, 0);
-	tilemap->foreground = SDL_CreateRGBSurface(SDL_HWSURFACE, tilemap->layer_w, tilemap->layer_h, SCREEN_BPP, 0, 0, 0, 0);
-	SDL_FillRect(tilemap->background, NULL, color_key);
-	SDL_FillRect(tilemap->foreground, NULL, color_key);
-	SDL_SetColorKey(tileset, SDL_SRCCOLORKEY, color_key);
-	SDL_SetColorKey(tilemap->background, SDL_SRCCOLORKEY, color_key);
-	SDL_SetColorKey(tilemap->foreground, SDL_SRCCOLORKEY, color_key);
+    tilemap->background = create_surface(tilemap->w * TILE_SZ, tilemap->h * TILE_SZ, color_key);
+    tilemap->foreground = create_surface(tilemap->w * TILE_SZ, tilemap->h * TILE_SZ, color_key);
     lua_getfield(L, -1, "layers");
     tilemap->depth = lua_objlen(L, -1);
     layer = tilemap->background;

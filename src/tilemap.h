@@ -5,8 +5,6 @@ typedef struct {
 	int w;
 	int h;
 	int depth;
-	int layer_w;
-	int layer_h;
     int tile_w;
     int tile_h;
     int *collision;

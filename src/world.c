@@ -95,18 +95,18 @@ int World_draw(World * world, SDL_Surface * surface) {
 	 */
 	camera.x =
 		(world->player->pos.x - (SCREEN_W - world->player->pos.w) / 2);
-	if (world->tilemap->layer_w > SCREEN_W)
+	if (world->tilemap->background->w > SCREEN_W)
 		if (camera.x < 0)
 			camera.x = 0;
-		else if (camera.x >= world->tilemap->layer_w - SCREEN_W)
-			camera.x = world->tilemap->layer_w - SCREEN_W - 1;
+		else if (camera.x >= world->tilemap->background->w - SCREEN_W)
+			camera.x = world->tilemap->background->w - SCREEN_W - 1;
 	camera.y =
 		(world->player->pos.y - (SCREEN_H - world->player->pos.h) / 2);
-	if (world->tilemap->layer_h > SCREEN_H)
+	if (world->tilemap->background->h > SCREEN_H)
 		if (camera.y < 0)
 			camera.y = 0;
-		else if (camera.y >= world->tilemap->layer_h - SCREEN_H)
-			camera.y = world->tilemap->layer_h - SCREEN_H - 1;
+		else if (camera.y >= world->tilemap->background->h - SCREEN_H)
+			camera.y = world->tilemap->background->h - SCREEN_H - 1;
 
 	/**
 	 * Draw tilemap and entities.
