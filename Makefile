@@ -19,6 +19,9 @@ $(DOCDIR): Doxyfile $(SRCS)
 debug: CC+=-g -DDEBUG
 debug: all
 
+profile: CC+=-pg
+profile: all
+
 $(EXECUTABLE): $(OBJS) $(BINDIR)
 	$(CC) $(OBJS) $(LDFLAGS) -o $@
 

@@ -2,6 +2,7 @@
 game
 obj
 doc
+gmon.out
 
 # Files used by emacs/gtags
 
