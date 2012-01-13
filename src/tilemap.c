@@ -160,7 +160,7 @@ void Tilemap_free(Tilemap * tilemap) {
 /**
  * Returns an SDL_Rect representing the area of the tilemap.
  * \param tilemap A tilemap.
- * \returns Area of the tilemap.
+ * \return Area of the tilemap.
  */
 SDL_Rect Tilemap_get_area(const Tilemap *tilemap) {
     SDL_Rect area = { 0, 0, 0, 0 };

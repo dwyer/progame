@@ -27,6 +27,7 @@ int main(int argc, char *argv[]) {
 	SDL_TimerID timer_id;
 
 	/* Initialization. */
+    srand(time(NULL));
 	if (SDL_Init(SDL_INIT_EVERYTHING)) {
 		fprintf(stderr, "%s\n", SDL_GetError());
 		return -1;
@@ -115,10 +116,8 @@ bool Game_events(World * world, Input * input) {
 		if (event.type == SDL_USEREVENT) {
 			World_event(world, input, event.user);
 		} else if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
-			/**
-			 * Instead of hardcoding keyboard events, we'll map them to action
-			 * events so they can be configured in scripting.
-			 */
+			/* Instead of hardcoding keyboard events, we'll map them to action
+			 * events so they can be configured in scripting. */
 			InputCode *code = NULL;
 			for (code = input->codes; code->sym != -1; code++) {
 				if (code->sym == event.key.keysym.sym) {

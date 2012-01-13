@@ -1,48 +1,82 @@
 #include <SDL/SDL.h>
 #include "entity.h"
 
-struct EntityNode {
-	Entity *entity;
-	struct EntityNode *last, *next;
+struct Entity {
+    /**
+     * Position of the entity relative to the current world map, NOT the screen.
+     * That will be computed when we draw it.
+     */
+    SDL_Rect pos;
+
+    /**
+     * Velocity of the entity.
+     */
+    SDL_Rect vel;
 };
 
-struct EntityList {
-	EntityNode *first;
-};
+/**
+ * Create an entity.
+ * \return A new Entity.
+ */
+Entity *Entity_new() {
+    Entity *entity = NULL;
 
-EntityList *EntityList_new(void) {
-	EntityList *list = malloc(sizeof(EntityList));
-
-	list->first = NULL;
-	return list;
+    entity = malloc(sizeof(*entity));
+    entity->pos.x = 0;
+    entity->pos.y = 0;
+    entity->pos.w = 16;
+    entity->pos.h = 16;
+    return entity;
 }
 
-void EntityList_free(EntityList * entities) {
-	EntityNode *node = NULL, *temp;
-
-	while (entities->first) {
-		node = entities->first;
-		entities->first = node->next;
-		free(node->entity);
-		free(node);
-	}
-	free(entities);
+/**
+ * Free's an entity from memory.
+ */
+void Entity_free(Entity *entity) {
+    free(entity);
 }
 
-void EntityList_append(EntityList * entities, Entity * entity) {
-	EntityNode *node = malloc(sizeof(EntityNode));
-
-	node->last = NULL;
-	node->next = entities->first;
-	entities->first->last = node;
+SDL_Rect Entity_get_pos(const Entity *entity) {
+    return entity->pos;
 }
 
-int Entities_draw(EntityList * list, SDL_Surface * surface, int camx,
-				  int camy) {
-	EntityNode *node = NULL;
+SDL_Rect Entity_get_vel(const Entity *entity) {
+    return entity->vel;
+}
 
-	for (node = list->first; node != NULL; node = node->next) {
-		SDL_BlitSurface(node->entity->sprite, NULL, surface, NULL);
-	}
-	return 0;
+/**
+ * Set the position of the given Entity to the given x and y.
+ */
+void Entity_set_pos(Entity *entity, int x, int y) {
+    entity->pos.x = x;
+    entity->pos.y = y;
+}
+
+void Entity_set_vel(Entity *entity, int x, int y) {
+    entity->vel.x = x;
+    entity->vel.y = y;
+}
+
+/**
+ * Set the size of the entity.
+ */
+void Entity_set_size(Entity *entity, int w, int h) {
+    entity->pos.w = w;
+    entity->pos.h = h;
+}
+
+/**
+ * Draw the entity if and only if the entity is within the bounds of the
+ * camera.
+ * \return 0 on success, non-zero on error.
+ */
+int Entity_draw(Entity *entity, SDL_Surface *screen, SDL_Rect camera) {
+    SDL_Rect dst = entity->pos;
+    dst.x -= camera.x;
+    dst.y -= camera.y;
+    if ((dst.x + dst.w >= 0 && dst.x < screen->w) && 
+        (dst.y + dst.h >= 0 && dst.y < screen->h))
+        return SDL_FillRect(screen, &dst, 0xff0000);
+    else
+        return 0;
 }

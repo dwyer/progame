@@ -3,7 +3,7 @@
 
 #include "input.h"
 
-typedef struct _World World;
+typedef struct World World;
 
 World *World_create(const char *filename);
 void World_free(World * world);
