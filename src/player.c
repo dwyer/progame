@@ -46,16 +46,16 @@ Player *Player_create(int x, int y) {
 }
 
 void Player_free(Player * player) {
-    SDL_FreeSurface(player->sprite);
-    free(player);
+	SDL_FreeSurface(player->sprite);
+	free(player);
 }
 
-SDL_Rect Player_get_pos(const Player *player) {
-    return player->pos;
+SDL_Rect Player_get_pos(const Player * player) {
+	return player->pos;
 }
 
-int Player_get_speed(const Player *player) {
-    return player->speed;
+int Player_get_speed(const Player * player) {
+	return player->speed;
 }
 
 void Player_move(Player * player, int x, int y) {

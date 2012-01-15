@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
 	SDL_TimerID timer_id;
 
 	/* Initialization. */
-    srand(time(NULL));
+	srand(time(NULL));
 	if (SDL_Init(SDL_INIT_EVERYTHING)) {
 		fprintf(stderr, "%s\n", SDL_GetError());
 		return -1;

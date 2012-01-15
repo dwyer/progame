@@ -22,8 +22,8 @@ typedef struct Player Player;
 Player *Player_create(int x, int y);
 void Player_free(Player * player);
 
-SDL_Rect Player_get_pos(const Player *player);
-int Player_get_speed(const Player *player);
+SDL_Rect Player_get_pos(const Player * player);
+int Player_get_speed(const Player * player);
 void Player_move(Player * player, int x, int y);
 int Player_draw(Player * player, SDL_Surface * surface, SDL_Rect camera);
 int Player_update_state(Player * player, int State);
