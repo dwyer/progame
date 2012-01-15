@@ -1,23 +1,94 @@
+#include <assert.h>
 #include "main.h"
 #include "player.h"
 #include "tilemap.h"
 #include "input.h"
 #include "event.h"
 #include "entity.h"
+#include "world.h"
 
-typedef struct {
+typedef struct EntityList EntityList;
+typedef struct EntityNode EntityNode;
+
+struct EntityList {
+	EntityNode *first;
+};
+
+struct EntityNode {
+	Entity *this;
+	EntityNode *prev;
+	EntityNode *next;
+};
+
+struct World {
+	/* TODO: merge World and Tilemap classes. */
 	Tilemap *tilemap;
+
+	/* TODO: merge Player and Entity classes. */
 	Player *player;
 
-	/**
-     * For now we'll just use a simple array for entities. Later on we'll change
-     * this to a double-linked-list for ease of removing and inserting entities.
-     */
-	Entity *entities[100];
-} World;
+	EntityList *entities;
+};
 
+/**
+ * Create an empty list.
+ */
+EntityList *EntityList_new() {
+	EntityList *list;
+
+	list = malloc(sizeof(*list));
+	list->first = NULL;
+	return list;
+}
+
+/**
+ * Delete the given node (and entity it contains) from the list.
+ */
+void EntityList_delete(EntityList *list, EntityNode *node) {
+	assert(list && list->first && node);
+	if (list->first == node)
+		list->first = node->next;
+	if (node->prev)
+		node->prev->next = node->next;
+	if (node->next)
+		node->next->prev = node->prev;
+	Entity_free(node->this);
+	free(node);
+}
+
+/**
+ * Free the list, along with all nodes and entities contained therein.
+ */
+void EntityList_free(EntityList *list) {
+	while (list->first)
+		EntityList_delete(list, list->first);
+	free(list);
+}
+
+/**
+ * This is prepend, really. Proper append will be implemented once the entity
+ * list class is complete.
+ */
+void EntityList_append(EntityList *list, Entity *entity) {
+	EntityNode *node;
+
+	node = malloc(sizeof(*node));
+	node->this = entity;
+	node->next = NULL;
+	node->prev = NULL;
+	if (list->first) {
+		list->first->prev = node;
+		node->next = list->first;
+	}
+	list->first = node;
+}
+
+/**
+ * Create n random entities. TODO: delete this.
+ */
 void create_random_entities(World * world, int n) {
 	SDL_Rect area = Tilemap_get_area(world->tilemap);
+	Entity *entity;
 	int i, x, y;
 
 	for (i = 0; i < n; i++) {
@@ -25,11 +96,11 @@ void create_random_entities(World * world, int n) {
 			x = rand() % (area.w / 16);
 			y = rand() % (area.h / 16);
 		} while (Tilemap_tile_is_occupied(world->tilemap, x, y));
-		world->entities[i] = Entity_new();
-		Entity_set_pos(world->entities[i], x * 16, y * 16);
-		Entity_set_vel(world->entities[i], rand() % 3 - 1, rand() % 3 - 1);
+		entity = Entity_new();
+		Entity_set_pos(entity, x * 16, y * 16);
+		Entity_set_vel(entity, rand() % 3 - 1, rand() % 3 - 1);
+		EntityList_append(world->entities, entity);
 	}
-	world->entities[i] = NULL;
 }
 
 /**
@@ -50,6 +121,7 @@ World *World_create(const char *filename) {
 		fputs("Failed to create player.\n", stderr);
 		return NULL;
 	}
+	world->entities = EntityList_new();
 	create_random_entities(world, 10);
 	return world;
 }
@@ -61,6 +133,7 @@ World *World_create(const char *filename) {
 void World_free(World * world) {
 	Tilemap_free(world->tilemap);
 	Player_free(world->player);
+	EntityList_free(world->entities);
 	free(world);
 }
 
@@ -98,7 +171,7 @@ int World_event(World * world, Input * input, SDL_UserEvent event) {
 int World_update(World * world, Input * input) {
 	SDL_Rect pos = { 0, 0 };
 	SDL_Rect vel = { 0, 0 };
-	Entity **entity;
+	EntityNode *node;
 	int speed = Player_get_speed(world->player);
 
 	pos = Player_get_pos(world->player);
@@ -127,9 +200,9 @@ int World_update(World * world, Input * input) {
 		Player_move(world->player, vel.x, vel.y);
 
 	/* Update each entity. */
-	for (entity = world->entities; *entity != NULL; entity++) {
-		pos = Entity_get_pos(*entity);
-		vel = Entity_get_vel(*entity);
+	for (node = world->entities->first; node != NULL; node = node->next) {
+		pos = Entity_get_pos(node->this);
+		vel = Entity_get_vel(node->this);
 		if (Tilemap_region_is_occupied
 			(world->tilemap, pos.x + vel.x, pos.y, pos.w, pos.h))
 			vel.x *= -1;
@@ -140,8 +213,8 @@ int World_update(World * world, Input * input) {
 			vel.y *= -1;
 		else
 			pos.y += vel.y;
-		Entity_set_pos(*entity, pos.x, pos.y);
-		Entity_set_vel(*entity, vel.x, vel.y);
+		Entity_set_pos(node->this, pos.x, pos.y);
+		Entity_set_vel(node->this, vel.x, vel.y);
 	}
 	return 1;
 }
@@ -180,7 +253,7 @@ int World_draw(World * world, SDL_Surface * screen) {
 	SDL_Rect center = Player_get_pos(world->player);
 	SDL_Rect camera = World_get_camera(world, center);
 	SDL_Surface *bg = NULL;
-	Entity **entity;
+	EntityNode *node;
 	int i;
 
 	if (Tilemap_draw_background(world->tilemap, screen, camera))
@@ -189,8 +262,8 @@ int World_draw(World * world, SDL_Surface * screen) {
 	 * This is not ideal, as it could cause entities high on the screen to be
 	 * draw over entities low on the screen.  This shall be solved by making
 	 * sure the list is sorted by entity position, from top to bottom. */
-	for (entity = world->entities; *entity != NULL; entity++)
-		if (Entity_draw(*entity, screen, camera))
+	for (node = world->entities->first; node != NULL; node = node->next)
+		if (Entity_draw(node->this, screen, camera))
 			return -1;
 	if (Player_draw(world->player, screen, camera))
 		return -1;
