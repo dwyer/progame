@@ -1,24 +1,11 @@
+#include <assert.h>
+
 #include <SDL/SDL.h>
+
 #include "entity.h"
 #include "main.h"
 
-enum {
-	ACTION_STANDING,
-	ACTION_WALKING,
-	NUM_ACTIONS
-};
-
-enum {
-	DIRECTION_UP,
-	DIRECTION_DOWN,
-	DIRECTION_LEFT,
-	DIRECTION_RIGHT,
-	NUM_DIRECTIONS
-};
-
 typedef struct FrameSet FrameSet;
-
-void Entity_add_frame(Entity * entity, int action, int direction, SDL_Rect *frame);
 
 struct FrameSet {
 	SDL_Rect **frames;
@@ -53,15 +40,27 @@ Entity *Entity_new() {
 	entity->pos.y = 0;
 	entity->pos.w = 16;
 	entity->pos.h = 18;
-	Entity_set_sprite(entity, "res/player1.bmp");
 	return entity;
 }
 
-int Entity_set_sprite(Entity *entity, const char *filename) {
+/**
+ * Free an entity from memory.
+ */
+void Entity_free(Entity * entity) {
+	int i, j;
+
+	SDL_FreeSurface(entity->sprite);
+	for (i = 0; i < NUM_ACTIONS; i++)
+		for (j = 0; j < NUM_DIRECTIONS; j++)
+			free(entity->framesets[i][j].frames);
+	free(entity->frames);
+	free(entity);
+}
+
+void Entity_set_sprite(Entity *entity, const char *filename) {
 	int i, j, w, h;
 
-	if ((entity->sprite = SDL_LoadBMP(filename)) == NULL)
-		return -1;
+	assert(entity->sprite = SDL_LoadBMP(filename));
 	SDL_SetColorKey(entity->sprite, SDL_SRCCOLORKEY, 0xff00ff);
 	w = entity->sprite->w / entity->pos.w;
 	h = entity->sprite->h / entity->pos.h;
@@ -81,42 +80,14 @@ int Entity_set_sprite(Entity *entity, const char *filename) {
 			entity->framesets[i][j].frames = NULL;
 			entity->framesets[i][j].length = 0;
 		}
-	/* Bind frames to states. Hardcoded for now. TODO: do this in lua. */
-	Entity_add_frame(entity, ACTION_WALKING, DIRECTION_UP, &entity->frames[0]);
-	Entity_add_frame(entity, ACTION_STANDING, DIRECTION_UP, &entity->frames[1]);
-	Entity_add_frame(entity, ACTION_WALKING, DIRECTION_UP, &entity->frames[2]);
-	Entity_add_frame(entity, ACTION_WALKING, DIRECTION_RIGHT, &entity->frames[3]);
-	Entity_add_frame(entity, ACTION_STANDING, DIRECTION_RIGHT, &entity->frames[4]);
-	Entity_add_frame(entity, ACTION_WALKING, DIRECTION_RIGHT, &entity->frames[5]);
-	Entity_add_frame(entity, ACTION_WALKING, DIRECTION_DOWN, &entity->frames[6]);
-	Entity_add_frame(entity, ACTION_STANDING, DIRECTION_DOWN, &entity->frames[7]);
-	Entity_add_frame(entity, ACTION_WALKING, DIRECTION_DOWN, &entity->frames[8]);
-	Entity_add_frame(entity, ACTION_WALKING, DIRECTION_LEFT, &entity->frames[9]);
-	Entity_add_frame(entity, ACTION_STANDING, DIRECTION_LEFT, &entity->frames[10]);
-	Entity_add_frame(entity, ACTION_WALKING, DIRECTION_LEFT, &entity->frames[11]);
-	return 0;
 }
 
-/**
- * Free an entity from memory.
- */
-void Entity_free(Entity * entity) {
-	int i, j;
-
-	SDL_FreeSurface(entity->sprite);
-	for (i = 0; i < NUM_ACTIONS; i++)
-		for (j = 0; j < NUM_DIRECTIONS; j++)
-			free(entity->framesets[i][j].frames);
-	free(entity->frames);
-	free(entity);
-}
-
-void Entity_add_frame(Entity * entity, int action, int direction, SDL_Rect *frame) {
+void Entity_add_frame(Entity * entity, int action, int direction, int frame) {
 	FrameSet *frameset = &entity->framesets[action][direction];
 
 	frameset->frames = realloc(frameset->frames,
 							   (frameset->length + 1) * sizeof(*frameset->frames));
-	frameset->frames[frameset->length] = frame;
+	frameset->frames[frameset->length] = &entity->frames[frame];
 	frameset->length++;
 }
 
@@ -183,6 +154,7 @@ int Entity_draw(Entity * entity, SDL_Surface * screen, SDL_Rect camera) {
 	SDL_Rect src = *frameset.frames[entity->frame % frameset.length];
 	SDL_Rect dst = entity->pos;
 
+	screen = SDL_GetVideoSurface();
 	dst.x -= camera.x;
 	dst.y -= camera.y;
 	if ((dst.x + dst.w >= 0 && dst.x < screen->w) &&

@@ -84,26 +84,6 @@ void EntityList_append(EntityList *list, Entity *entity) {
 }
 
 /**
- * Create n random entities. TODO: delete this.
- */
-void create_random_entities(World * world, int n) {
-	SDL_Rect area = Tilemap_get_area(world->tilemap);
-	Entity *entity;
-	int i, x, y;
-
-	for (i = 0; i < n; i++) {
-		do {
-			x = rand() % (area.w / 16);
-			y = rand() % (area.h / 16);
-		} while (Tilemap_tile_is_occupied(world->tilemap, x, y));
-		entity = Entity_new();
-		Entity_set_pos(entity, x * 16, y * 16);
-		Entity_set_vel(entity, rand() % 3 - 1, rand() % 3 - 1);
-		EntityList_append(world->entities, entity);
-	}
-}
-
-/**
  * Creates a new World object.
  * \param filename Path to this world's tilemap.
  * \return A brave new world.
@@ -122,7 +102,6 @@ World *World_create(const char *filename) {
 		return NULL;
 	}
 	world->entities = EntityList_new();
-	create_random_entities(world, 10);
 	return world;
 }
 
@@ -151,6 +130,8 @@ int World_event(World * world, Input * input, SDL_UserEvent event) {
 		input->left = (event.data1 != NULL);
 	else if (event.code == EVENT_INPUT_MOVE_RIGHT)
 		input->right = (event.data1 != NULL);
+	else if (event.code == EVENT_ENTITY_NEW)
+		EntityList_append(world->entities, event.data1);
 	else if (event.code == EVENT_CONFIG_BINDKEY) {
 		/* Add code/sym pair to the end of list */
 		int i;

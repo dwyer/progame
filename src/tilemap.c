@@ -31,7 +31,7 @@ SDL_Surface *create_surface(int w, int h, Uint32 color_key) {
 	SDL_Surface *surface = NULL;
 
 	surface =
-		SDL_CreateRGBSurface(SDL_HWSURFACE, w, h, SCREEN_BPP, 0, 0, 0, 0);
+		SDL_CreateRGBSurface(SCREEN_FLAGS, w, h, SCREEN_BPP, 0, 0, 0, 0);
 	SDL_FillRect(surface, NULL, color_key);
 	SDL_SetColorKey(surface, SDL_SRCCOLORKEY, color_key);
 	return surface;

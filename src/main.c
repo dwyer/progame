@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
 	}
 	if ((screen =
 		 SDL_SetVideoMode(SCREEN_W, SCREEN_H, SCREEN_BPP,
-						  SDL_HWSURFACE)) == NULL) {
+						  SCREEN_FLAGS)) == NULL) {
 		fprintf(stderr, "%s\n", SDL_GetError());
 		return -1;
 	}
@@ -79,8 +79,8 @@ int Game_play(SDL_Surface * screen) {
 	lua_State *L = NULL;
 	World *world = NULL;
 	Input input = { 0, 0, 0, 0 };
-	Config_run(config_file);
 
+	Config_run(config_file);
 	input.codes = input_codes;
 	if ((L = luaL_newstate()) == NULL) {
 		fprintf(stderr, "Error creating Lua state.\n");
@@ -90,6 +90,7 @@ int Game_play(SDL_Surface * screen) {
 	if ((world = World_create(tilemap_file)) == NULL) {
 		return -1;
 	}
+	luaL_dofile(L, "res/scripts/init.lua");
 	while (Game_events(world, &input)) {
 		/* Draw. */
 		SDL_FillRect(screen, NULL, 0);
