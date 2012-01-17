@@ -1,9 +1,9 @@
-#include <stdio.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <time.h>
+
 #include <SDL/SDL.h>
-#include <lua.h>
-#include <lauxlib.h>
-#include <lualib.h>
+
 #include "main.h"
 #include "world.h"
 #include "input.h"
@@ -74,22 +74,24 @@ Uint32 push_update_event(Uint32 interval, void *param) {
  */
 int Game_play(SDL_Surface * screen) {
 	const char *config_file = "res/scripts/config.lua";
+	const char *init_file = "res/scripts/init.lua";
 	static InputCode input_codes[100] = { {-1, -1} };
-	lua_State *L = NULL;
 	World *world = NULL;
+	Script *script;
 	Input input = { 0, 0, 0, 0 };
 
 	Config_run(config_file);
 	input.codes = input_codes;
-	if ((L = luaL_newstate()) == NULL) {
-		fprintf(stderr, "Error creating Lua state.\n");
+	if ((script = Script_init()) == NULL) {
 		return -1;
 	}
-	Script_reg(L);
 	if ((world = World_create()) == NULL) {
 		return -1;
 	}
-	luaL_dofile(L, "res/scripts/init.lua");
+	if (Script_run(script, init_file)) {
+		fprintf(stderr, "Error running: %s\n", init_file);
+		return -1;
+	}
 	while (Game_events(world, &input)) {
 		/* Draw. */
 		SDL_FillRect(screen, NULL, 0);
@@ -98,8 +100,8 @@ int Game_play(SDL_Surface * screen) {
 			return -1;
 		}
 	};
+	Script_free(script);
 	World_free(world);
-	lua_close(L);
 	return 0;
 }
 

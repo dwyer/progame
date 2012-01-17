@@ -1,6 +1,8 @@
 #include <SDL/SDL.h>
 #include <lua.h>
 #include <lauxlib.h>
+#include <lualib.h>
+
 #include "event.h"
 #include "input.h"
 

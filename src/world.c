@@ -90,7 +90,6 @@ void EntityList_append(EntityList *list, Entity *entity) {
  */
 World *World_create(void) {
 	World *world = NULL;
-	int i;
 
 	world = malloc(sizeof(World));
 	if ((world->player = Player_create()) == NULL) {
@@ -221,17 +220,19 @@ SDL_Rect World_get_camera(World * world, SDL_Rect focus) {
 	SDL_Rect area = Tilemap_get_area(world->tilemap);
 
 	camera.x = focus.x - (SCREEN_W - focus.w) / 2;
-	if (area.w > SCREEN_W)
+	if (area.w > SCREEN_W) {
 		if (camera.x < 0)
 			camera.x = 0;
 		else if (camera.x >= area.w - SCREEN_W)
 			camera.x = area.w - SCREEN_W - 1;
+	}
 	camera.y = focus.y - (SCREEN_H - focus.h) / 2;
-	if (area.h > SCREEN_H)
+	if (area.h > SCREEN_H) {
 		if (camera.y < 0)
 			camera.y = 0;
 		else if (camera.y >= area.h - SCREEN_H)
 			camera.y = area.h - SCREEN_H - 1;
+	}
 	return camera;
 }
 
@@ -244,9 +245,7 @@ SDL_Rect World_get_camera(World * world, SDL_Rect focus) {
 int World_draw(World * world, SDL_Surface * screen) {
 	SDL_Rect center = Player_get_pos(world->player);
 	SDL_Rect camera = World_get_camera(world, center);
-	SDL_Surface *bg = NULL;
 	EntityNode *node;
-	int i;
 
 	if (Tilemap_draw_background(world->tilemap, screen, camera))
 		return -1;

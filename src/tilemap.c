@@ -54,7 +54,10 @@ Tilemap *Tilemap_load(const char *filename) {
 	int i, j, n;
 
 	L = luaL_newstate();
-	luaL_dofile(L, filename);
+	if (luaL_dofile(L, filename)) {
+		lua_close(L);
+		return NULL;
+	}
 	/*
 	 * Tiled maps exported to Lua have a version number luaversion number.
 	 * If these are in order, we'll just assume the format is valid and resist
@@ -155,8 +158,6 @@ Tilemap *Tilemap_load(const char *filename) {
  * \param tilemap Tilemap to be freed.
  */
 void Tilemap_free(Tilemap * tilemap) {
-	int i, j;
-
 	free(tilemap->collision);
 	free(tilemap->background);
 	free(tilemap->foreground);

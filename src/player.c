@@ -173,4 +173,5 @@ int Player_update_state(Player * player, int State) {
 			}
 		}
 	}
+	return 0;
 }
