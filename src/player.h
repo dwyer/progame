@@ -19,7 +19,7 @@
 
 typedef struct Player Player;
 
-Player *Player_create(int x, int y);
+Player *Player_create(void);
 void Player_free(Player * player);
 
 SDL_Rect Player_get_pos(const Player * player);

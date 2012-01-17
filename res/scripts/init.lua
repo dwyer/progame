@@ -1,10 +1,11 @@
 print('running init.lua')
+tilemap = tilemap_load('res/maps/untitled.lua')
 for i = 1,10 do
     entity = entity_new()
     entity_set_pos(entity, math.random(0, 31) * 16, math.random(0, 31) * 16)
     entity_set_vel(entity, math.random(-1, 1), math.random(-1, 1))
     entity_set_size(entity, 16, 18)
-    entity_set_sprite(entity, "res/player1.bmp")
+    entity_set_sprite(entity, 'res/player1.bmp')
     entity_add_frame(entity, ACTION_WALKING, DIRECTION_UP, 0)
     entity_add_frame(entity, ACTION_STANDING, DIRECTION_UP, 1)
     entity_add_frame(entity, ACTION_WALKING, DIRECTION_UP, 2)

@@ -88,19 +88,18 @@ void EntityList_append(EntityList *list, Entity *entity) {
  * \param filename Path to this world's tilemap.
  * \return A brave new world.
  */
-World *World_create(const char *filename) {
+World *World_create(void) {
 	World *world = NULL;
 	int i;
 
 	world = malloc(sizeof(World));
-	if ((world->tilemap = Tilemap_load(filename)) == NULL) {
-		fprintf(stderr, "Failed to open tilemap: %s!\n", filename);
-		return NULL;
-	}
-	if ((world->player = Player_create(27 * 16, 3 * 16)) == NULL) {
+	if ((world->player = Player_create()) == NULL) {
 		fputs("Failed to create player.\n", stderr);
+		free(world);
 		return NULL;
 	}
+	Player_set_pos(world->player, 27 * 16, 3 * 16);
+	world->tilemap = NULL;
 	world->entities = EntityList_new();
 	return world;
 }
@@ -114,6 +113,16 @@ void World_free(World * world) {
 	Player_free(world->player);
 	EntityList_free(world->entities);
 	free(world);
+}
+
+void World_set_player_pos(World *world, int x, int y) {
+	Player_set_pos(world->player, x, y);
+}
+
+void World_set_tilemap(World *world, Tilemap *tilemap) {
+	if (world->tilemap)
+		Tilemap_free(world->tilemap);
+	world->tilemap = tilemap;
 }
 
 /**
@@ -132,6 +141,8 @@ int World_event(World * world, Input * input, SDL_UserEvent event) {
 		input->right = (event.data1 != NULL);
 	else if (event.code == EVENT_ENTITY_NEW)
 		EntityList_append(world->entities, event.data1);
+	else if (event.code == EVENT_TILEMAP_LOAD)
+		World_set_tilemap(world, event.data1);
 	else if (event.code == EVENT_CONFIG_BINDKEY) {
 		/* Add code/sym pair to the end of list */
 		int i;

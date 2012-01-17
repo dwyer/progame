@@ -73,7 +73,6 @@ Uint32 push_update_event(Uint32 interval, void *param) {
  * \return 0 on success, -1 on error.
  */
 int Game_play(SDL_Surface * screen) {
-	const char *tilemap_file = "res/maps/untitled.lua";
 	const char *config_file = "res/scripts/config.lua";
 	static InputCode input_codes[100] = { {-1, -1} };
 	lua_State *L = NULL;
@@ -87,7 +86,7 @@ int Game_play(SDL_Surface * screen) {
 		return -1;
 	}
 	Script_reg(L);
-	if ((world = World_create(tilemap_file)) == NULL) {
+	if ((world = World_create()) == NULL) {
 		return -1;
 	}
 	luaL_dofile(L, "res/scripts/init.lua");

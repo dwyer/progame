@@ -15,12 +15,12 @@ struct Player {
 	Uint32 speed;
 };
 
-Player *Player_create(int x, int y) {
+Player *Player_create(void) {
 	Player *player = NULL;
 
 	player = malloc(sizeof(Player));
-	player->pos.x = x;
-	player->pos.y = y;
+	player->pos.x = 0;
+	player->pos.y = 0;
 	player->pos.w = 16;
 	player->pos.h = 16;
 
@@ -40,14 +40,23 @@ Player *Player_create(int x, int y) {
 		free(player);
 		return NULL;
 	}
-	SDL_SetColorKey(player->sprite, SDL_SRCCOLORKEY,
-					SDL_MapRGB(player->sprite->format, 255, 0, 255));
+	SDL_SetColorKey(player->sprite, SDL_SRCCOLORKEY, 0xff00ff);
 	return player;
 }
 
 void Player_free(Player * player) {
 	SDL_FreeSurface(player->sprite);
 	free(player);
+}
+
+void Player_set_pos(Player * player, int x, int y) {
+	player->pos.x = x;
+	player->pos.y = y;
+}
+
+void Player_set_vel(Player * player, int x, int y) {
+	player->vel.x = x;
+	player->vel.y = y;
 }
 
 SDL_Rect Player_get_pos(const Player * player) {
@@ -60,11 +69,6 @@ SDL_Rect Player_get_vel(const Player * player) {
 
 int Player_get_speed(const Player * player) {
 	return player->speed;
-}
-
-void Player_set_vel(Player * player, int x, int y) {
-	player->vel.x = x;
-	player->vel.y = y;
 }
 
 void Player_move(Player * player, int x, int y) {

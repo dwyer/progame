@@ -5,7 +5,7 @@
 
 typedef struct World World;
 
-World *World_create(const char *filename);
+World *World_create(void);
 void World_free(World * world);
 
 int World_event(World * world, Input * input, SDL_UserEvent event);

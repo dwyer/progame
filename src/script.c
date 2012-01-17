@@ -8,6 +8,7 @@
 
 #include "entity.h"
 #include "event.h"
+#include "tilemap.h"
 
 int l_entity_add_frame(lua_State *L);
 int l_entity_new(lua_State *L);
@@ -15,8 +16,7 @@ int l_entity_set_pos(lua_State *L);
 int l_entity_set_size(lua_State *L);
 int l_entity_set_sprite(lua_State *L);
 int l_entity_set_vel(lua_State *L);
-int l_load_map(lua_State * L);
-int l_load_world(lua_State * L);
+int l_tilemap_load(lua_State *L);
 int l_new_entity(lua_State * L);
 
 typedef struct Global {
@@ -41,6 +41,7 @@ static luaL_Reg regs[] = {
 	{"entity_set_size", l_entity_set_size},
 	{"entity_set_sprite", l_entity_set_sprite},
 	{"entity_set_vel", l_entity_set_vel},
+	{"tilemap_load", l_tilemap_load},
 	{NULL, NULL}
 };
 
@@ -109,4 +110,13 @@ int l_entity_set_vel(lua_State *L) {
 
 	Entity_set_vel(entity, x, y);
 	return 0;
+}
+
+int l_tilemap_load(lua_State *L) {
+	const char *filename = luaL_checkstring(L, 1);
+	Tilemap *tilemap = Tilemap_load(filename);
+
+	Event_push(EVENT_TILEMAP_LOAD, tilemap, NULL);
+	lua_pushlightuserdata(L, tilemap);
+	return 1;
 }
