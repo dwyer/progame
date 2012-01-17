@@ -3,7 +3,7 @@
 
 typedef struct Tilemap Tilemap;
 
-Tilemap *Tilemap_load(const char *filename);
+Tilemap *Tilemap_open(const char *filename);
 void Tilemap_free(Tilemap * tilemap);
 
 SDL_Rect Tilemap_get_area(const Tilemap * tilemap);

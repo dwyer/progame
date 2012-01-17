@@ -84,7 +84,7 @@ int Game_play(SDL_Surface * screen) {
 	input.codes = input_codes;
 	if ((script = Script_init()) == NULL)
 		return -1;
-	if ((world = World_create()) == NULL)
+	if ((world = World_new()) == NULL)
 		return -1;
 	if (Script_run(script, init_file))
 		return -1;

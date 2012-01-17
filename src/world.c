@@ -88,18 +88,21 @@ void EntityList_append(EntityList *list, Entity *entity) {
  * \param filename Path to this world's tilemap.
  * \return A brave new world.
  */
-World *World_create(void) {
-	World *world = NULL;
+World *World_new(void) {
+	World *world = malloc(sizeof(*world));
 
-	world = malloc(sizeof(World));
-	if ((world->player = Player_create()) == NULL) {
-		fputs("Failed to create player.\n", stderr);
-		free(world);
+	if (world == NULL)
+		return NULL;
+	if ((world->player = Player_new()) == NULL) {
+		World_free(world);
 		return NULL;
 	}
 	Player_set_pos(world->player, 27 * 16, 3 * 16);
+	if ((world->entities = EntityList_new()) == NULL) {
+		World_free(world);
+		return NULL;
+	}
 	world->tilemap = NULL;
-	world->entities = EntityList_new();
 	return world;
 }
 
@@ -126,6 +129,7 @@ void World_set_tilemap(World *world, Tilemap *tilemap) {
 
 /**
  * Handles the given user event.
+ * \return 0
  */
 int World_event(World * world, Input * input, SDL_UserEvent event) {
 	if (event.code == EVENT_WORLD_UPDATE)
@@ -140,7 +144,7 @@ int World_event(World * world, Input * input, SDL_UserEvent event) {
 		input->right = (event.data1 != NULL);
 	else if (event.code == EVENT_ENTITY_NEW)
 		EntityList_append(world->entities, event.data1);
-	else if (event.code == EVENT_TILEMAP_LOAD)
+	else if (event.code == EVENT_TILEMAP_OPEN)
 		World_set_tilemap(world, event.data1);
 	else if (event.code == EVENT_CONFIG_BINDKEY) {
 		/* Add code/sym pair to the end of list */
@@ -240,7 +244,7 @@ SDL_Rect World_get_camera(World * world, SDL_Rect focus) {
  * Draw tilemap and entities.
  * \param world The world.
  * \param screen The screen.
- * return 0 on success, non-zero on failure.
+ * \return 0 on success, non-zero on failure.
  */
 int World_draw(World * world, SDL_Surface * screen) {
 	SDL_Rect center = Player_get_pos(world->player);

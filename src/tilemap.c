@@ -45,7 +45,7 @@ SDL_Surface *create_surface(int w, int h, Uint32 color_key) {
  *        exported to Lua.
  * \return The loaded tilemap.
  */
-Tilemap *Tilemap_load(const char *filename) {
+Tilemap *Tilemap_open(const char *filename) {
 	Tilemap *tilemap = NULL;
 	SDL_Surface *tileset = NULL;
 	SDL_Surface *layer = NULL;

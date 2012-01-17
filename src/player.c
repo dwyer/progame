@@ -15,7 +15,7 @@ struct Player {
 	Uint32 speed;
 };
 
-Player *Player_create(void) {
+Player *Player_new(void) {
 	Player *player = NULL;
 
 	player = malloc(sizeof(Player));

@@ -1,0 +1,12 @@
+entity = Entity.new()
+entity:set_size(16, 18)
+entity:set_sprite('res/player1.bmp')
+entity:add_frames(ACTION_WALKING, DIRECTION_UP, {0, 2})
+entity:add_frames(ACTION_STANDING, DIRECTION_UP, {1})
+entity:add_frames(ACTION_WALKING, DIRECTION_RIGHT, {3, 5})
+entity:add_frames(ACTION_STANDING, DIRECTION_RIGHT, {4})
+entity:add_frames(ACTION_WALKING, DIRECTION_DOWN, {6, 8})
+entity:add_frames(ACTION_STANDING, DIRECTION_DOWN, {7})
+entity:add_frames(ACTION_WALKING, DIRECTION_LEFT, {9, 11})
+entity:add_frames(ACTION_STANDING, DIRECTION_LEFT, {10})
+return entity

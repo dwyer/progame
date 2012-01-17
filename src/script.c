@@ -47,7 +47,7 @@ static int l_entity_set_pos(lua_State *L);
 static int l_entity_set_size(lua_State *L);
 static int l_entity_set_sprite(lua_State *L);
 static int l_entity_set_vel(lua_State *L);
-static int l_tilemap_load(lua_State *L);
+static int l_tilemap_open(lua_State *L);
 static int l_tilemap_get_size(lua_State *L);
 static int l_tilemap_tile_is_occupied(lua_State *L);
 
@@ -66,7 +66,7 @@ static const luaL_Reg entity_m[] = {
 };
 
 static const luaL_Reg tilemap_f[] = {
-	{ "load", l_tilemap_load },
+	{ "open", l_tilemap_open },
 	{ NULL, NULL }
 };
 
@@ -197,13 +197,13 @@ static int l_entity_set_vel(lua_State *L) {
 	return 0;
 }
 
-static int l_tilemap_load(lua_State *L) {
+static int l_tilemap_open(lua_State *L) {
 	const char *filename = luaL_checkstring(L, 1);
-	Tilemap *tilemap = Tilemap_load(filename);
+	Tilemap *tilemap = Tilemap_open(filename);
 	Tilemap **udata = lua_newuserdata(L, sizeof(*udata));
 
 	*udata = tilemap;
-	Event_push(EVENT_TILEMAP_LOAD, tilemap, NULL);
+	Event_push(EVENT_TILEMAP_OPEN, tilemap, NULL);
 	luaL_getmetatable(L, TNAME_TILEMAP);
 	lua_setmetatable(L, -2);
 	return 1;
