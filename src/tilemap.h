@@ -7,6 +7,7 @@ Tilemap *Tilemap_load(const char *filename);
 void Tilemap_free(Tilemap * tilemap);
 
 SDL_Rect Tilemap_get_area(const Tilemap * tilemap);
+SDL_Rect Tilemap_get_size(const Tilemap * tilemap);
 int Tilemap_tile_is_occupied(const Tilemap * tilemap, int x, int y);
 int Tilemap_pixel_is_occupied(const Tilemap * tilemap, int x, int y);
 int Tilemap_region_is_occupied(const Tilemap * tilemap, int x, int y,

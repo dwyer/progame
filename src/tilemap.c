@@ -1,9 +1,11 @@
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
+
 #include <SDL/SDL.h>
 #include <lua.h>
 #include <lauxlib.h>
+
 #include "tilemap.h"
 #include "main.h"
 
@@ -177,6 +179,14 @@ SDL_Rect Tilemap_get_area(const Tilemap * tilemap) {
 	return area;
 }
 
+SDL_Rect Tilemap_get_size(const Tilemap * tilemap) {
+	SDL_Rect size = { 0, 0, 0, 0 };
+
+	size.w = tilemap->w;
+	size.h = tilemap->h;
+	return size;
+}
+
 /**
  * Returns non-zero if the given tile has collision data.
  */
@@ -197,10 +207,10 @@ int Tilemap_pixel_is_occupied(const Tilemap * tilemap, int x, int y) {
  */
 int Tilemap_region_is_occupied(const Tilemap * tilemap, int x, int y,
 							   int w, int h) {
-	return (Tilemap_pixel_is_occupied(tilemap, x, y)
-			|| Tilemap_pixel_is_occupied(tilemap, x + w - 1, y)
-			|| Tilemap_pixel_is_occupied(tilemap, x, y + h - 1)
-			|| Tilemap_pixel_is_occupied(tilemap, x + w - 1, y + h - 1));
+	return (Tilemap_pixel_is_occupied(tilemap, x, y) ||
+			Tilemap_pixel_is_occupied(tilemap, x + w - 1, y) ||
+			Tilemap_pixel_is_occupied(tilemap, x, y + h - 1) ||
+			Tilemap_pixel_is_occupied(tilemap, x + w - 1, y + h - 1));
 }
 
 /**

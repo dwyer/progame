@@ -12,7 +12,10 @@
 #include "script.h"
 #include "tilemap.h"
 
+#define LIBNAME_ENTITY "Entity"
+#define LIBNAME_TILEMAP "Tilemap"
 #define TNAME_ENTITY "progame.entity"
+#define TNAME_TILEMAP "progame.tilemap"
 
 typedef struct Global Global;
 
@@ -35,26 +38,26 @@ static Global globals[] = {
 	{ NULL, 0 }
 };
 
-int l_entity_add_frame(lua_State *L);
-int l_entity_new(lua_State *L);
-int l_entity_set_pos(lua_State *L);
-int l_entity_set_size(lua_State *L);
-int l_entity_set_sprite(lua_State *L);
-int l_entity_set_vel(lua_State *L);
-int l_tilemap_load(lua_State *L);
+static int luaopen_entity(lua_State *L);
+static int luaopen_tilemap(lua_State *L);
 
-static luaL_Reg regs[] = {
-	{ "tilemap_load", l_tilemap_load },
-	{ NULL, NULL }
-};
+static int l_entity_add_frames(lua_State *L);
+static int l_entity_new(lua_State *L);
+static int l_entity_set_pos(lua_State *L);
+static int l_entity_set_size(lua_State *L);
+static int l_entity_set_sprite(lua_State *L);
+static int l_entity_set_vel(lua_State *L);
+static int l_tilemap_load(lua_State *L);
+static int l_tilemap_get_size(lua_State *L);
+static int l_tilemap_tile_is_occupied(lua_State *L);
 
-static const struct luaL_Reg entity_f[] = {
+static const luaL_Reg entity_f[] = {
 	{ "new", l_entity_new },
 	{ NULL, NULL }
 };
 
-static const struct luaL_Reg entity_m[] = {
-	{ "add_frame", l_entity_add_frame },
+static const luaL_Reg entity_m[] = {
+	{ "add_frames", l_entity_add_frames },
 	{ "set_pos", l_entity_set_pos },
 	{ "set_size", l_entity_set_size },
 	{ "set_sprite", l_entity_set_sprite },
@@ -62,29 +65,59 @@ static const struct luaL_Reg entity_m[] = {
 	{ NULL, NULL }
 };
 
+static const luaL_Reg tilemap_f[] = {
+	{ "load", l_tilemap_load },
+	{ NULL, NULL }
+};
+
+static const luaL_Reg tilemap_m[] = {
+	{ "get_size", l_tilemap_get_size },
+	{ "tile_is_occupied", l_tilemap_tile_is_occupied },
+	{ NULL, NULL }
+};
+
+static const luaL_Reg libs[] = {
+	{ LIBNAME_ENTITY, luaopen_entity },
+	{ LIBNAME_TILEMAP, luaopen_tilemap },
+	{ NULL, NULL }
+};
+
+static int luaopen_entity(lua_State *L) {
+	luaL_newmetatable(L, TNAME_ENTITY);
+	lua_pushvalue(L, -1);
+	lua_setfield(L, -2, "__index");
+	luaL_register(L, NULL, entity_m);
+	luaL_register(L, LIBNAME_ENTITY, entity_f);
+	return 1;
+}
+
+static int luaopen_tilemap(lua_State *L) {
+	luaL_newmetatable(L, TNAME_TILEMAP);
+	lua_pushvalue(L, -1);
+	lua_setfield(L, -2, "__index");
+	luaL_register(L, NULL, tilemap_m);
+	luaL_register(L, LIBNAME_TILEMAP, tilemap_f);
+	return 1;
+}
+
 Script *Script_init(void) {
 	Script *script;
 	Global *glob;
-	luaL_reg *reg;
-	lua_State *L;
+	const luaL_Reg *lib;
 
 	script = malloc(sizeof(*script));
-	script->L = L = luaL_newstate();
+	script->L = luaL_newstate();
 	luaL_openlibs(script->L);
 	/* register global vars and funcs */
 	for (glob = globals; glob->name != NULL; glob++) {
 		lua_pushinteger(script->L, glob->value);
 		lua_setglobal(script->L, glob->name);
 	}
-	for (reg = regs; reg->name != NULL; reg++) {
-		lua_register(script->L, reg->name, reg->func);
+	for (lib = libs; lib->func; lib++) {
+		lua_pushcfunction(script->L, lib->func);
+		lua_pushstring(script->L, lib->name);
+		lua_call(script->L, 1, 0);
 	}
-	/* register entity module */
-	luaL_newmetatable(script->L, TNAME_ENTITY);
-	lua_pushvalue(L, -1);
-	lua_setfield(L, -2, "__index");
-	luaL_register(script->L, NULL, entity_m);
-	luaL_register(script->L, "Entity", entity_f);
 	return script;
 }
 
@@ -94,10 +127,14 @@ void Script_free(Script *script) {
 }
 
 int Script_run(Script *script, const char *filename) {
-	return luaL_dofile(script->L, filename);
+	int ret;
+
+	if ((ret = luaL_dofile(script->L, filename)))
+		fprintf(stderr, "%s\n", lua_tostring(script->L, -1));
+	return ret;
 }
 
-int l_entity_new(lua_State *L) {
+static int l_entity_new(lua_State *L) {
 	Entity *entity = Entity_new();
 
 	Event_push(EVENT_ENTITY_NEW, entity, NULL);
@@ -107,17 +144,24 @@ int l_entity_new(lua_State *L) {
 	return 1;
 }
 
-int l_entity_add_frame(lua_State *L) {
+static int l_entity_add_frames(lua_State *L) {
 	Entity *entity = luaL_checkudata(L, 1, TNAME_ENTITY);
 	int action = luaL_checkinteger(L, 2);
 	int direction = luaL_checkinteger(L, 3);
-	int frame = luaL_checkinteger(L, 4);
+	int n = lua_objlen(L, 4);
+	int i;
 
-	Entity_add_frame(entity, action, direction, frame);
+	for (i = 1; i <= n; i++) {
+		int frame;
+		lua_rawgeti(L, 4, i);
+		frame = luaL_checkinteger(L, -1);
+		Entity_add_frame(entity, action, direction, frame);
+		lua_pop(L, 1);
+	}
 	return 0;
 }
 
-int l_entity_set_pos(lua_State *L) {
+static int l_entity_set_pos(lua_State *L) {
 	Entity *entity = luaL_checkudata(L, 1, TNAME_ENTITY);
 	int x = luaL_checkinteger(L, 2);
 	int y = luaL_checkinteger(L, 3);
@@ -126,7 +170,7 @@ int l_entity_set_pos(lua_State *L) {
 	return 0;
 }
 
-int l_entity_set_size(lua_State *L) {
+static int l_entity_set_size(lua_State *L) {
 	Entity *entity = luaL_checkudata(L, 1, TNAME_ENTITY);
 	int w = luaL_checkinteger(L, 2);
 	int h = luaL_checkinteger(L, 3);
@@ -135,7 +179,7 @@ int l_entity_set_size(lua_State *L) {
 	return 0;
 }
 
-int l_entity_set_sprite(lua_State *L) {
+static int l_entity_set_sprite(lua_State *L) {
 	Entity *entity = luaL_checkudata(L, 1, TNAME_ENTITY);
 	const char *filename = luaL_checkstring(L, 2);
 
@@ -143,7 +187,7 @@ int l_entity_set_sprite(lua_State *L) {
 	return 0;
 }
 
-int l_entity_set_vel(lua_State *L) {
+static int l_entity_set_vel(lua_State *L) {
 	Entity *entity = luaL_checkudata(L, 1, TNAME_ENTITY);
 	int x = luaL_checkinteger(L, 2);
 	int y = luaL_checkinteger(L, 3);
@@ -152,12 +196,33 @@ int l_entity_set_vel(lua_State *L) {
 	return 0;
 }
 
-int l_tilemap_load(lua_State *L) {
+static int l_tilemap_load(lua_State *L) {
 	const char *filename = luaL_checkstring(L, 1);
-	Tilemap *tilemap = Tilemap_load(filename);
-
-	Event_push(EVENT_TILEMAP_LOAD, tilemap, NULL);
-	lua_pushlightuserdata(L, tilemap);
+	Tilemap **tilemap;
+	
+	tilemap = lua_newuserdata(L, sizeof(*tilemap));
+	*tilemap = Tilemap_load(filename);
+	Event_push(EVENT_TILEMAP_LOAD, *tilemap, NULL);
+	luaL_getmetatable(L, TNAME_TILEMAP);
+	lua_setmetatable(L, -2);
 	return 1;
 }
 
+static int l_tilemap_get_size(lua_State *L) {
+	Tilemap *tilemap = *(Tilemap **)luaL_checkudata(L, 1, TNAME_TILEMAP);
+	SDL_Rect size = Tilemap_get_size(tilemap);
+
+	lua_pushinteger(L, size.w);
+	lua_pushinteger(L, size.h);
+	return 2;
+}
+
+static int l_tilemap_tile_is_occupied(lua_State *L) {
+	Tilemap *tilemap = *(Tilemap **)luaL_checkudata(L, 1, TNAME_TILEMAP);
+	int x = luaL_checkinteger(L, 2);
+	int y = luaL_checkinteger(L, 3);
+	bool res = Tilemap_tile_is_occupied(tilemap, x, y);
+
+	lua_pushboolean(L, res);
+	return 1;
+}

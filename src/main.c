@@ -82,16 +82,12 @@ int Game_play(SDL_Surface * screen) {
 
 	Config_run(config_file);
 	input.codes = input_codes;
-	if ((script = Script_init()) == NULL) {
+	if ((script = Script_init()) == NULL)
 		return -1;
-	}
-	if ((world = World_create()) == NULL) {
+	if ((world = World_create()) == NULL)
 		return -1;
-	}
-	if (Script_run(script, init_file)) {
-		fprintf(stderr, "Error running: %s\n", init_file);
+	if (Script_run(script, init_file))
 		return -1;
-	}
 	while (Game_events(world, &input)) {
 		/* Draw. */
 		SDL_FillRect(screen, NULL, 0);
