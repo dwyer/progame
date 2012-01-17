@@ -54,8 +54,17 @@ SDL_Rect Player_get_pos(const Player * player) {
 	return player->pos;
 }
 
+SDL_Rect Player_get_vel(const Player * player) {
+	return player->vel;
+}
+
 int Player_get_speed(const Player * player) {
 	return player->speed;
+}
+
+void Player_set_vel(Player * player, int x, int y) {
+	player->vel.x = x;
+	player->vel.y = y;
 }
 
 void Player_move(Player * player, int x, int y) {
