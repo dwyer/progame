@@ -136,16 +136,17 @@ int Script_run(Script *script, const char *filename) {
 
 static int l_entity_new(lua_State *L) {
 	Entity *entity = Entity_new();
+	Entity **udata = lua_newuserdata(L, sizeof(*udata));
 
+	*udata = entity;
 	Event_push(EVENT_ENTITY_NEW, entity, NULL);
-	lua_pushlightuserdata(L, entity);
 	luaL_getmetatable(L, TNAME_ENTITY);
 	lua_setmetatable(L, -2);
 	return 1;
 }
 
 static int l_entity_add_frames(lua_State *L) {
-	Entity *entity = luaL_checkudata(L, 1, TNAME_ENTITY);
+	Entity *entity = *(Entity **)luaL_checkudata(L, 1, TNAME_ENTITY);
 	int action = luaL_checkinteger(L, 2);
 	int direction = luaL_checkinteger(L, 3);
 	int n = lua_objlen(L, 4);
@@ -162,7 +163,7 @@ static int l_entity_add_frames(lua_State *L) {
 }
 
 static int l_entity_set_pos(lua_State *L) {
-	Entity *entity = luaL_checkudata(L, 1, TNAME_ENTITY);
+	Entity *entity = *(Entity **)luaL_checkudata(L, 1, TNAME_ENTITY);
 	int x = luaL_checkinteger(L, 2);
 	int y = luaL_checkinteger(L, 3);
 
@@ -171,7 +172,7 @@ static int l_entity_set_pos(lua_State *L) {
 }
 
 static int l_entity_set_size(lua_State *L) {
-	Entity *entity = luaL_checkudata(L, 1, TNAME_ENTITY);
+	Entity *entity = *(Entity **)luaL_checkudata(L, 1, TNAME_ENTITY);
 	int w = luaL_checkinteger(L, 2);
 	int h = luaL_checkinteger(L, 3);
 
@@ -180,7 +181,7 @@ static int l_entity_set_size(lua_State *L) {
 }
 
 static int l_entity_set_sprite(lua_State *L) {
-	Entity *entity = luaL_checkudata(L, 1, TNAME_ENTITY);
+	Entity *entity = *(Entity **)luaL_checkudata(L, 1, TNAME_ENTITY);
 	const char *filename = luaL_checkstring(L, 2);
 
 	Entity_set_sprite(entity, filename);
@@ -188,7 +189,7 @@ static int l_entity_set_sprite(lua_State *L) {
 }
 
 static int l_entity_set_vel(lua_State *L) {
-	Entity *entity = luaL_checkudata(L, 1, TNAME_ENTITY);
+	Entity *entity = *(Entity **)luaL_checkudata(L, 1, TNAME_ENTITY);
 	int x = luaL_checkinteger(L, 2);
 	int y = luaL_checkinteger(L, 3);
 
@@ -198,11 +199,11 @@ static int l_entity_set_vel(lua_State *L) {
 
 static int l_tilemap_load(lua_State *L) {
 	const char *filename = luaL_checkstring(L, 1);
-	Tilemap **tilemap;
-	
-	tilemap = lua_newuserdata(L, sizeof(*tilemap));
-	*tilemap = Tilemap_load(filename);
-	Event_push(EVENT_TILEMAP_LOAD, *tilemap, NULL);
+	Tilemap *tilemap = Tilemap_load(filename);
+	Tilemap **udata = lua_newuserdata(L, sizeof(*udata));
+
+	*udata = tilemap;
+	Event_push(EVENT_TILEMAP_LOAD, tilemap, NULL);
 	luaL_getmetatable(L, TNAME_TILEMAP);
 	lua_setmetatable(L, -2);
 	return 1;
