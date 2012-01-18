@@ -41,6 +41,11 @@ Entity *Entity_new() {
 	entity->pos.y = 0;
 	entity->pos.w = 16;
 	entity->pos.h = 18;
+	entity->action = 0;
+	entity->direction = 0;
+	entity->frame = 0;
+	entity->sprite = NULL;
+	entity->update_callback_ref = 0;
 	return entity;
 }
 
@@ -50,6 +55,8 @@ Entity *Entity_new() {
 void Entity_free(Entity * entity) {
 	int i, j;
 
+	if (entity->update_callback_ref)
+		/* TODO: need to free this from the lua stack */;
 	SDL_FreeSurface(entity->sprite);
 	for (i = 0; i < NUM_ACTIONS; i++)
 		for (j = 0; j < NUM_DIRECTIONS; j++)

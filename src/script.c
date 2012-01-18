@@ -121,18 +121,21 @@ Script *Script_init(void) {
 	return script;
 }
 
-int Script_call(Script *script, int ref) {
-	lua_rawgeti(script->L, LUA_REGISTRYINDEX, ref);
-	lua_call(script->L, 0, 0);
-	return 0;
-}
-
 /**
  * Frees the given Script instance.
  */
 void Script_free(Script *script) {
 	lua_close(script->L);
 	free(script);
+}
+
+int Script_call(Script *script, int ref) {
+	int ret;
+
+	lua_rawgeti(script->L, LUA_REGISTRYINDEX, ref);
+	if ((ret = lua_pcall(script->L, 0, LUA_MULTRET, 0)))
+		fprintf(stderr, "%s\n", lua_tostring(script->L, -1));
+	return ret;
 }
 
 /**
@@ -145,6 +148,10 @@ int Script_run(Script *script, const char *filename) {
 	if ((ret = luaL_dofile(script->L, filename)))
 		fprintf(stderr, "%s\n", lua_tostring(script->L, -1));
 	return ret;
+}
+
+void Script_unref(Script *script, int ref) {
+	luaL_unref(script->L, LUA_REGISTRYINDEX, ref);
 }
 
 /** Register entity library. */
@@ -245,9 +252,10 @@ static int l_entity_set_sprite(lua_State *L) {
 
 static int l_entity_set_update_callback(lua_State *L) {
 	Entity *entity = *(Entity **)luaL_checkudata(L, 1, TNAME_ENTITY);
-	int ref = luaL_ref(L, LUA_REGISTRYINDEX);
+	int ref; 
 
-	/* TODO: make sure a Lua function is at the top of the stack */
+	luaL_checktype(L, -1, LUA_TFUNCTION);
+	ref = luaL_ref(L, LUA_REGISTRYINDEX);
 	Entity_set_update_callback_ref(entity, ref);
 	return 0;
 }
@@ -293,6 +301,7 @@ static int l_tilemap_is_region_occupied(lua_State *L) {
 	lua_pushboolean(L, res);
 	return 1;
 }
+
 static int l_tilemap_is_tile_occupied(lua_State *L) {
 	Tilemap *tilemap = *(Tilemap **)luaL_checkudata(L, 1, TNAME_TILEMAP);
 	int x = luaL_checkinteger(L, 2);
