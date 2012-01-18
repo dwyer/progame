@@ -49,13 +49,15 @@ static int l_entity_set_sprite(lua_State *L);
 static int l_entity_set_vel(lua_State *L);
 static int l_tilemap_open(lua_State *L);
 static int l_tilemap_get_size(lua_State *L);
-static int l_tilemap_tile_is_occupied(lua_State *L);
+static int l_tilemap_is_tile_occupied(lua_State *L);
 
+/** Entity functions */
 static const luaL_Reg entity_f[] = {
 	{ "new", l_entity_new },
 	{ NULL, NULL }
 };
 
+/** Entity methods */
 static const luaL_Reg entity_m[] = {
 	{ "add_frames", l_entity_add_frames },
 	{ "set_pos", l_entity_set_pos },
@@ -65,41 +67,30 @@ static const luaL_Reg entity_m[] = {
 	{ NULL, NULL }
 };
 
+/** Tilemap functions */
 static const luaL_Reg tilemap_f[] = {
 	{ "open", l_tilemap_open },
 	{ NULL, NULL }
 };
 
+/** Tilemap methods */
 static const luaL_Reg tilemap_m[] = {
 	{ "get_size", l_tilemap_get_size },
-	{ "tile_is_occupied", l_tilemap_tile_is_occupied },
+	{ "is_tile_occupied", l_tilemap_is_tile_occupied },
 	{ NULL, NULL }
 };
 
+/** Libraries */
 static const luaL_Reg libs[] = {
 	{ LIBNAME_ENTITY, luaopen_entity },
 	{ LIBNAME_TILEMAP, luaopen_tilemap },
 	{ NULL, NULL }
 };
 
-static int luaopen_entity(lua_State *L) {
-	luaL_newmetatable(L, TNAME_ENTITY);
-	lua_pushvalue(L, -1);
-	lua_setfield(L, -2, "__index");
-	luaL_register(L, NULL, entity_m);
-	luaL_register(L, LIBNAME_ENTITY, entity_f);
-	return 1;
-}
-
-static int luaopen_tilemap(lua_State *L) {
-	luaL_newmetatable(L, TNAME_TILEMAP);
-	lua_pushvalue(L, -1);
-	lua_setfield(L, -2, "__index");
-	luaL_register(L, NULL, tilemap_m);
-	luaL_register(L, LIBNAME_TILEMAP, tilemap_f);
-	return 1;
-}
-
+/**
+ * Creates a new Script instance.
+ * \return A new Script instance.
+ */
 Script *Script_init(void) {
 	Script *script;
 	Global *glob;
@@ -113,6 +104,7 @@ Script *Script_init(void) {
 		lua_pushinteger(script->L, glob->value);
 		lua_setglobal(script->L, glob->name);
 	}
+	/* Register custom libraries. */
 	for (lib = libs; lib->func; lib++) {
 		lua_pushcfunction(script->L, lib->func);
 		lua_pushstring(script->L, lib->name);
@@ -121,17 +113,44 @@ Script *Script_init(void) {
 	return script;
 }
 
+/**
+ * Frees the given Script instance.
+ */
 void Script_free(Script *script) {
 	lua_close(script->L);
 	free(script);
 }
 
+/**
+ * Runs a script.
+ * \return 0 on success, non-zero on failure.
+ */
 int Script_run(Script *script, const char *filename) {
 	int ret;
 
 	if ((ret = luaL_dofile(script->L, filename)))
 		fprintf(stderr, "%s\n", lua_tostring(script->L, -1));
 	return ret;
+}
+
+/** Register entity library. */
+static int luaopen_entity(lua_State *L) {
+	luaL_newmetatable(L, TNAME_ENTITY);
+	lua_pushvalue(L, -1);
+	lua_setfield(L, -2, "__index");
+	luaL_register(L, NULL, entity_m);
+	luaL_register(L, LIBNAME_ENTITY, entity_f);
+	return 1;
+}
+
+/** Register tilemap library. */
+static int luaopen_tilemap(lua_State *L) {
+	luaL_newmetatable(L, TNAME_TILEMAP);
+	lua_pushvalue(L, -1);
+	lua_setfield(L, -2, "__index");
+	luaL_register(L, NULL, tilemap_m);
+	luaL_register(L, LIBNAME_TILEMAP, tilemap_f);
+	return 1;
 }
 
 static int l_entity_new(lua_State *L) {
@@ -152,6 +171,8 @@ static int l_entity_add_frames(lua_State *L) {
 	int n = lua_objlen(L, 4);
 	int i;
 
+	luaL_argcheck(L, action >= 0 && action < NUM_ACTIONS, 2, "out of range");
+	luaL_argcheck(L, direction >= 0 && direction < NUM_DIRECTIONS, 2, "out of range");
 	for (i = 1; i <= n; i++) {
 		int frame;
 		lua_rawgeti(L, 4, i);
@@ -218,11 +239,11 @@ static int l_tilemap_get_size(lua_State *L) {
 	return 2;
 }
 
-static int l_tilemap_tile_is_occupied(lua_State *L) {
+static int l_tilemap_is_tile_occupied(lua_State *L) {
 	Tilemap *tilemap = *(Tilemap **)luaL_checkudata(L, 1, TNAME_TILEMAP);
 	int x = luaL_checkinteger(L, 2);
 	int y = luaL_checkinteger(L, 3);
-	bool res = Tilemap_tile_is_occupied(tilemap, x, y);
+	bool res = Tilemap_is_tile_occupied(tilemap, x, y);
 
 	lua_pushboolean(L, res);
 	return 1;

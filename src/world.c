@@ -181,11 +181,11 @@ int World_update(World * world, Input * input) {
 		vel.y += speed;
 
 	if (vel.x
-		&& Tilemap_region_is_occupied(world->tilemap, pos.x + vel.x, pos.y,
+		&& Tilemap_is_region_occupied(world->tilemap, pos.x + vel.x, pos.y,
 									  pos.w, pos.h))
 		vel.x = 0;
 	if (vel.y
-		&& Tilemap_region_is_occupied(world->tilemap, pos.x, pos.y + vel.y,
+		&& Tilemap_is_region_occupied(world->tilemap, pos.x, pos.y + vel.y,
 									  pos.w, pos.h))
 		vel.y = 0;
 
@@ -198,12 +198,12 @@ int World_update(World * world, Input * input) {
 	for (node = world->entities->first; node != NULL; node = node->next) {
 		pos = Entity_get_pos(node->this);
 		vel = Entity_get_vel(node->this);
-		if (Tilemap_region_is_occupied
+		if (Tilemap_is_region_occupied
 			(world->tilemap, pos.x + vel.x, pos.y, pos.w, pos.h))
 			vel.x *= -1;
 		else
 			pos.x += vel.x;
-		if (Tilemap_region_is_occupied
+		if (Tilemap_is_region_occupied
 			(world->tilemap, pos.x, pos.y + vel.y, pos.w, pos.h))
 			vel.y *= -1;
 		else

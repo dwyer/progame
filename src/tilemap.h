@@ -8,9 +8,9 @@ void Tilemap_free(Tilemap * tilemap);
 
 SDL_Rect Tilemap_get_area(const Tilemap * tilemap);
 SDL_Rect Tilemap_get_size(const Tilemap * tilemap);
-int Tilemap_tile_is_occupied(const Tilemap * tilemap, int x, int y);
-int Tilemap_pixel_is_occupied(const Tilemap * tilemap, int x, int y);
-int Tilemap_region_is_occupied(const Tilemap * tilemap, int x, int y,
+int Tilemap_is_tile_occupied(const Tilemap * tilemap, int x, int y);
+int Tilemap_is_pixel_occupied(const Tilemap * tilemap, int x, int y);
+int Tilemap_is_region_occupied(const Tilemap * tilemap, int x, int y,
 							   int w, int h);
 
 int Tilemap_draw_background(const Tilemap * tilemap, SDL_Surface * screen,

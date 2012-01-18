@@ -190,7 +190,7 @@ SDL_Rect Tilemap_get_size(const Tilemap * tilemap) {
 /**
  * Returns non-zero if the given tile has collision data.
  */
-int Tilemap_tile_is_occupied(const Tilemap * tilemap, int x, int y) {
+int Tilemap_is_tile_occupied(const Tilemap * tilemap, int x, int y) {
 	return x < 0 || y < 0 || x >= tilemap->w || y >= tilemap->h
 		|| tilemap->collision[x + y * tilemap->w];
 }
@@ -198,19 +198,19 @@ int Tilemap_tile_is_occupied(const Tilemap * tilemap, int x, int y) {
 /**
  * Returns non-zero if the given pixel has collision data.
  */
-int Tilemap_pixel_is_occupied(const Tilemap * tilemap, int x, int y) {
-	return Tilemap_tile_is_occupied(tilemap, x / TILE_SZ, y / TILE_SZ);
+int Tilemap_is_pixel_occupied(const Tilemap * tilemap, int x, int y) {
+	return Tilemap_is_tile_occupied(tilemap, x / TILE_SZ, y / TILE_SZ);
 }
 
 /**
  * Returns non-zero if the given region has collision data.
  */
-int Tilemap_region_is_occupied(const Tilemap * tilemap, int x, int y,
+int Tilemap_is_region_occupied(const Tilemap * tilemap, int x, int y,
 							   int w, int h) {
-	return (Tilemap_pixel_is_occupied(tilemap, x, y) ||
-			Tilemap_pixel_is_occupied(tilemap, x + w - 1, y) ||
-			Tilemap_pixel_is_occupied(tilemap, x, y + h - 1) ||
-			Tilemap_pixel_is_occupied(tilemap, x + w - 1, y + h - 1));
+	return (Tilemap_is_pixel_occupied(tilemap, x, y) ||
+			Tilemap_is_pixel_occupied(tilemap, x + w - 1, y) ||
+			Tilemap_is_pixel_occupied(tilemap, x, y + h - 1) ||
+			Tilemap_is_pixel_occupied(tilemap, x + w - 1, y + h - 1));
 }
 
 /**

@@ -1,0 +1,79 @@
+/prog/ame Script Documentation
+
+-------------------------------------------------------------------------------
+
+Entity.new()
+
+Returns a new entity. The entity is automatically sent to the engine.
+
+-------------------------------------------------------------------------------
+
+entity:add_frames(action, direction, frames)
+
+Binds the given frames to the given action and direction. set_size and
+set_sprite must be called before this, in that order. set_sprite will
+automatically create a list frames that can be binded to particular actions.
+Example, if size is set to 16x16, and a 48x48 sprite sheet is loaded, nine
+16x16 frames will be created:
+
++-+-+-+
+|0|1|2|
++-+-+-+
+|3|4|5|
++-+-+-+
+|6|7|8|
++-+-+-+
+
+An 80x32 sprite sheet will be distributed like this:
+
++-+-+-+-+-+
+|0|1|2|3|4|
++-+-+-+-+-+
+|5|6|7|8|9|
++-+-+-+-+-+
+
+You may then bind an array of those frames to an action like so:
+    entity:add_frame(ACTION_WALKING, DIRECTION_DOWN, {0, 1, 2})
+    entity:add_frame(ACTION_WALKING, DIRECTION_DOWN, {3, 4, 9})
+
+The actions and directions that can be binded are as follows:
+ - action: ACTION_STANDING, ACTION WALKING
+ - direction: DIRECTION_UP, DIRECTION_DOWN, DIRECTION_LEFT, DIRECTION RIGHT
+
+-------------------------------------------------------------------------------
+
+entity:set_pos(x, y)
+
+Sets the pixel position of the entity. It doesn't check collision, so if you're
+placing an entity randomly you must check it before you set the position.
+
+-------------------------------------------------------------------------------
+
+entity:set_size(w, h)
+
+Sets the pixel size of the entity. This must be set before setting the sprite
+sheet.
+
+-------------------------------------------------------------------------------
+
+entity:set_sprite(filename)
+
+Sets the sprite sheet of the entity and automatically generates a list of
+frames based on the entity's size, there set_size must be called prior to this.
+
+-------------------------------------------------------------------------------
+
+Tilemap.open(filename)
+
+Returns the tilemap at the given file and automatically loads it into the game
+engine.  If a tilemap is already loaded, it will automatically be freed along
+with any entities that are on it. The tilemap file must be created in Tiled and
+exported as Lua. See res/maps/README for details.
+
+-------------------------------------------------------------------------------
+
+tilemap:is_tile_occupied(x, y)
+
+Returns true if a collision is detected at the given tile, false otherwise.
+
+-------------------------------------------------------------------------------
