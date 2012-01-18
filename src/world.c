@@ -1,6 +1,8 @@
 #include <assert.h>
+
+#include <SDL/SDL.h>
+
 #include "main.h"
-#include "player.h"
 #include "tilemap.h"
 #include "input.h"
 #include "event.h"
@@ -28,8 +30,7 @@ struct World {
 	/* TODO: merge World and Tilemap classes. */
 	Tilemap *tilemap;
 
-	/* TODO: merge Player and Entity classes. */
-	Player *player;
+	Entity *player;
 
 	EntityList *entities;
 
@@ -99,15 +100,11 @@ World *World_new(void) {
 
 	if (world == NULL)
 		return NULL;
-	if ((world->player = Player_new()) == NULL) {
-		World_free(world);
-		return NULL;
-	}
-	Player_set_pos(world->player, 27 * 16, 3 * 16);
 	if ((world->entities = EntityList_new()) == NULL) {
 		World_free(world);
 		return NULL;
 	}
+	world->player = NULL;
 	world->tilemap = NULL;
 	return world;
 }
@@ -118,13 +115,8 @@ World *World_new(void) {
  */
 void World_free(World * world) {
 	Tilemap_free(world->tilemap);
-	Player_free(world->player);
 	EntityList_free(world->entities);
 	free(world);
-}
-
-void World_set_player_pos(World *world, int x, int y) {
-	Player_set_pos(world->player, x, y);
 }
 
 void World_set_script(World *world, Script *script) {
@@ -152,9 +144,11 @@ int World_event(World * world, Input * input, SDL_UserEvent event) {
 		input->left = (event.data1 != NULL);
 	else if (event.code == EVENT_INPUT_MOVE_RIGHT)
 		input->right = (event.data1 != NULL);
-	else if (event.code == EVENT_ENTITY_NEW)
+	else if (event.code == EVENT_ENTITY_NEW) {
+		if (world->entities->first == NULL)
+			world->player = event.data1;
 		EntityList_append(world->entities, event.data1);
-	else if (event.code == EVENT_TILEMAP_OPEN)
+	} else if (event.code == EVENT_TILEMAP_OPEN)
 		World_set_tilemap(world, event.data1);
 	else if (event.code == EVENT_CONFIG_BINDKEY) {
 		/* Add code/sym pair to the end of list */
@@ -174,12 +168,10 @@ int World_event(World * world, Input * input, SDL_UserEvent event) {
  * \return 1
  */
 int World_update(World * world, Input * input) {
-	SDL_Rect pos = { 0, 0 };
 	SDL_Rect vel = { 0, 0 };
 	EntityNode *node;
-	int speed = Player_get_speed(world->player);
+	int speed = 1;
 
-	pos = Player_get_pos(world->player);
 	/* Update player position. */
 	if (input->left)
 		vel.x -= speed;
@@ -189,20 +181,8 @@ int World_update(World * world, Input * input) {
 		vel.y -= speed;
 	if (input->down)
 		vel.y += speed;
-
-	if (vel.x
-		&& Tilemap_is_region_occupied(world->tilemap, pos.x + vel.x, pos.y,
-									  pos.w, pos.h))
-		vel.x = 0;
-	if (vel.y
-		&& Tilemap_is_region_occupied(world->tilemap, pos.x, pos.y + vel.y,
-									  pos.w, pos.h))
-		vel.y = 0;
-
-	if (!vel.x && !vel.y)
-		Player_update_state(world->player, p_idle);
-	else
-		Player_move(world->player, vel.x, vel.y);
+	if (world->player)
+		Entity_set_vel(world->player, vel.x, vel.y);
 
 	/* Update each entity. */
 	for (node = world->entities->first; node != NULL; node = node->next) {
@@ -244,7 +224,7 @@ SDL_Rect World_get_camera(World * world, SDL_Rect focus) {
  * \return 0 on success, non-zero on failure.
  */
 int World_draw(World * world, SDL_Surface * screen) {
-	SDL_Rect center = Player_get_pos(world->player);
+	SDL_Rect center = Entity_get_pos(world->player);
 	SDL_Rect camera = World_get_camera(world, center);
 	EntityNode *node;
 
@@ -257,8 +237,6 @@ int World_draw(World * world, SDL_Surface * screen) {
 	for (node = world->entities->first; node != NULL; node = node->next)
 		if (Entity_draw(node->this, screen, camera))
 			return -1;
-	if (Player_draw(world->player, screen, camera))
-		return -1;
 	if (Tilemap_draw_foreground(world->tilemap, screen, camera))
 		return -1;
 	return 0;

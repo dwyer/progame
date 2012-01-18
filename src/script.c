@@ -132,6 +132,8 @@ void Script_free(Script *script) {
 int Script_call(Script *script, int ref) {
 	int ret;
 
+	if (!ref)
+		return 0;
 	lua_rawgeti(script->L, LUA_REGISTRYINDEX, ref);
 	if ((ret = lua_pcall(script->L, 0, LUA_MULTRET, 0)))
 		fprintf(stderr, "%s\n", lua_tostring(script->L, -1));
