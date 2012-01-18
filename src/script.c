@@ -43,13 +43,17 @@ static int luaopen_tilemap(lua_State *L);
 
 static int l_entity_add_frames(lua_State *L);
 static int l_entity_new(lua_State *L);
+static int l_entity_get_pos(lua_State *L);
+static int l_entity_get_vel(lua_State *L);
 static int l_entity_set_pos(lua_State *L);
 static int l_entity_set_size(lua_State *L);
 static int l_entity_set_sprite(lua_State *L);
+static int l_entity_set_update_callback(lua_State *L);
 static int l_entity_set_vel(lua_State *L);
 static int l_tilemap_open(lua_State *L);
 static int l_tilemap_get_size(lua_State *L);
 static int l_tilemap_is_tile_occupied(lua_State *L);
+static int l_tilemap_is_region_occupied(lua_State *L);
 
 /** Entity functions */
 static const luaL_Reg entity_f[] = {
@@ -60,9 +64,12 @@ static const luaL_Reg entity_f[] = {
 /** Entity methods */
 static const luaL_Reg entity_m[] = {
 	{ "add_frames", l_entity_add_frames },
+	{ "get_pos", l_entity_get_pos },
+	{ "get_vel", l_entity_get_vel },
 	{ "set_pos", l_entity_set_pos },
 	{ "set_size", l_entity_set_size },
 	{ "set_sprite", l_entity_set_sprite },
+	{ "set_update_callback", l_entity_set_update_callback },
 	{ "set_vel", l_entity_set_vel },
 	{ NULL, NULL }
 };
@@ -77,6 +84,7 @@ static const luaL_Reg tilemap_f[] = {
 static const luaL_Reg tilemap_m[] = {
 	{ "get_size", l_tilemap_get_size },
 	{ "is_tile_occupied", l_tilemap_is_tile_occupied },
+	{ "is_region_occupied", l_tilemap_is_region_occupied },
 	{ NULL, NULL }
 };
 
@@ -111,6 +119,12 @@ Script *Script_init(void) {
 		lua_call(script->L, 1, 0);
 	}
 	return script;
+}
+
+int Script_call(Script *script, int ref) {
+	lua_rawgeti(script->L, LUA_REGISTRYINDEX, ref);
+	lua_call(script->L, 0, 0);
+	return 0;
 }
 
 /**
@@ -183,6 +197,26 @@ static int l_entity_add_frames(lua_State *L) {
 	return 0;
 }
 
+static int l_entity_get_pos(lua_State *L) {
+	Entity *entity = *(Entity **)luaL_checkudata(L, 1, TNAME_ENTITY);
+	SDL_Rect pos = Entity_get_pos(entity);
+
+	lua_pushinteger(L, pos.x);
+	lua_pushinteger(L, pos.y);
+	lua_pushinteger(L, pos.w);
+	lua_pushinteger(L, pos.h);
+	return 4;
+}
+
+static int l_entity_get_vel(lua_State *L) {
+	Entity *entity = *(Entity **)luaL_checkudata(L, 1, TNAME_ENTITY);
+	SDL_Rect vel = Entity_get_vel(entity);
+
+	lua_pushinteger(L, vel.x);
+	lua_pushinteger(L, vel.y);
+	return 2;
+}
+
 static int l_entity_set_pos(lua_State *L) {
 	Entity *entity = *(Entity **)luaL_checkudata(L, 1, TNAME_ENTITY);
 	int x = luaL_checkinteger(L, 2);
@@ -206,6 +240,15 @@ static int l_entity_set_sprite(lua_State *L) {
 	const char *filename = luaL_checkstring(L, 2);
 
 	Entity_set_sprite(entity, filename);
+	return 0;
+}
+
+static int l_entity_set_update_callback(lua_State *L) {
+	Entity *entity = *(Entity **)luaL_checkudata(L, 1, TNAME_ENTITY);
+	int ref = luaL_ref(L, LUA_REGISTRYINDEX);
+
+	/* TODO: make sure a Lua function is at the top of the stack */
+	Entity_set_update_callback_ref(entity, ref);
 	return 0;
 }
 
@@ -239,6 +282,17 @@ static int l_tilemap_get_size(lua_State *L) {
 	return 2;
 }
 
+static int l_tilemap_is_region_occupied(lua_State *L) {
+	Tilemap *tilemap = *(Tilemap **)luaL_checkudata(L, 1, TNAME_TILEMAP);
+	int x = luaL_checkinteger(L, 2);
+	int y = luaL_checkinteger(L, 3);
+	int w = luaL_checkinteger(L, 4);
+	int h = luaL_checkinteger(L, 5);
+	bool res = Tilemap_is_region_occupied(tilemap, x, y, w, h);
+
+	lua_pushboolean(L, res);
+	return 1;
+}
 static int l_tilemap_is_tile_occupied(lua_State *L) {
 	Tilemap *tilemap = *(Tilemap **)luaL_checkudata(L, 1, TNAME_TILEMAP);
 	int x = luaL_checkinteger(L, 2);

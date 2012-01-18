@@ -5,9 +5,9 @@
 #include <SDL/SDL.h>
 
 #include "main.h"
-#include "world.h"
 #include "input.h"
 #include "script.h"
+#include "world.h"
 #include "event.h"
 #include "config.h"
 
@@ -88,6 +88,7 @@ int Game_play(SDL_Surface * screen) {
 		return -1;
 	if (Script_run(script, init_file))
 		return -1;
+	World_set_script(world, script);
 	while (Game_events(world, &input)) {
 		/* Draw. */
 		SDL_FillRect(screen, NULL, 0);

@@ -26,6 +26,7 @@ struct Entity {
 	unsigned int frame;
 	unsigned int action;
 	unsigned int direction;
+	int update_callback_ref; 
 };
 
 /**
@@ -136,12 +137,20 @@ void Entity_set_vel(Entity * entity, int x, int y) {
 	entity->vel.y = y;
 }
 
+void Entity_set_update_callback_ref(Entity *entity, int ref) {
+	entity->update_callback_ref = ref;
+}
+
 SDL_Rect Entity_get_pos(const Entity * entity) {
 	return entity->pos;
 }
 
 SDL_Rect Entity_get_vel(const Entity * entity) {
 	return entity->vel;
+}
+
+int Entity_get_update_callback_ref(const Entity *entity) {
+	return entity->update_callback_ref;
 }
 
 /**

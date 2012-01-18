@@ -5,10 +5,14 @@
 #include "input.h"
 #include "event.h"
 #include "entity.h"
+#include "script.h"
 #include "world.h"
 
 typedef struct EntityList EntityList;
 typedef struct EntityNode EntityNode;
+
+void EntityList_free(EntityList *list);
+void EntityList_delete(EntityList *list, EntityNode *node);
 
 struct EntityList {
 	EntityNode *first;
@@ -28,6 +32,8 @@ struct World {
 	Player *player;
 
 	EntityList *entities;
+
+	Script *script;
 };
 
 /**
@@ -39,6 +45,15 @@ EntityList *EntityList_new() {
 	list = malloc(sizeof(*list));
 	list->first = NULL;
 	return list;
+}
+
+/**
+ * Free the list, along with all nodes and entities contained therein.
+ */
+void EntityList_free(EntityList *list) {
+	while (list->first)
+		EntityList_delete(list, list->first);
+	free(list);
 }
 
 /**
@@ -54,15 +69,6 @@ void EntityList_delete(EntityList *list, EntityNode *node) {
 		node->next->prev = node->prev;
 	Entity_free(node->this);
 	free(node);
-}
-
-/**
- * Free the list, along with all nodes and entities contained therein.
- */
-void EntityList_free(EntityList *list) {
-	while (list->first)
-		EntityList_delete(list, list->first);
-	free(list);
 }
 
 /**
@@ -119,6 +125,10 @@ void World_free(World * world) {
 
 void World_set_player_pos(World *world, int x, int y) {
 	Player_set_pos(world->player, x, y);
+}
+
+void World_set_script(World *world, Script *script) {
+	world->script = script;
 }
 
 void World_set_tilemap(World *world, Tilemap *tilemap) {
@@ -196,20 +206,7 @@ int World_update(World * world, Input * input) {
 
 	/* Update each entity. */
 	for (node = world->entities->first; node != NULL; node = node->next) {
-		pos = Entity_get_pos(node->this);
-		vel = Entity_get_vel(node->this);
-		if (Tilemap_is_region_occupied
-			(world->tilemap, pos.x + vel.x, pos.y, pos.w, pos.h))
-			vel.x *= -1;
-		else
-			pos.x += vel.x;
-		if (Tilemap_is_region_occupied
-			(world->tilemap, pos.x, pos.y + vel.y, pos.w, pos.h))
-			vel.y *= -1;
-		else
-			pos.y += vel.y;
-		Entity_set_pos(node->this, pos.x, pos.y);
-		Entity_set_vel(node->this, vel.x, vel.y);
+		Script_call(world->script, Entity_get_update_callback_ref(node->this));
 	}
 	return 1;
 }
