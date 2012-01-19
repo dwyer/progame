@@ -10,33 +10,89 @@
 #include "entities.h"
 #include "script.h"
 #include "game.h"
+#include "config.h"
+#include "script.h"
+#include "input.h"
 
-Tilemap *tilemap;
-Entity *player;
-EntityList *entities;
-Script *script;
+struct World {
+	Tilemap *tilemap;
+	Entity *player;
+	EntityList *entities;
+} world;
 
-void Game_new(void) {
-	if ((entities = EntityList_new()) == NULL) {
-		Game_free();
+/**
+ * Play the game.
+ * \param screen The screen.
+ * \return 0 on success, -1 on error.
+ */
+int Game_play(SDL_Surface *screen) {
+	const char *config_file = "res/scripts/config.lua";
+	const char *init_file = "res/scripts/init.lua";
+	static InputCode input_codes[100] = { {-1, -1} };
+
+	world.player = NULL;
+	world.tilemap = NULL;
+	world.entities = EntityList_new();
+	input.codes = input_codes;
+	Config_run(config_file);
+	Script_init();
+	if (Script_run(init_file))
+		return -1;
+	while (Game_events()) {
+		/* Draw. */
+		SDL_FillRect(screen, NULL, 0);
+		if (Game_draw(screen) || SDL_Flip(screen)) {
+			fprintf(stderr, "%s\n", SDL_GetError());
+			return -1;
+		}
+	};
+	Game_quit();
+	return 0;
+}
+
+/**
+ * Polls for events. Manages the input queue and handles when input must be
+ * passed to the World class. Returns false it the player signaled a quit event,
+ * true otherwise.
+ * \return false if a quit event was triggered, true otherwise.
+ */
+bool Game_events(void) {
+	SDL_Event event;
+
+	while (SDL_PollEvent(&event)) {
+		if (event.type == SDL_USEREVENT) {
+			Game_event(event.user);
+		} else if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
+			/* Instead of hardcoding keyboard events, we'll map them to action
+			 * events so they can be configured in scripting. */
+			InputCode *code = NULL;
+			for (code = input.codes; code->sym != -1; code++) {
+				if (code->sym == event.key.keysym.sym) {
+					if (code->code == EVENT_INPUT_QUIT)
+						return false;
+					else
+						Event_push(code->code,
+								   (void *) (event.type == SDL_KEYDOWN),
+								   NULL);
+				}
+			}
+		} else if (event.type == SDL_QUIT) {
+			return false;
+		}
 	}
-	player = NULL;
-	tilemap = NULL;
+	return true;
 }
 
-void Game_free(void) {
-	Tilemap_free(tilemap);
-	EntityList_free(entities);
+void Game_quit(void) {
+	Script_quit();
+	Tilemap_free(world.tilemap);
+	EntityList_free(world.entities);
 }
 
-void Game_set_script(Script *script) {
-	script = script;
-}
-
-void Game_set_tilemap(Tilemap *new) {
-	if (tilemap)
-		Tilemap_free(tilemap);
-	tilemap = new;
+void Game_set_tilemap(Tilemap *tilemap) {
+	if (world.tilemap)
+		Tilemap_free(world.tilemap);
+	world.tilemap = tilemap;
 }
 
 /**
@@ -55,9 +111,9 @@ int Game_event(SDL_UserEvent event) {
 	else if (event.code == EVENT_INPUT_MOVE_RIGHT)
 		input.right = (event.data1 != NULL);
 	else if (event.code == EVENT_ENTITY_NEW) {
-		if (entities->first == NULL)
-			player = event.data1;
-		EntityList_append(entities, event.data1);
+		if (world.entities->first == NULL)
+			world.player = event.data1;
+		EntityList_append(world.entities, event.data1);
 	} else if (event.code == EVENT_TILEMAP_OPEN)
 		Game_set_tilemap(event.data1);
 	else if (event.code == EVENT_CONFIG_BINDKEY) {
@@ -91,19 +147,19 @@ int Game_update() {
 	if (input.down)
 		vel.y += speed;
 
-	if (player)
-		Entity_set_vel(player, vel.x, vel.y);
+	if (world.player)
+		Entity_set_vel(world.player, vel.x, vel.y);
 
 	/* Update each entity. */
-	for (node = entities->first; node != NULL; node = node->next) {
+	for (node = world.entities->first; node != NULL; node = node->next) {
 		SDL_Rect pos, vel;
 
-		Script_call(script, Entity_get_update_callback_ref(node->this));
+		Script_call(Entity_get_update_callback_ref(node->this));
 		pos = Entity_get_pos(node->this);
 		vel = Entity_get_vel(node->this);
-		if (Tilemap_is_region_occupied(tilemap, pos.x + vel.x, pos.y, pos.w, pos.h))
+		if (Tilemap_is_region_occupied(world.tilemap, pos.x + vel.x, pos.y, pos.w, pos.h))
 			vel.x = 0;
-		if (Tilemap_is_region_occupied(tilemap, pos.x, pos.y + vel.y, pos.w, pos.h))
+		if (Tilemap_is_region_occupied(world.tilemap, pos.x, pos.y + vel.y, pos.w, pos.h))
 			vel.y = 0;
 		Entity_set_pos(node->this, pos.x + vel.x, pos.y + vel.y);
 	}
@@ -116,7 +172,7 @@ int Game_update() {
  */
 SDL_Rect Game_get_camera(SDL_Rect focus) {
 	SDL_Rect camera = { 0, 0, SCREEN_W, SCREEN_H };
-	SDL_Rect area = Tilemap_get_area(tilemap);
+	SDL_Rect area = Tilemap_get_area(world.tilemap);
 
 	camera.x = focus.x - (SCREEN_W - focus.w) / 2;
 	if (area.w > SCREEN_W) {
@@ -141,20 +197,20 @@ SDL_Rect Game_get_camera(SDL_Rect focus) {
  * \return 0 on success, non-zero on failure.
  */
 int Game_draw(SDL_Surface * screen) {
-	SDL_Rect center = Entity_get_pos(player);
+	SDL_Rect center = Entity_get_pos(world.player);
 	SDL_Rect camera = Game_get_camera(center);
 	EntityNode *node;
 
-	if (Tilemap_draw_background(tilemap, screen, camera))
+	if (Tilemap_draw_background(world.tilemap, screen, camera))
 		return -1;
 	/* This loop simply draws entities in the order they appear in the list.
 	 * This is not ideal, as it could cause entities high on the screen to be
 	 * draw over entities low on the screen.  This shall be solved by making
 	 * sure the list is sorted by entity position, from top to bottom. */
-	for (node = entities->first; node != NULL; node = node->next)
+	for (node = world.entities->first; node != NULL; node = node->next)
 		if (Entity_draw(node->this, screen, camera))
 			return -1;
-	if (Tilemap_draw_foreground(tilemap, screen, camera))
+	if (Tilemap_draw_foreground(world.tilemap, screen, camera))
 		return -1;
 	return 0;
 }

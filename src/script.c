@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,16 +12,12 @@
 #include "script.h"
 #include "tilemap.h"
 
-#define LIBNAME_ENTITY "Entity"
-#define LIBNAME_TILEMAP "Tilemap"
 #define TNAME_ENTITY "progame.entity"
 #define TNAME_TILEMAP "progame.tilemap"
 
-typedef struct Global Global;
+static lua_State *L = NULL;
 
-struct Script {
-	lua_State *L;
-};
+typedef struct Global Global;
 
 struct Global {
 	const char *name;
@@ -91,55 +86,48 @@ static const luaL_Reg tilemap_m[] = {
 
 /** Libraries */
 static const luaL_Reg libs[] = {
-	{ LIBNAME_ENTITY, luaopen_entity },
-	{ LIBNAME_TILEMAP, luaopen_tilemap },
+	{ "Entity", luaopen_entity },
+	{ "Tilemap", luaopen_tilemap },
 	{ NULL, NULL }
 };
 
 /**
- * Creates a new Script instance.
- * \return A new Script instance.
+ * Initializes the scripting environment.
  */
-Script *Script_init(void) {
-	Script *script;
+void Script_init(void) {
 	Global *glob;
 	const luaL_Reg *lib;
 
-	script = malloc(sizeof(*script));
-	script->L = luaL_newstate();
-	luaL_openlibs(script->L);
+	L = luaL_newstate();
+	luaL_openlibs(L);
 	/* register global vars and funcs */
 	for (glob = globals; glob->name != NULL; glob++) {
-		lua_pushinteger(script->L, glob->value);
-		lua_setglobal(script->L, glob->name);
+		lua_pushinteger(L, glob->value);
+		lua_setglobal(L, glob->name);
 	}
 	/* Register custom libraries. */
 	for (lib = libs; lib->func; lib++) {
-		lua_pushcfunction(script->L, lib->func);
-		lua_pushstring(script->L, lib->name);
-		lua_call(script->L, 1, 0);
+		lua_pushcfunction(L, lib->func);
+		lua_pushstring(L, lib->name);
+		lua_call(L, 1, 0);
 	}
-	return script;
 }
 
 /**
- * Frees the given Script instance.
+ * Uninitializes scripting environment.
  */
-void Script_free(Script *script) {
-	if (script)
-		lua_close(script->L);
-	free(script);
+void Script_quit(void) {
+	lua_close(L);
 }
 
-int Script_call(Script *script, int ref) {
+int Script_call(int ref) {
 	int ret;
 
-	assert(script);
 	if (!ref)
 		return 0;
-	lua_rawgeti(script->L, LUA_REGISTRYINDEX, ref);
-	if ((ret = lua_pcall(script->L, 0, LUA_MULTRET, 0)))
-		fprintf(stderr, "%s\n", lua_tostring(script->L, -1));
+	lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
+	if ((ret = lua_pcall(L, 0, LUA_MULTRET, 0)))
+		fprintf(stderr, "%s\n", lua_tostring(L, -1));
 	return ret;
 }
 
@@ -147,37 +135,39 @@ int Script_call(Script *script, int ref) {
  * Runs a script.
  * \return 0 on success, non-zero on failure.
  */
-int Script_run(Script *script, const char *filename) {
+int Script_run(const char *filename) {
 	int ret;
 
-	assert(script);
-	if ((ret = luaL_dofile(script->L, filename)))
-		fprintf(stderr, "%s\n", lua_tostring(script->L, -1));
+	if ((ret = luaL_dofile(L, filename)))
+		fprintf(stderr, "%s\n", lua_tostring(L, -1));
 	return ret;
 }
 
-void Script_unref(Script *script, int ref) {
-	assert(script);
-	luaL_unref(script->L, LUA_REGISTRYINDEX, ref);
+void Script_unref(int ref) {
+	luaL_unref(L, LUA_REGISTRYINDEX, ref);
 }
 
 /** Register entity library. */
 static int luaopen_entity(lua_State *L) {
+	const char *name = luaL_checkstring(L, 1);
+
 	luaL_newmetatable(L, TNAME_ENTITY);
 	lua_pushvalue(L, -1);
 	lua_setfield(L, -2, "__index");
 	luaL_register(L, NULL, entity_m);
-	luaL_register(L, LIBNAME_ENTITY, entity_f);
+	luaL_register(L, name, entity_f);
 	return 1;
 }
 
 /** Register tilemap library. */
 static int luaopen_tilemap(lua_State *L) {
+	const char *name = luaL_checkstring(L, 1);
+
 	luaL_newmetatable(L, TNAME_TILEMAP);
 	lua_pushvalue(L, -1);
 	lua_setfield(L, -2, "__index");
 	luaL_register(L, NULL, tilemap_m);
-	luaL_register(L, LIBNAME_TILEMAP, tilemap_f);
+	luaL_register(L, name, tilemap_f);
 	return 1;
 }
 

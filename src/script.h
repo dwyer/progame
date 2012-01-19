@@ -1,13 +1,11 @@
 #ifndef SCRIPT_H
 #define SCRIPT_H
 
-typedef struct Script Script;
+void Script_init(void);
+void Script_quit(void);
 
-Script *Script_init(void);
-void Script_free(Script *script);
-
-int Script_call(Script *script, int ref);
-int Script_run(Script *script, const char *filename);
-void Script_unref(Script *script, int ref);
+int Script_call(int ref);
+int Script_run(const char *filename);
+void Script_unref(int ref);
 
 #endif
