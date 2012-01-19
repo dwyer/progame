@@ -140,22 +140,20 @@ int Game_update(void) {
 		vel.y -= speed;
 	if (input.down)
 		vel.y += speed;
-
 	if (world.player)
 		Entity_set_vel(world.player, vel.x, vel.y);
-
 	/* Update each entity. */
 	for (node = world.entities->first; node != NULL; node = node->next) {
 		SDL_Rect pos, vel;
 
-		Script_call(Entity_get_update_callback_ref(node->this));
-		pos = Entity_get_pos(node->this);
-		vel = Entity_get_vel(node->this);
+		Script_call(Entity_get_update_callback_ref(node->entity));
+		pos = Entity_get_pos(node->entity);
+		vel = Entity_get_vel(node->entity);
 		if (Tilemap_is_region_occupied(pos.x + vel.x, pos.y, pos.w, pos.h))
 			vel.x = 0;
 		if (Tilemap_is_region_occupied(pos.x, pos.y + vel.y, pos.w, pos.h))
 			vel.y = 0;
-		Entity_set_pos(node->this, pos.x + vel.x, pos.y + vel.y);
+		Entity_set_pos(node->entity, pos.x + vel.x, pos.y + vel.y);
 	}
 	return 1;
 }
@@ -202,7 +200,7 @@ int Game_draw(SDL_Surface *screen) {
 	 * draw over entities low on the screen.  This shall be solved by making
 	 * sure the list is sorted by entity position, from top to bottom. */
 	for (node = world.entities->first; node != NULL; node = node->next)
-		if (Entity_draw(node->this, screen, camera))
+		if (Entity_draw(node->entity, screen, camera))
 			return -1;
 	if (Tilemap_draw_foreground(screen, camera))
 		return -1;

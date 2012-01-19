@@ -36,7 +36,7 @@ void EntityList_delete(EntityList *list, EntityNode *node) {
 		node->prev->next = node->next;
 	if (node->next)
 		node->next->prev = node->prev;
-	Entity_free(node->this);
+	Entity_free(node->entity);
 	free(node);
 }
 
@@ -50,7 +50,7 @@ void EntityList_append(EntityList *list, Entity *entity) {
 	assert(list);
 	assert(entity);
 	node = malloc(sizeof(*node));
-	node->this = entity;
+	node->entity = entity;
 	node->next = NULL;
 	node->prev = NULL;
 	if (list->first) {

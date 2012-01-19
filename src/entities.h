@@ -14,7 +14,7 @@ struct EntityList {
 };
 
 struct EntityNode {
-	Entity *this;
+	Entity *entity;
 	EntityNode *prev;
 	EntityNode *next;
 };
