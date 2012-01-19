@@ -139,7 +139,8 @@ int Script_run(const char *filename) {
 }
 
 void Script_unref(int ref) {
-	luaL_unref(L, LUA_REGISTRYINDEX, ref);
+	if (ref)
+		luaL_unref(L, LUA_REGISTRYINDEX, ref);
 }
 
 /** Register entity library. */

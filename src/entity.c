@@ -58,11 +58,8 @@ void Entity_free(Entity *entity) {
 
 	if (!entity)
 		return;
-	if (entity->update_callback_ref) {
-		Script_unref(entity->update_callback_ref);
-		entity->update_callback_ref = 0;
-	}
 	SDL_FreeSurface(entity->sprite);
+	Script_unref(entity->update_callback_ref);
 	for (i = 0; i < NUM_ACTIONS; i++)
 		for (j = 0; j < NUM_DIRECTIONS; j++)
 			free(entity->framesets[i][j].frames);

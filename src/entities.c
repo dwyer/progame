@@ -47,6 +47,8 @@ void EntityList_delete(EntityList *list, EntityNode *node) {
 void EntityList_append(EntityList *list, Entity *entity) {
 	EntityNode *node;
 
+	assert(list);
+	assert(entity);
 	node = malloc(sizeof(*node));
 	node->this = entity;
 	node->next = NULL;
