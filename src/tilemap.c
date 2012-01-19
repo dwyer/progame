@@ -14,6 +14,8 @@
 #define TILEMAP_VERSION "1.1"
 #define TILEMAP_LUAVERSION "5.1"
 
+typedef struct Tilemap Tilemap;
+
 struct Tilemap {
 	int w;
 	int h;
@@ -21,6 +23,8 @@ struct Tilemap {
 	SDL_Surface *background;
 	SDL_Surface *foreground;
 };
+
+Tilemap *tilemap;
 
 /**
  * Helper function to assist in creating a surface and setting its transparency.
@@ -32,21 +36,19 @@ struct Tilemap {
 SDL_Surface *create_surface(int w, int h, Uint32 color_key) {
 	SDL_Surface *surface = NULL;
 
-	surface =
-		SDL_CreateRGBSurface(SCREEN_FLAGS, w, h, SCREEN_BPP, 0, 0, 0, 0);
+	surface = SDL_CreateRGBSurface(SCREEN_FLAGS, w, h, SCREEN_BPP, 0, 0, 0, 0);
 	SDL_FillRect(surface, NULL, color_key);
 	SDL_SetColorKey(surface, SDL_SRCCOLORKEY, color_key);
 	return surface;
 }
 
 /**
- * Loads and returns a tilemap.
+ * Opens a tilemap.
  * \param filename Path of the tilemap to be loaded. Must be a Tiled tilemap
  *        exported to Lua.
- * \return The loaded tilemap.
+ * \return 0 on success, non-zero on failure.
  */
-Tilemap *Tilemap_open(const char *filename) {
-	Tilemap *tilemap = NULL;
+int Tilemap_open(const char *filename) {
 	SDL_Surface *tileset = NULL;
 	SDL_Surface *layer = NULL;
 	SDL_Rect src = { 0, 0, TILE_SZ, TILE_SZ };
@@ -58,7 +60,7 @@ Tilemap *Tilemap_open(const char *filename) {
 	L = luaL_newstate();
 	if (luaL_dofile(L, filename)) {
 		lua_close(L);
-		return NULL;
+		return -1;
 	}
 	/*
 	 * Tiled maps exported to Lua have a version number luaversion number.
@@ -71,7 +73,7 @@ Tilemap *Tilemap_open(const char *filename) {
 		strcmp(lua_tostring(L, -1), TILEMAP_LUAVERSION)) {
 		fprintf(stderr, "Not a valid tilemap: %s\n", filename);
 		lua_close(L);
-		return NULL;
+		return -1;
 	}
 	lua_pop(L, 2);				/* pop version and luaversion */
 	/* 
@@ -100,9 +102,9 @@ Tilemap *Tilemap_open(const char *filename) {
 	lua_concat(L, 2);
 	if ((tileset = SDL_LoadBMP(lua_tostring(L, -1))) == NULL) {
 		fprintf(stderr, "SDL error: %s\n", SDL_GetError());
-		Tilemap_free(tilemap);
+		Tilemap_close();
 		lua_close(L);
-		return NULL;
+		return -1;
 	}
 	lua_pop(L, 1);				/* pop TILEMAP_DIR+image */
 	lua_getfield(L, -1, "transparentColor");
@@ -115,11 +117,9 @@ Tilemap *Tilemap_open(const char *filename) {
 	tilemap->collision =
 		calloc(tilemap->w * tilemap->h, sizeof(*tilemap->collision));
 	tilemap->background =
-		create_surface(tilemap->w * TILE_SZ, tilemap->h * TILE_SZ,
-					   color_key);
+		create_surface(tilemap->w * TILE_SZ, tilemap->h * TILE_SZ, color_key);
 	tilemap->foreground =
-		create_surface(tilemap->w * TILE_SZ, tilemap->h * TILE_SZ,
-					   color_key);
+		create_surface(tilemap->w * TILE_SZ, tilemap->h * TILE_SZ, color_key);
 	lua_getfield(L, -1, "layers");
 	layer = tilemap->background;
 	n = lua_objlen(L, -1);
@@ -152,14 +152,13 @@ Tilemap *Tilemap_open(const char *filename) {
 	lua_pop(L, 1);				/* pop layers */
 	SDL_FreeSurface(tileset);
 	lua_close(L);
-	return tilemap;
+	return 0;
 }
 
 /**
- * Free the tilemap and all its attributes.
- * \param tilemap Tilemap to be freed.
+ * Close the tilemap and free its resources.
  */
-void Tilemap_free(Tilemap * tilemap) {
+void Tilemap_close(void) {
 	if (tilemap) {
 		free(tilemap->collision);
 		free(tilemap->background);
@@ -170,10 +169,9 @@ void Tilemap_free(Tilemap * tilemap) {
 
 /**
  * Returns an SDL_Rect representing the area of the tilemap.
- * \param tilemap A tilemap.
  * \return Area of the tilemap.
  */
-SDL_Rect Tilemap_get_area(const Tilemap * tilemap) {
+SDL_Rect Tilemap_get_area(void) {
 	SDL_Rect area = { 0, 0, 0, 0 };
 
 	assert(tilemap);
@@ -182,7 +180,7 @@ SDL_Rect Tilemap_get_area(const Tilemap * tilemap) {
 	return area;
 }
 
-SDL_Rect Tilemap_get_size(const Tilemap * tilemap) {
+SDL_Rect Tilemap_get_size(void) {
 	SDL_Rect size = { 0, 0, 0, 0 };
 
 	assert(tilemap);
@@ -194,37 +192,35 @@ SDL_Rect Tilemap_get_size(const Tilemap * tilemap) {
 /**
  * Returns non-zero if the given tile has collision data.
  */
-int Tilemap_is_tile_occupied(const Tilemap * tilemap, int x, int y) {
+int Tilemap_is_tile_occupied(int x, int y) {
 	assert(tilemap);
-	return x < 0 || y < 0 || x >= tilemap->w || y >= tilemap->h
-		|| tilemap->collision[x + y * tilemap->w];
+	return (x < 0 || y < 0 || x >= tilemap->w || y >= tilemap->h ||
+			tilemap->collision[x + y * tilemap->w]);
 }
 
 /**
  * Returns non-zero if the given pixel has collision data.
  */
-int Tilemap_is_pixel_occupied(const Tilemap * tilemap, int x, int y) {
+int Tilemap_is_pixel_occupied(int x, int y) {
 	assert(tilemap);
-	return Tilemap_is_tile_occupied(tilemap, x / TILE_SZ, y / TILE_SZ);
+	return Tilemap_is_tile_occupied(x / TILE_SZ, y / TILE_SZ);
 }
 
 /**
  * Returns non-zero if the given region has collision data.
  */
-int Tilemap_is_region_occupied(const Tilemap * tilemap, int x, int y,
-							   int w, int h) {
+int Tilemap_is_region_occupied(int x, int y, int w, int h) {
 	assert(tilemap);
-	return (Tilemap_is_pixel_occupied(tilemap, x, y) ||
-			Tilemap_is_pixel_occupied(tilemap, x + w - 1, y) ||
-			Tilemap_is_pixel_occupied(tilemap, x, y + h - 1) ||
-			Tilemap_is_pixel_occupied(tilemap, x + w - 1, y + h - 1));
+	return (Tilemap_is_pixel_occupied(x, y) ||
+			Tilemap_is_pixel_occupied(x + w - 1, y) ||
+			Tilemap_is_pixel_occupied(x, y + h - 1) ||
+			Tilemap_is_pixel_occupied(x + w - 1, y + h - 1));
 }
 
 /**
  * Draw the background to the screen at the given camera position.
  */
-int Tilemap_draw_background(const Tilemap * tilemap, SDL_Surface * screen,
-							SDL_Rect camera) {
+int Tilemap_draw_background(SDL_Surface *screen, SDL_Rect camera) {
 	assert(tilemap);
 	return SDL_BlitSurface(tilemap->background, &camera, screen, NULL);
 }
@@ -232,8 +228,7 @@ int Tilemap_draw_background(const Tilemap * tilemap, SDL_Surface * screen,
 /**
  * Draw the foreground to the screen at the given camera position.
  */
-int Tilemap_draw_foreground(const Tilemap * tilemap, SDL_Surface * screen,
-							SDL_Rect camera) {
+int Tilemap_draw_foreground(SDL_Surface *screen, SDL_Rect camera) {
 	assert(tilemap);
 	return SDL_BlitSurface(tilemap->foreground, &camera, screen, NULL);
 }

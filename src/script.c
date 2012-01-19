@@ -9,6 +9,7 @@
 
 #include "entity.h"
 #include "event.h"
+#include "game.h"
 #include "script.h"
 #include "tilemap.h"
 
@@ -73,11 +74,6 @@ static const luaL_Reg entity_m[] = {
 /** Tilemap functions */
 static const luaL_Reg tilemap_f[] = {
 	{ "open", l_tilemap_open },
-	{ NULL, NULL }
-};
-
-/** Tilemap methods */
-static const luaL_Reg tilemap_m[] = {
 	{ "get_size", l_tilemap_get_size },
 	{ "is_tile_occupied", l_tilemap_is_tile_occupied },
 	{ "is_region_occupied", l_tilemap_is_region_occupied },
@@ -163,10 +159,6 @@ static int luaopen_entity(lua_State *L) {
 static int luaopen_tilemap(lua_State *L) {
 	const char *name = luaL_checkstring(L, 1);
 
-	luaL_newmetatable(L, TNAME_TILEMAP);
-	lua_pushvalue(L, -1);
-	lua_setfield(L, -2, "__index");
-	luaL_register(L, NULL, tilemap_m);
 	luaL_register(L, name, tilemap_f);
 	return 1;
 }
@@ -268,19 +260,13 @@ static int l_entity_set_vel(lua_State *L) {
 
 static int l_tilemap_open(lua_State *L) {
 	const char *filename = luaL_checkstring(L, 1);
-	Tilemap *tilemap = Tilemap_open(filename);
-	Tilemap **udata = lua_newuserdata(L, sizeof(*udata));
 
-	*udata = tilemap;
-	Event_push(EVENT_TILEMAP_OPEN, tilemap, NULL);
-	luaL_getmetatable(L, TNAME_TILEMAP);
-	lua_setmetatable(L, -2);
-	return 1;
+	Game_set_tilemap(filename);
+	return 0;
 }
 
 static int l_tilemap_get_size(lua_State *L) {
-	Tilemap *tilemap = *(Tilemap **)luaL_checkudata(L, 1, TNAME_TILEMAP);
-	SDL_Rect size = Tilemap_get_size(tilemap);
+	SDL_Rect size = Tilemap_get_size();
 
 	lua_pushinteger(L, size.w);
 	lua_pushinteger(L, size.h);
@@ -288,22 +274,20 @@ static int l_tilemap_get_size(lua_State *L) {
 }
 
 static int l_tilemap_is_region_occupied(lua_State *L) {
-	Tilemap *tilemap = *(Tilemap **)luaL_checkudata(L, 1, TNAME_TILEMAP);
-	int x = luaL_checkinteger(L, 2);
-	int y = luaL_checkinteger(L, 3);
-	int w = luaL_checkinteger(L, 4);
-	int h = luaL_checkinteger(L, 5);
-	bool res = Tilemap_is_region_occupied(tilemap, x, y, w, h);
+	int x = luaL_checkinteger(L, 1);
+	int y = luaL_checkinteger(L, 2);
+	int w = luaL_checkinteger(L, 3);
+	int h = luaL_checkinteger(L, 4);
+	bool res = Tilemap_is_region_occupied(x, y, w, h);
 
 	lua_pushboolean(L, res);
 	return 1;
 }
 
 static int l_tilemap_is_tile_occupied(lua_State *L) {
-	Tilemap *tilemap = *(Tilemap **)luaL_checkudata(L, 1, TNAME_TILEMAP);
-	int x = luaL_checkinteger(L, 2);
-	int y = luaL_checkinteger(L, 3);
-	bool res = Tilemap_is_tile_occupied(tilemap, x, y);
+	int x = luaL_checkinteger(L, 1);
+	int y = luaL_checkinteger(L, 2);
+	bool res = Tilemap_is_tile_occupied(x, y);
 
 	lua_pushboolean(L, res);
 	return 1;

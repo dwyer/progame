@@ -15,7 +15,6 @@
 #include "input.h"
 
 struct World {
-	Tilemap *tilemap;
 	Entity *player;
 	EntityList *entities;
 } world;
@@ -31,7 +30,6 @@ int Game_play(SDL_Surface *screen) {
 	static InputCode input_codes[100] = { {-1, -1} };
 
 	world.player = NULL;
-	world.tilemap = NULL;
 	world.entities = EntityList_new();
 	input.codes = input_codes;
 	Config_run(config_file);
@@ -85,14 +83,13 @@ bool Game_events(void) {
 
 void Game_quit(void) {
 	Script_quit();
-	Tilemap_free(world.tilemap);
+	Tilemap_close();
 	EntityList_free(world.entities);
 }
 
-void Game_set_tilemap(Tilemap *tilemap) {
-	if (world.tilemap)
-		Tilemap_free(world.tilemap);
-	world.tilemap = tilemap;
+void Game_set_tilemap(const char *filename) {
+	Tilemap_close();
+	Tilemap_open(filename);
 }
 
 /**
@@ -114,9 +111,7 @@ int Game_event(SDL_UserEvent event) {
 		if (world.entities->first == NULL)
 			world.player = event.data1;
 		EntityList_append(world.entities, event.data1);
-	} else if (event.code == EVENT_TILEMAP_OPEN)
-		Game_set_tilemap(event.data1);
-	else if (event.code == EVENT_CONFIG_BINDKEY) {
+	} else if (event.code == EVENT_CONFIG_BINDKEY) {
 		/* Add code/sym pair to the end of list */
 		int i;
 		for (i = 0; input.codes[i].sym != -1; i++);
@@ -157,9 +152,9 @@ int Game_update() {
 		Script_call(Entity_get_update_callback_ref(node->this));
 		pos = Entity_get_pos(node->this);
 		vel = Entity_get_vel(node->this);
-		if (Tilemap_is_region_occupied(world.tilemap, pos.x + vel.x, pos.y, pos.w, pos.h))
+		if (Tilemap_is_region_occupied(pos.x + vel.x, pos.y, pos.w, pos.h))
 			vel.x = 0;
-		if (Tilemap_is_region_occupied(world.tilemap, pos.x, pos.y + vel.y, pos.w, pos.h))
+		if (Tilemap_is_region_occupied(pos.x, pos.y + vel.y, pos.w, pos.h))
 			vel.y = 0;
 		Entity_set_pos(node->this, pos.x + vel.x, pos.y + vel.y);
 	}
@@ -172,7 +167,7 @@ int Game_update() {
  */
 SDL_Rect Game_get_camera(SDL_Rect focus) {
 	SDL_Rect camera = { 0, 0, SCREEN_W, SCREEN_H };
-	SDL_Rect area = Tilemap_get_area(world.tilemap);
+	SDL_Rect area = Tilemap_get_area();
 
 	camera.x = focus.x - (SCREEN_W - focus.w) / 2;
 	if (area.w > SCREEN_W) {
@@ -201,7 +196,7 @@ int Game_draw(SDL_Surface * screen) {
 	SDL_Rect camera = Game_get_camera(center);
 	EntityNode *node;
 
-	if (Tilemap_draw_background(world.tilemap, screen, camera))
+	if (Tilemap_draw_background(screen, camera))
 		return -1;
 	/* This loop simply draws entities in the order they appear in the list.
 	 * This is not ideal, as it could cause entities high on the screen to be
@@ -210,7 +205,7 @@ int Game_draw(SDL_Surface * screen) {
 	for (node = world.entities->first; node != NULL; node = node->next)
 		if (Entity_draw(node->this, screen, camera))
 			return -1;
-	if (Tilemap_draw_foreground(world.tilemap, screen, camera))
+	if (Tilemap_draw_foreground(screen, camera))
 		return -1;
 	return 0;
 }

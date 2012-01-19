@@ -1,5 +1,5 @@
-tilemap = Tilemap.open('res/maps/untitled.lua')
-w, h = tilemap:get_size()
+Tilemap.open('res/maps/untitled.lua')
+w, h = Tilemap.get_size()
 
 player = dofile('res/scripts/entity.lua')
 player:set_pos(27*16, 3*16)
@@ -9,7 +9,7 @@ function set_random_pos(entity)
     repeat
         x = math.random(w) - 1
         y = math.random(h) - 1
-    until not tilemap:is_tile_occupied(x, y)
+    until not Tilemap.is_tile_occupied(x, y)
     entity:set_pos(x * 16, y * 16)
 end
 
@@ -56,10 +56,10 @@ function create_bouncer()
     entity:set_update_callback(function()
         x, y, w, h = entity:get_pos()
         dx, dy = entity:get_vel()
-        if tilemap:is_region_occupied(x + dx, y, w, h) then
+        if Tilemap.is_region_occupied(x + dx, y, w, h) then
             dx = -dx
         end
-        if tilemap:is_region_occupied(x, y + dy, w, h) then
+        if Tilemap.is_region_occupied(x, y + dy, w, h) then
             dy = -dy
         end
         entity:set_vel(dx, dy)
