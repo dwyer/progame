@@ -168,7 +168,6 @@ int World_event(World * world, Input * input, SDL_UserEvent event) {
  * \return 1
  */
 int World_update(World * world, Input * input) {
-	SDL_Rect pos = { 0, 0, 0, 0 };
 	SDL_Rect vel = { 0, 0 };
 	EntityNode *node;
 	int speed = 1;
@@ -184,23 +183,20 @@ int World_update(World * world, Input * input) {
 		vel.y += speed;
 
 	if (world->player)
-		pos = Entity_get_pos(world->player);
+		Entity_set_vel(world->player, vel.x, vel.y);
 
-	if (world->tilemap) {
+	/* Update each entity. */
+	for (node = world->entities->first; node != NULL; node = node->next) {
+		SDL_Rect pos, vel;
+
+		Script_call(world->script, Entity_get_update_callback_ref(node->this));
+		pos = Entity_get_pos(node->this);
+		vel = Entity_get_vel(node->this);
 		if (Tilemap_is_region_occupied(world->tilemap, pos.x + vel.x, pos.y, pos.w, pos.h))
 			vel.x = 0;
 		if (Tilemap_is_region_occupied(world->tilemap, pos.x, pos.y + vel.y, pos.w, pos.h))
 			vel.y = 0;
-	}
-
-	if (world->player) {
-		Entity_set_pos(world->player, pos.x + vel.x, pos.y + vel.y);
-		Entity_set_vel(world->player, vel.x, vel.y);
-	}
-
-	/* Update each entity. */
-	for (node = world->entities->first; node != NULL; node = node->next) {
-		Script_call(world->script, Entity_get_update_callback_ref(node->this));
+		Entity_set_pos(node->this, pos.x + vel.x, pos.y + vel.y);
 	}
 	return 1;
 }

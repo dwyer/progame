@@ -12,7 +12,7 @@
 #include "config.h"
 
 /* Number of milliseconds between logic updates. */
-#define UPDATE_INTERVAL 10
+#define UPDATE_INTERVAL 11
 
 Uint32 push_update_event(Uint32 interval, void *param);
 int Game_play(SDL_Surface * screen);
