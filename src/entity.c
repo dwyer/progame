@@ -23,7 +23,6 @@ struct Entity {
 	SDL_Surface *sprite;
 	SDL_Rect *frames;
 	FrameSet framesets[NUM_ACTIONS][NUM_DIRECTIONS];
-	unsigned int frame;
 	unsigned int action;
 	unsigned int direction;
 	int update_callback_ref; 
@@ -43,7 +42,6 @@ Entity *Entity_new() {
 	entity->pos.h = 18;
 	entity->action = 0;
 	entity->direction = 0;
-	entity->frame = 0;
 	entity->sprite = NULL;
 	entity->update_callback_ref = 0;
 	return entity;
@@ -80,7 +78,6 @@ void Entity_set_sprite(Entity *entity, const char *filename) {
 			entity->frames[i + j * w].w = entity->pos.w;
 			entity->frames[i + j * w].h = entity->pos.h;
 		}
-	entity->frame = 0;
 	entity->action = ACTION_STANDING;
 	entity->direction = DIRECTION_DOWN;
 	for (i = 0; i < NUM_ACTIONS; i++)
@@ -134,11 +131,6 @@ void Entity_set_vel(Entity * entity, int x, int y) {
 		entity->direction = DIRECTION_UP;
 	else if (y > 0)
 		entity->direction = DIRECTION_DOWN;
-	/* set frame */
-	if (x == entity->vel.x && y == entity->vel.y)
-		entity->frame++;
-	else
-		entity->frame = 0;
 	/* set velocity */
 	entity->vel.x = x;
 	entity->vel.y = y;
@@ -166,8 +158,9 @@ int Entity_get_update_callback_ref(const Entity *entity) {
  * \return 0 on success, non-zero on error.
  */
 int Entity_draw(Entity * entity, SDL_Surface * screen, SDL_Rect camera) {
+	int frame = SDL_GetTicks() / 125;
 	FrameSet frameset = entity->framesets[entity->action][entity->direction];
-	SDL_Rect src = *frameset.frames[entity->frame % frameset.length];
+	SDL_Rect src = *frameset.frames[frame % frameset.length];
 	SDL_Rect dst = entity->pos;
 
 	screen = SDL_GetVideoSurface();

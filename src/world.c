@@ -168,6 +168,7 @@ int World_event(World * world, Input * input, SDL_UserEvent event) {
  * \return 1
  */
 int World_update(World * world, Input * input) {
+	SDL_Rect pos = { 0, 0, 0, 0 };
 	SDL_Rect vel = { 0, 0 };
 	EntityNode *node;
 	int speed = 1;
@@ -181,8 +182,21 @@ int World_update(World * world, Input * input) {
 		vel.y -= speed;
 	if (input->down)
 		vel.y += speed;
+
 	if (world->player)
+		pos = Entity_get_pos(world->player);
+
+	if (world->tilemap) {
+		if (Tilemap_is_region_occupied(world->tilemap, pos.x + vel.x, pos.y, pos.w, pos.h))
+			vel.x = 0;
+		if (Tilemap_is_region_occupied(world->tilemap, pos.x, pos.y + vel.y, pos.w, pos.h))
+			vel.y = 0;
+	}
+
+	if (world->player) {
+		Entity_set_pos(world->player, pos.x + vel.x, pos.y + vel.y);
 		Entity_set_vel(world->player, vel.x, vel.y);
+	}
 
 	/* Update each entity. */
 	for (node = world->entities->first; node != NULL; node = node->next) {
