@@ -6,6 +6,8 @@
 #include "main.h"
 #include "script.h"
 
+#define FRAME SDL_GetTicks() / 125
+
 typedef struct FrameSet FrameSet;
 
 struct FrameSet {
@@ -51,9 +53,11 @@ Entity *Entity_new(void) {
 /**
  * Free an entity from memory.
  */
-void Entity_free(Entity * entity) {
+void Entity_free(Entity *entity) {
 	int i, j;
 
+	if (!entity)
+		return;
 	if (entity->update_callback_ref) {
 		Script_unref(entity->update_callback_ref);
 		entity->update_callback_ref = 0;
@@ -69,6 +73,7 @@ void Entity_free(Entity * entity) {
 void Entity_set_sprite(Entity *entity, const char *filename) {
 	int i, j, w, h;
 
+	assert(entity);
 	assert(entity->sprite = SDL_LoadBMP(filename));
 	SDL_SetColorKey(entity->sprite, SDL_SRCCOLORKEY, 0xff00ff);
 	w = entity->sprite->w / entity->pos.w;
@@ -90,11 +95,14 @@ void Entity_set_sprite(Entity *entity, const char *filename) {
 		}
 }
 
-void Entity_add_frame(Entity * entity, int action, int direction, int frame) {
-	FrameSet *frameset = &entity->framesets[action][direction];
+void Entity_add_frame(Entity *entity, int action, int direction, int frame) {
+	FrameSet *frameset;
 
+	assert(entity);
+	frameset = &entity->framesets[action][direction];
 	frameset->frames = realloc(frameset->frames,
-							   (frameset->length + 1) * sizeof(*frameset->frames));
+							   (frameset->length + 1) *
+							   sizeof(*frameset->frames));
 	frameset->frames[frameset->length] = &entity->frames[frame];
 	frameset->length++;
 }
@@ -102,7 +110,8 @@ void Entity_add_frame(Entity * entity, int action, int direction, int frame) {
 /**
  * Set the size of the entity.
  */
-void Entity_set_size(Entity * entity, int w, int h) {
+void Entity_set_size(Entity *entity, int w, int h) {
+	assert(entity);
 	entity->pos.w = w;
 	entity->pos.h = h;
 }
@@ -110,7 +119,8 @@ void Entity_set_size(Entity * entity, int w, int h) {
 /**
  * Set the position of the given Entity to the given x and y.
  */
-void Entity_set_pos(Entity * entity, int x, int y) {
+void Entity_set_pos(Entity *entity, int x, int y) {
+	assert(entity);
 	entity->pos.x = x;
 	entity->pos.y = y;
 }
@@ -119,7 +129,8 @@ void Entity_set_pos(Entity * entity, int x, int y) {
  * Set the given entity's velocity and adjust their animation frame
  * accordingly.
  */
-void Entity_set_vel(Entity * entity, int x, int y) {
+void Entity_set_vel(Entity *entity, int x, int y) {
+	assert(entity);
 	/* set action */
 	if (x || y)
 		entity->action = ACTION_WALKING;
@@ -140,19 +151,31 @@ void Entity_set_vel(Entity * entity, int x, int y) {
 }
 
 void Entity_set_update_callback_ref(Entity *entity, int ref) {
+	assert(entity);
 	entity->update_callback_ref = ref;
 }
 
-SDL_Rect Entity_get_pos(const Entity * entity) {
+SDL_Rect Entity_get_pos(const Entity *entity) {
+	assert(entity);
 	return entity->pos;
 }
 
-SDL_Rect Entity_get_vel(const Entity * entity) {
+SDL_Rect Entity_get_vel(const Entity *entity) {
+	assert(entity);
 	return entity->vel;
 }
 
 int Entity_get_update_callback_ref(const Entity *entity) {
+	assert(entity);
 	return entity->update_callback_ref;
+}
+
+int Entity_is_on_screen(const Entity *entity, SDL_Rect camera) {
+	assert(entity);
+	return (entity->pos.x + entity->pos.w >= camera.x &&
+			entity->pos.x < camera.x + camera.w &&
+			entity->pos.y + entity->pos.h >= camera.y &&
+			entity->pos.y < camera.y + camera.h);
 }
 
 /**
@@ -160,18 +183,18 @@ int Entity_get_update_callback_ref(const Entity *entity) {
  * camera.
  * \return 0 on success, non-zero on error.
  */
-int Entity_draw(Entity * entity, SDL_Surface * screen, SDL_Rect camera) {
-	int frame = SDL_GetTicks() / 125;
-	FrameSet frameset = entity->framesets[entity->action][entity->direction];
-	SDL_Rect src = *frameset.frames[frame % frameset.length];
-	SDL_Rect dst = entity->pos;
+int Entity_draw(Entity *entity, SDL_Surface *screen, SDL_Rect camera) {
+	FrameSet frameset;
+	SDL_Rect src;
+	SDL_Rect dst;
 
-	screen = SDL_GetVideoSurface();
+	assert(entity);
+	if (!Entity_is_on_screen(entity, camera))
+		return 0;
+	frameset = entity->framesets[entity->action][entity->direction];
+	src = *frameset.frames[FRAME % frameset.length];
+	dst = entity->pos;
 	dst.x -= camera.x;
 	dst.y -= camera.y;
-	if ((dst.x + dst.w >= 0 && dst.x < screen->w) &&
-		(dst.y + dst.h >= 0 && dst.y < screen->h))
-		return SDL_BlitSurface(entity->sprite, &src, screen, &dst);
-	else
-		return 0;
+	return SDL_BlitSurface(entity->sprite, &src, screen, &dst);
 }

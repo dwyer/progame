@@ -198,7 +198,7 @@ SDL_Rect Game_get_camera(SDL_Rect focus) {
  * \param screen The screen.
  * \return 0 on success, non-zero on failure.
  */
-int Game_draw(SDL_Surface * screen) {
+int Game_draw(SDL_Surface *screen) {
 	SDL_Rect center = Entity_get_pos(world.player);
 	SDL_Rect camera = Game_get_camera(center);
 	EntityNode *node;
