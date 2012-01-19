@@ -7,7 +7,7 @@
 #include "main.h"
 #include "input.h"
 #include "script.h"
-#include "world.h"
+#include "game.h"
 #include "event.h"
 #include "config.h"
 
@@ -16,7 +16,7 @@
 
 Uint32 push_update_event(Uint32 interval, void *param);
 int Game_play(SDL_Surface * screen);
-bool Game_events(World * world, Input * input);
+bool Game_events();
 
 /**
  * Initialize everything, run the game, deinitialize, quit.
@@ -76,29 +76,28 @@ int Game_play(SDL_Surface * screen) {
 	const char *config_file = "res/scripts/config.lua";
 	const char *init_file = "res/scripts/init.lua";
 	static InputCode input_codes[100] = { {-1, -1} };
-	World *world = NULL;
 	Script *script;
-	Input input = { 0, 0, 0, 0 };
+	extern World *world;
 
 	Config_run(config_file);
 	input.codes = input_codes;
 	if ((script = Script_init()) == NULL)
 		return -1;
-	if ((world = World_new()) == NULL)
+	if ((world = Game_new()) == NULL)
 		return -1;
 	if (Script_run(script, init_file))
 		return -1;
-	World_set_script(world, script);
-	while (Game_events(world, &input)) {
+	Game_set_script(script);
+	while (Game_events()) {
 		/* Draw. */
 		SDL_FillRect(screen, NULL, 0);
-		if (World_draw(world, screen) || SDL_Flip(screen)) {
+		if (Game_draw(screen) || SDL_Flip(screen)) {
 			fprintf(stderr, "%s\n", SDL_GetError());
 			return -1;
 		}
 	};
 	Script_free(script);
-	World_free(world);
+	Game_free(world);
 	return 0;
 }
 
@@ -108,17 +107,18 @@ int Game_play(SDL_Surface * screen) {
  * true otherwise.
  * \return false if a quit event was triggered, true otherwise.
  */
-bool Game_events(World * world, Input * input) {
+bool Game_events(void) {
 	SDL_Event event;
+	extern World *world;
 
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_USEREVENT) {
-			World_event(world, input, event.user);
+			Game_event(event.user);
 		} else if (event.type == SDL_KEYDOWN || event.type == SDL_KEYUP) {
 			/* Instead of hardcoding keyboard events, we'll map them to action
 			 * events so they can be configured in scripting. */
 			InputCode *code = NULL;
-			for (code = input->codes; code->sym != -1; code++) {
+			for (code = input.codes; code->sym != -1; code++) {
 				if (code->sym == event.key.keysym.sym) {
 					if (code->code == EVENT_INPUT_QUIT)
 						return false;

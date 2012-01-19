@@ -19,4 +19,6 @@ typedef struct {
 	InputCode *codes;
 } Input;
 
+Input input;
+
 #endif

@@ -160,9 +160,11 @@ Tilemap *Tilemap_open(const char *filename) {
  * \param tilemap Tilemap to be freed.
  */
 void Tilemap_free(Tilemap * tilemap) {
-	free(tilemap->collision);
-	free(tilemap->background);
-	free(tilemap->foreground);
+	if (tilemap) {
+		free(tilemap->collision);
+		free(tilemap->background);
+		free(tilemap->foreground);
+	}
 	free(tilemap);
 }
 
@@ -174,6 +176,7 @@ void Tilemap_free(Tilemap * tilemap) {
 SDL_Rect Tilemap_get_area(const Tilemap * tilemap) {
 	SDL_Rect area = { 0, 0, 0, 0 };
 
+	assert(tilemap);
 	area.w = tilemap->background->w;
 	area.h = tilemap->foreground->h;
 	return area;
@@ -182,6 +185,7 @@ SDL_Rect Tilemap_get_area(const Tilemap * tilemap) {
 SDL_Rect Tilemap_get_size(const Tilemap * tilemap) {
 	SDL_Rect size = { 0, 0, 0, 0 };
 
+	assert(tilemap);
 	size.w = tilemap->w;
 	size.h = tilemap->h;
 	return size;
@@ -191,6 +195,7 @@ SDL_Rect Tilemap_get_size(const Tilemap * tilemap) {
  * Returns non-zero if the given tile has collision data.
  */
 int Tilemap_is_tile_occupied(const Tilemap * tilemap, int x, int y) {
+	assert(tilemap);
 	return x < 0 || y < 0 || x >= tilemap->w || y >= tilemap->h
 		|| tilemap->collision[x + y * tilemap->w];
 }
@@ -199,6 +204,7 @@ int Tilemap_is_tile_occupied(const Tilemap * tilemap, int x, int y) {
  * Returns non-zero if the given pixel has collision data.
  */
 int Tilemap_is_pixel_occupied(const Tilemap * tilemap, int x, int y) {
+	assert(tilemap);
 	return Tilemap_is_tile_occupied(tilemap, x / TILE_SZ, y / TILE_SZ);
 }
 
@@ -207,6 +213,7 @@ int Tilemap_is_pixel_occupied(const Tilemap * tilemap, int x, int y) {
  */
 int Tilemap_is_region_occupied(const Tilemap * tilemap, int x, int y,
 							   int w, int h) {
+	assert(tilemap);
 	return (Tilemap_is_pixel_occupied(tilemap, x, y) ||
 			Tilemap_is_pixel_occupied(tilemap, x + w - 1, y) ||
 			Tilemap_is_pixel_occupied(tilemap, x, y + h - 1) ||
@@ -218,6 +225,7 @@ int Tilemap_is_region_occupied(const Tilemap * tilemap, int x, int y,
  */
 int Tilemap_draw_background(const Tilemap * tilemap, SDL_Surface * screen,
 							SDL_Rect camera) {
+	assert(tilemap);
 	return SDL_BlitSurface(tilemap->background, &camera, screen, NULL);
 }
 
@@ -226,5 +234,6 @@ int Tilemap_draw_background(const Tilemap * tilemap, SDL_Surface * screen,
  */
 int Tilemap_draw_foreground(const Tilemap * tilemap, SDL_Surface * screen,
 							SDL_Rect camera) {
+	assert(tilemap);
 	return SDL_BlitSurface(tilemap->foreground, &camera, screen, NULL);
 }
