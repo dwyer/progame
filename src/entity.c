@@ -6,9 +6,6 @@
 #include "main.h"
 #include "script.h"
 
-#define key_down 1
-#define key_up   2
-
 typedef struct FrameSet FrameSet;
 
 struct FrameSet {

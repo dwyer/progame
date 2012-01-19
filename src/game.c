@@ -88,9 +88,9 @@ bool Game_events(void) {
 }
 
 void Game_quit(void) {
-	Script_quit();
-	Tilemap_close();
 	EntityList_free(world.entities);
+	Tilemap_close();
+	Script_quit();
 }
 
 void Game_add_entity(Entity *entity) {
