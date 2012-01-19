@@ -8,7 +8,6 @@
 #include <lualib.h>
 
 #include "entity.h"
-#include "event.h"
 #include "game.h"
 #include "script.h"
 #include "tilemap.h"
@@ -168,7 +167,7 @@ static int l_entity_new(lua_State *L) {
 	Entity **udata = lua_newuserdata(L, sizeof(*udata));
 
 	*udata = entity;
-	Event_push(EVENT_ENTITY_NEW, entity, NULL);
+	Game_add_entity(entity);
 	luaL_getmetatable(L, TNAME_ENTITY);
 	lua_setmetatable(L, -2);
 	return 1;

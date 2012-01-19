@@ -6,6 +6,7 @@ void Game_quit(void);
 
 int Game_play(SDL_Surface *screen);
 
+void Game_add_entity(Entity *entity);
 void Game_set_tilemap(const char *filename);
 
 bool Game_events(void);

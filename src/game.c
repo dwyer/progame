@@ -9,16 +9,19 @@
 #include "entity.h"
 #include "entities.h"
 #include "script.h"
-#include "game.h"
 #include "config.h"
 #include "script.h"
 #include "input.h"
+#include "game.h"
 
 struct World {
 	Entity *player;
 	EntityList *entities;
 } world;
 
+/**
+ * \return 0 on success, -1 on error.
+ */
 int Game_init(void) {
 	const char *config_file = "res/scripts/config.lua";
 	const char *init_file = "res/scripts/init.lua";
@@ -91,6 +94,9 @@ void Game_quit(void) {
 }
 
 void Game_add_entity(Entity *entity) {
+	if (world.entities->first == NULL)
+		world.player = entity;
+	EntityList_append(world.entities, entity);
 }
 
 void Game_set_tilemap(const char *filename) {
@@ -113,11 +119,7 @@ int Game_event(SDL_UserEvent event) {
 		input.left = (event.data1 != NULL);
 	else if (event.code == EVENT_INPUT_MOVE_RIGHT)
 		input.right = (event.data1 != NULL);
-	else if (event.code == EVENT_ENTITY_NEW) {
-		if (world.entities->first == NULL)
-			world.player = event.data1;
-		EntityList_append(world.entities, event.data1);
-	} else if (event.code == EVENT_CONFIG_BINDKEY) {
+	else if (event.code == EVENT_CONFIG_BINDKEY) {
 		/* Add code/sym pair to the end of list */
 		int i;
 		for (i = 0; input.codes[i].sym != -1; i++);
