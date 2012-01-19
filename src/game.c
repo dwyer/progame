@@ -132,11 +132,10 @@ int Game_event(SDL_UserEvent event) {
 
 /**
  * Update the state of each entity.
- * \param input The player's Input.
  * \return 1
  */
-int Game_update() {
-	SDL_Rect vel;
+int Game_update(void) {
+	SDL_Rect vel = { 0, 0, 0, 0 };
 	EntityNode *node;
 	int speed = 1;
 
