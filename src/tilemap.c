@@ -161,8 +161,8 @@ int Tilemap_open(const char *filename) {
 void Tilemap_close(void) {
 	if (tilemap) {
 		free(tilemap->collision);
-		free(tilemap->background);
-		free(tilemap->foreground);
+		SDL_FreeSurface(tilemap->background);
+		SDL_FreeSurface(tilemap->foreground);
 	}
 	free(tilemap);
 }

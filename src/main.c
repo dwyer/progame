@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
 
 	/* Initialization. */
 	srand(time(NULL));
-	if (SDL_Init(SDL_INIT_EVERYTHING)) {
+	if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO)) {
 		fprintf(stderr, "%s\n", SDL_GetError());
 		return -1;
 	}
