@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
@@ -125,13 +126,15 @@ Script *Script_init(void) {
  * Frees the given Script instance.
  */
 void Script_free(Script *script) {
-	lua_close(script->L);
+	if (script)
+		lua_close(script->L);
 	free(script);
 }
 
 int Script_call(Script *script, int ref) {
 	int ret;
 
+	assert(script);
 	if (!ref)
 		return 0;
 	lua_rawgeti(script->L, LUA_REGISTRYINDEX, ref);
@@ -147,12 +150,14 @@ int Script_call(Script *script, int ref) {
 int Script_run(Script *script, const char *filename) {
 	int ret;
 
+	assert(script);
 	if ((ret = luaL_dofile(script->L, filename)))
 		fprintf(stderr, "%s\n", lua_tostring(script->L, -1));
 	return ret;
 }
 
 void Script_unref(Script *script, int ref) {
+	assert(script);
 	luaL_unref(script->L, LUA_REGISTRYINDEX, ref);
 }
 

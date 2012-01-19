@@ -76,18 +76,15 @@ int Game_play(SDL_Surface * screen) {
 	const char *config_file = "res/scripts/config.lua";
 	const char *init_file = "res/scripts/init.lua";
 	static InputCode input_codes[100] = { {-1, -1} };
-	Script *script;
-	extern World *world;
+	extern Script *script;
 
-	Config_run(config_file);
 	input.codes = input_codes;
+	Config_run(config_file);
+	Game_new();
 	if ((script = Script_init()) == NULL)
-		return -1;
-	if ((world = Game_new()) == NULL)
 		return -1;
 	if (Script_run(script, init_file))
 		return -1;
-	Game_set_script(script);
 	while (Game_events()) {
 		/* Draw. */
 		SDL_FillRect(screen, NULL, 0);
@@ -97,7 +94,7 @@ int Game_play(SDL_Surface * screen) {
 		}
 	};
 	Script_free(script);
-	Game_free(world);
+	Game_free();
 	return 0;
 }
 
@@ -109,7 +106,6 @@ int Game_play(SDL_Surface * screen) {
  */
 bool Game_events(void) {
 	SDL_Event event;
-	extern World *world;
 
 	while (SDL_PollEvent(&event)) {
 		if (event.type == SDL_USEREVENT) {

@@ -5,7 +5,7 @@
 
 typedef struct World World;
 
-World *Game_new(void);
+void Game_new(void);
 void Game_free();
 
 void Game_set_script(Script *script);
