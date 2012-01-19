@@ -27,23 +27,21 @@ int main(int argc, char *argv[]) {
 		fprintf(stderr, "%s\n", SDL_GetError());
 		return -1;
 	}
-	if ((timer_id =
-		 SDL_AddTimer(UPDATE_INTERVAL, push_update_event, NULL)) == NULL) {
+	if (!(timer_id = SDL_AddTimer(UPDATE_INTERVAL, push_update_event, NULL))) {
 		fprintf(stderr, "%s\n", SDL_GetError());
 		return -1;
 	}
-	if ((screen =
-		 SDL_SetVideoMode(SCREEN_W, SCREEN_H, SCREEN_BPP,
-						  SCREEN_FLAGS)) == NULL) {
+	if (!(screen = SDL_SetVideoMode(SCREEN_W, SCREEN_H, SCREEN_BPP, SCREEN_FLAGS))) {
 		fprintf(stderr, "%s\n", SDL_GetError());
 		return -1;
 	}
 	SDL_WM_SetCaption("/prog/ame", NULL);
-
+	if (Game_init())
+		return -1;
 	/* Play the fucking game. */
 	result = Game_play(screen);
-
 	/* Deinitialization */
+	Game_quit();
 	SDL_FreeSurface(screen);
 	SDL_RemoveTimer(timer_id);
 	SDL_Quit();

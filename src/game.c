@@ -19,12 +19,7 @@ struct World {
 	EntityList *entities;
 } world;
 
-/**
- * Play the game.
- * \param screen The screen.
- * \return 0 on success, -1 on error.
- */
-int Game_play(SDL_Surface *screen) {
+int Game_init(void) {
 	const char *config_file = "res/scripts/config.lua";
 	const char *init_file = "res/scripts/init.lua";
 	static InputCode input_codes[100] = { {-1, -1} };
@@ -36,6 +31,15 @@ int Game_play(SDL_Surface *screen) {
 	Script_init();
 	if (Script_run(init_file))
 		return -1;
+	return 0;
+}
+
+/**
+ * Play the game.
+ * \param screen The screen.
+ * \return 0 on success, -1 on error.
+ */
+int Game_play(SDL_Surface *screen) {
 	while (Game_events()) {
 		/* Draw. */
 		SDL_FillRect(screen, NULL, 0);
@@ -44,7 +48,6 @@ int Game_play(SDL_Surface *screen) {
 			return -1;
 		}
 	};
-	Game_quit();
 	return 0;
 }
 
@@ -85,6 +88,9 @@ void Game_quit(void) {
 	Script_quit();
 	Tilemap_close();
 	EntityList_free(world.entities);
+}
+
+void Game_add_entity(Entity *entity) {
 }
 
 void Game_set_tilemap(const char *filename) {

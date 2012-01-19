@@ -30,7 +30,8 @@ function create_stalker()
         x, y = entity:get_pos()
         dx, dy = 0, 0
         px, py = player:get_pos()
-        if distance(x, y, px, py) > 32 then
+        dist = distance(x, y, px, py) 
+        if dist > 32 then
             if x < px then
                 dx = 1
             end
@@ -42,6 +43,20 @@ function create_stalker()
             end
             if y > py then
                 dy = -1
+            end
+        end
+        if dist < 24 then
+            if x < px then
+                dx = -1
+            end
+            if x > px then
+                dx = 1
+            end
+            if y < py then
+                dy = -1
+            end
+            if y > py then
+                dy = 1
             end
         end
         entity:set_vel(dx, dy)

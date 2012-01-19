@@ -1,8 +1,10 @@
 #ifndef WORLD_H
 #define WORLD_H
 
-int Game_play(SDL_Surface *screen);
+int Game_init(void);
 void Game_quit(void);
+
+int Game_play(SDL_Surface *screen);
 
 void Game_set_tilemap(const char *filename);
 
