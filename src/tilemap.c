@@ -55,7 +55,7 @@ int Tilemap_open(const char *filename) {
 	SDL_Rect dst = src;
 	Uint32 color_key = 0;
 	lua_State *L = NULL;
-	int i, j, n;
+	unsigned int i, j, n;
 
 	L = luaL_newstate();
 	if (luaL_dofile(L, filename)) {

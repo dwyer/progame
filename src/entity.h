@@ -17,7 +17,7 @@ enum {
 
 typedef struct Entity Entity;
 
-Entity *Entity_new();
+Entity *Entity_new(void);
 void Entity_free(Entity *entity);
 
 void Entity_set_sprite(Entity *entity, const char *filename);

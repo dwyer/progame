@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <stdbool.h>
 
 #include <SDL/SDL.h>
 
@@ -11,7 +12,6 @@
 #include "script.h"
 #include "config.h"
 #include "script.h"
-#include "input.h"
 #include "game.h"
 
 struct World {
@@ -136,7 +136,7 @@ int Game_event(SDL_UserEvent event) {
  * \return 1
  */
 int Game_update() {
-	SDL_Rect vel = { 0, 0 };
+	SDL_Rect vel;
 	EntityNode *node;
 	int speed = 1;
 

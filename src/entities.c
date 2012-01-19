@@ -8,7 +8,7 @@
 /**
  * Create an empty list.
  */
-EntityList *EntityList_new() {
+EntityList *EntityList_new(void) {
 	EntityList *list;
 
 	list = malloc(sizeof(*list));

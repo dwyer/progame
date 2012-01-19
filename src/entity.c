@@ -4,6 +4,10 @@
 
 #include "entity.h"
 #include "main.h"
+#include "script.h"
+
+#define key_down 1
+#define key_up   2
 
 typedef struct FrameSet FrameSet;
 
@@ -32,7 +36,7 @@ struct Entity {
  * Create an entity.
  * \return A new Entity.
  */
-Entity *Entity_new() {
+Entity *Entity_new(void) {
 	Entity *entity = NULL;
 
 	entity = malloc(sizeof(*entity));
@@ -53,8 +57,10 @@ Entity *Entity_new() {
 void Entity_free(Entity * entity) {
 	int i, j;
 
-	if (entity->update_callback_ref)
-		/* TODO: need to free this from the lua stack */;
+	if (entity->update_callback_ref) {
+		Script_unref(entity->update_callback_ref);
+		entity->update_callback_ref = 0;
+	}
 	SDL_FreeSurface(entity->sprite);
 	for (i = 0; i < NUM_ACTIONS; i++)
 		for (j = 0; j < NUM_DIRECTIONS; j++)

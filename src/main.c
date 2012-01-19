@@ -5,9 +5,9 @@
 #include <SDL/SDL.h>
 
 #include "main.h"
+#include "event.h"
 #include "entity.h"
 #include "game.h"
-#include "event.h"
 
 /* Number of milliseconds between logic updates. */
 #define UPDATE_INTERVAL 10
