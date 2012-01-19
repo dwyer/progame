@@ -89,11 +89,12 @@ static const luaL_Reg libs[] = {
 /**
  * Initializes the scripting environment.
  */
-void Script_init(void) {
+int Script_init(void) {
 	Global *glob;
 	const luaL_Reg *lib;
 
-	L = luaL_newstate();
+	if (!(L = luaL_newstate()))
+		return -1;
 	luaL_openlibs(L);
 	/* register global vars and funcs */
 	for (glob = globals; glob->name != NULL; glob++) {
@@ -106,6 +107,7 @@ void Script_init(void) {
 		lua_pushstring(L, lib->name);
 		lua_call(L, 1, 0);
 	}
+	return 0;
 }
 
 /**

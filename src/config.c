@@ -268,17 +268,17 @@ int Config_run(const char *filename) {
 		NULL
 	};
 
-	L = luaL_newstate();
+	if (!(L = luaL_newstate()))
+		return -1;
 	luaL_openlibs(L);
 	/* register global intergers */
 	for (reg = key_regs; reg->name != NULL; reg++) {
 		lua_pushnumber(L, reg->n);
 		lua_setglobal(L, reg->name);
 	}
-
-	if (luaL_dofile(L, filename))
+	if (luaL_dofile(L, filename)) {
 		fprintf(stderr, "No config file: %s\n", filename);
-	else {
+	} else {
 		lua_getglobal(L, "input");
 		if (lua_isnil(L, -1) || !lua_istable(L, -1))
 			printf("No table 'input'\n");

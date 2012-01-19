@@ -10,9 +10,10 @@
 #include "entity.h"
 #include "entities.h"
 #include "script.h"
-#include "config.h"
-#include "script.h"
 #include "game.h"
+
+Input input = { 0, 0, 0, 0 };
+InputCode input_codes[INPUT_CODE_NUM] = { {-1, -1} };
 
 struct World {
 	Entity *player;
@@ -23,18 +24,14 @@ struct World {
  * \return 0 on success, -1 on error.
  */
 int Game_init(void) {
-	const char *config_file = "res/scripts/config.lua";
-	const char *init_file = "res/scripts/init.lua";
-	static InputCode input_codes[100] = { {-1, -1} };
-
 	world.player = NULL;
 	world.entities = EntityList_new();
-	input.codes = input_codes;
-	Config_run(config_file);
-	Script_init();
-	if (Script_run(init_file))
-		return -1;
 	return 0;
+}
+
+void Game_quit(void) {
+	EntityList_free(world.entities);
+	Tilemap_close();
 }
 
 /**
@@ -70,7 +67,7 @@ bool Game_events(void) {
 			/* Instead of hardcoding keyboard events, we'll map them to action
 			 * events so they can be configured in scripting. */
 			InputCode *code = NULL;
-			for (code = input.codes; code->sym != -1; code++) {
+			for (code = input_codes; code->sym != -1; code++) {
 				if (code->sym == event.key.keysym.sym) {
 					if (code->code == EVENT_INPUT_QUIT)
 						return false;
@@ -85,23 +82,6 @@ bool Game_events(void) {
 		}
 	}
 	return true;
-}
-
-void Game_quit(void) {
-	EntityList_free(world.entities);
-	Tilemap_close();
-	Script_quit();
-}
-
-void Game_add_entity(Entity *entity) {
-	if (world.entities->first == NULL)
-		world.player = entity;
-	EntityList_append(world.entities, entity);
-}
-
-void Game_set_tilemap(const char *filename) {
-	Tilemap_close();
-	Tilemap_open(filename);
 }
 
 /**
@@ -122,12 +102,24 @@ int Game_event(SDL_UserEvent event) {
 	else if (event.code == EVENT_CONFIG_BINDKEY) {
 		/* Add code/sym pair to the end of list */
 		int i;
-		for (i = 0; input.codes[i].sym != -1; i++);
-		input.codes[i++] = *(InputCode *) event.data1;
-		input.codes[i].code = -1;
-		input.codes[i].sym = -1;
+		for (i = 0; input_codes[i].sym != -1; i++);
+		input_codes[i++] = *(InputCode *) event.data1;
+		input_codes[i].code = -1;
+		input_codes[i].sym = -1;
 	}
 	return 0;
+}
+
+void Game_add_entity(Entity *entity) {
+	assert(entity);
+	if (world.entities->first == NULL)
+		world.player = entity;
+	EntityList_append(world.entities, entity);
+}
+
+void Game_set_tilemap(const char *filename) {
+	Tilemap_close();
+	Tilemap_open(filename);
 }
 
 /**

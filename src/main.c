@@ -4,6 +4,8 @@
 
 #include <SDL/SDL.h>
 
+#include "config.h"
+#include "script.h"
 #include "main.h"
 #include "event.h"
 #include "entity.h"
@@ -21,6 +23,8 @@ int main(int argc, char *argv[]) {
 	int result = 0;
 	SDL_Surface *screen = NULL;
 	SDL_TimerID timer_id;
+	const char *script_file = "res/scripts/init.lua";
+	const char *config_file = "res/scripts/config.lua";
 
 	/* Initialization. */
 	srand(time(NULL));
@@ -32,17 +36,25 @@ int main(int argc, char *argv[]) {
 		fprintf(stderr, "%s\n", SDL_GetError());
 		return -1;
 	}
-	if (!(screen = SDL_SetVideoMode(SCREEN_W, SCREEN_H, SCREEN_BPP, SCREEN_FLAGS))) {
+	if (!(screen = SDL_SetVideoMode(SCREEN_W, SCREEN_H, SCREEN_BPP,
+									SCREEN_FLAGS))) {
 		fprintf(stderr, "%s\n", SDL_GetError());
 		return -1;
 	}
 	SDL_WM_SetCaption("/prog/ame", NULL);
 	if (Game_init())
 		return -1;
+	if (Script_init())
+		return -1;
+	if (Script_run(script_file))
+		return -1;
+	if (Config_run(config_file))
+		return -1;
 	/* Play the fucking game. */
 	result = Game_play(screen);
 	/* Deinitialization */
 	Game_quit();
+	Script_quit();
 	SDL_FreeSurface(screen);
 	SDL_RemoveTimer(timer_id);
 	SDL_Quit();

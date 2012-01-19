@@ -1,7 +1,7 @@
 #ifndef SCRIPT_H
 #define SCRIPT_H
 
-void Script_init(void);
+int Script_init(void);
 void Script_quit(void);
 
 int Script_call(int ref);
