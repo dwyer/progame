@@ -30,6 +30,7 @@ void Entity_set_update_callback_ref(Entity *entity, int ref);
 
 SDL_Rect Entity_get_pos(const Entity *entity);
 SDL_Rect Entity_get_vel(const Entity *entity);
+int Entity_occupies_region(const Entity *entity, int x, int y, int w, int h);
 int Entity_get_update_callback_ref(const Entity *entity);
 
 int Entity_draw(Entity *entity, SDL_Surface *screen, SDL_Rect camera);

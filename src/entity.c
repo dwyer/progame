@@ -162,6 +162,12 @@ SDL_Rect Entity_get_vel(const Entity *entity) {
 	return entity->vel;
 }
 
+int Entity_occupies_region(const Entity *entity, int x, int y, int w, int h) {
+	return (entity->pos.x < x + w && entity->pos.x + entity->pos.w >= x &&
+			entity->pos.y < y + h && entity->pos.y + entity->pos.h >= y);
+			
+}
+
 int Entity_get_update_callback_ref(const Entity *entity) {
 	assert(entity);
 	return entity->update_callback_ref;

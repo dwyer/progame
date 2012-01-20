@@ -122,6 +122,28 @@ void Game_set_tilemap(const char *filename) {
 	Tilemap_open(filename);
 }
 
+SDL_Rect Game_collision_check(Entity *entity) {
+	SDL_Rect ret = { 0, 0, 0, 0 };
+	SDL_Rect pos;
+	SDL_Rect vel;
+	EntityNode *node;
+
+	assert(entity);
+	pos = Entity_get_pos(entity);
+	vel = Entity_get_vel(entity);
+	ret.x = Tilemap_is_region_occupied(pos.x + vel.x, pos.y, pos.w, pos.h);
+	ret.y = Tilemap_is_region_occupied(pos.x, pos.y + vel.y, pos.w, pos.h);
+	for (node = world.entities->first; node != NULL; node = node->next) {
+		if (node->entity == entity || (ret.x && ret.y))
+			break;
+		ret.x = ret.x || Entity_occupies_region(node->entity,
+									   pos.x + vel.x, pos.y, pos.w, pos.h);
+		ret.y = ret.y || Entity_occupies_region(node->entity,
+									   pos.x, pos.y + vel.y, pos.w, pos.h);
+	}
+	return ret;
+}
+
 /**
  * Update the state of each entity.
  * \return 1
@@ -144,14 +166,15 @@ int Game_update(void) {
 		Entity_set_vel(world.player, vel.x, vel.y);
 	/* Update each entity. */
 	for (node = world.entities->first; node != NULL; node = node->next) {
-		SDL_Rect pos, vel;
+		SDL_Rect pos, vel, col;
 
 		Script_call(Entity_get_update_callback_ref(node->entity));
 		pos = Entity_get_pos(node->entity);
 		vel = Entity_get_vel(node->entity);
-		if (Tilemap_is_region_occupied(pos.x + vel.x, pos.y, pos.w, pos.h))
+		col = Game_collision_check(node->entity);
+		if (col.x)
 			vel.x = 0;
-		if (Tilemap_is_region_occupied(pos.x, pos.y + vel.y, pos.w, pos.h))
+		if (col.y)
 			vel.y = 0;
 		Entity_set_pos(node->entity, pos.x + vel.x, pos.y + vel.y);
 	}
