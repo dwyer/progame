@@ -134,7 +134,9 @@ SDL_Rect Game_collision_check(Entity *entity) {
 	ret.x = Tilemap_is_region_occupied(pos.x + vel.x, pos.y, pos.w, pos.h);
 	ret.y = Tilemap_is_region_occupied(pos.x, pos.y + vel.y, pos.w, pos.h);
 	for (node = world.entities->first; node != NULL; node = node->next) {
-		if (node->entity == entity || (ret.x && ret.y))
+		if (node->entity == entity)
+			continue;
+		else if (ret.x && ret.y)
 			break;
 		ret.x = ret.x || Entity_occupies_region(node->entity,
 									   pos.x + vel.x, pos.y, pos.w, pos.h);
